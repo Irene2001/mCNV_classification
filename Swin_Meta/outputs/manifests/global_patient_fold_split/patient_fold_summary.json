@@ -1,0 +1,99 @@
+{
+  "fold_setup": {
+    "num_folds": 5,
+    "random_seed": 42
+  },
+  "patient_statistics": {
+    "train_valid_patients": 93,
+    "mixed_label_patients": 67,
+    "patient_stratify_label_distribution": {
+      "0": 83,
+      "1": 10
+    }
+  },
+  "global_usable_exam_counts": {
+    "train_valid": {
+      "exam_units": 1469,
+      "OCT0": 1469,
+      "OCT1": 1381,
+      "OCTA3": 888,
+      "oct_pair": 1381,
+      "complete_three_path": 873
+    },
+    "test": {
+      "exam_units": 256,
+      "OCT0": 256,
+      "OCT1": 256,
+      "OCTA3": 119,
+      "oct_pair": 256,
+      "complete_three_path": 119
+    }
+  },
+  "fold_statistics": {
+    "1": {
+      "patients": 19,
+      "exam_units": 352,
+      "OCT0": 352,
+      "OCT1": 340,
+      "OCTA3": 219,
+      "oct_pair": 340,
+      "complete_three_path": 217,
+      "exam_label_distribution": {
+        "0": 317,
+        "1": 35
+      }
+    },
+    "2": {
+      "patients": 19,
+      "exam_units": 272,
+      "OCT0": 272,
+      "OCT1": 255,
+      "OCTA3": 189,
+      "oct_pair": 255,
+      "complete_three_path": 182,
+      "exam_label_distribution": {
+        "0": 241,
+        "1": 31
+      }
+    },
+    "3": {
+      "patients": 19,
+      "exam_units": 274,
+      "OCT0": 274,
+      "OCT1": 251,
+      "OCTA3": 173,
+      "oct_pair": 251,
+      "complete_three_path": 171,
+      "exam_label_distribution": {
+        "0": 225,
+        "1": 49
+      }
+    },
+    "4": {
+      "patients": 18,
+      "exam_units": 282,
+      "OCT0": 282,
+      "OCT1": 246,
+      "OCTA3": 170,
+      "oct_pair": 246,
+      "complete_three_path": 166,
+      "exam_label_distribution": {
+        "0": 251,
+        "1": 31
+      }
+    },
+    "5": {
+      "patients": 18,
+      "exam_units": 289,
+      "OCT0": 289,
+      "OCT1": 289,
+      "OCTA3": 137,
+      "oct_pair": 289,
+      "complete_three_path": 137,
+      "exam_label_distribution": {
+        "0": 273,
+        "1": 16
+      }
+    }
+  }
+}
