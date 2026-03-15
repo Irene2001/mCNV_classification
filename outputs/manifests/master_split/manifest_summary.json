@@ -1,0 +1,60 @@
+{
+  "image_counts": {
+    "total_images": 4561,
+    "train_valid_images": 3930,
+    "test_images": 631,
+    "parse_ok_images": 4537,
+    "parse_fail_images": 24
+  },
+  "base_model_usable_image_counts": {
+    "total": {
+      "OCT0": 1725,
+      "OCT1": 1637,
+      "OCTA3": 1007
+    },
+    "train_valid": {
+      "OCT0": 1469,
+      "OCT1": 1381,
+      "OCTA3": 888
+    },
+    "test": {
+      "OCT0": 256,
+      "OCT1": 256,
+      "OCTA3": 119
+    }
+  },
+  "pairing_statistics": {
+    "total": {
+      "oct0_only": 88,
+      "oct1_only": 0,
+      "oct_pair": 1637,
+      "complete_three_path": 992
+    },
+    "train_valid": {
+      "oct0_only": 88,
+      "oct1_only": 0,
+      "oct_pair": 1381,
+      "complete_three_path": 873
+    },
+    "test": {
+      "oct0_only": 0,
+      "oct1_only": 0,
+      "oct_pair": 256,
+      "complete_three_path": 119
+    }
+  },
+  "exam_manifest_statistics": {
+    "total_exam_units": 1725,
+    "train_valid_exam_units": 1469,
+    "test_exam_units": 256,
+    "train_valid_patients": 93,
+    "test_patients": 11
+  },
+  "excluded_exam_statistics": {
+    "excluded_exam_units_total": 75,
+    "excluded_by_reason": {
+      "duplicate_oct_pair_candidates": 23,
+      "missing_oct_pair": 52
+    }
+  }
+}

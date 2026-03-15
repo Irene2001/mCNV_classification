@@ -1,0 +1,44 @@
+{
+  "model_name": "swin_tiny",
+  "modality": "OCT1",
+  "run_tag": "BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+  "calibration_method": "temperature_scaling",
+  "feature_source": "logit_uncal",
+  "folds": [
+    {
+      "fold": 1,
+      "temperature": 0.6716845782834643,
+      "nll_before": 0.2800246477127075,
+      "nll_after": 0.2569126486778259,
+      "samples": 340
+    },
+    {
+      "fold": 2,
+      "temperature": 0.8161507588684893,
+      "nll_before": 0.2909117043018341,
+      "nll_after": 0.284623384475708,
+      "samples": 255
+    },
+    {
+      "fold": 3,
+      "temperature": 1.4109490470770025,
+      "nll_before": 0.3947037160396576,
+      "nll_after": 0.37317273020744324,
+      "samples": 251
+    },
+    {
+      "fold": 4,
+      "temperature": 1.166817105147955,
+      "nll_before": 0.2816040813922882,
+      "nll_after": 0.27795442938804626,
+      "samples": 246
+    },
+    {
+      "fold": 5,
+      "temperature": 0.7750102845804382,
+      "nll_before": 0.3604651093482971,
+      "nll_after": 0.3519386649131775,
+      "samples": 289
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "model_name": "swin_tiny",
+  "backbone_name": "swin_tiny_patch4_window7_224",
+  "modality": "OCT0",
+  "master_manifest_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv",
+  "batch_size": 16,
+  "num_epochs": 100,
+  "lr": 5e-06,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "weighted_sampler": true,
+  "temperature_scaling": true,
+  "unfreeze_mode": "FULL_FINETUNE",
+  "backbone_lr_mult": 0.1,
+  "llrd_decay": 0.85,
+  "focal_alpha": [
+    0.11,
+    0.89
+  ],
+  "focal_gamma": 2.0,
+  "train_valid_exam_units": 1469,
+  "test_exam_units": 256,
+  "train_valid_patients": 93,
+  "test_patients": 11,
+  "usable_folds": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "run_tag": "BS16_EP100_LR5e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9",
+  "execute_single_fold": false,
+  "single_fold_index": null
+}
