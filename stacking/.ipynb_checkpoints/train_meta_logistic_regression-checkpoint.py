@@ -323,7 +323,7 @@ def plot_validation_curve(results: dict, out_dir: str) -> str:
     ax.set_ylabel("CV AUC (roc_auc)", fontsize=12)
     ax.set_title("Validation Curve — C Selection\n"
                  "(internal 5-fold CV, C selection only — not performance evaluation)",
-                 fontsize=11)
+                 fontsize=12, fontweight='bold')
     ax.set_xticks(log_cs)
     ax.set_xticklabels([str(c) for c in cs])
     ax.legend(fontsize=10)
@@ -364,7 +364,7 @@ def plot_modality_importance(results: dict, out_dir: str) -> str:
     ax.set_ylabel("|w|  (post-scaling)", fontsize=12)
     ax.set_title("Modality Importance (Stacking LR Weights)\n"
                  "Post-scaling |w| directly comparable across modalities",
-                 fontsize=11)
+                 fontsize=12, fontweight='bold')
     ax.set_ylim([0, max(abs_vals) * 1.25])
     ax.grid(axis="y", alpha=0.3)
 
