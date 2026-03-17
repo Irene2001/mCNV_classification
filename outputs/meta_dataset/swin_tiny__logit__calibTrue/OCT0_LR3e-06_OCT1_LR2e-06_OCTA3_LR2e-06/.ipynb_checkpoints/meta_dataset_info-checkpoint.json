@@ -1,0 +1,41 @@
+{
+  "model_name": "swin_tiny",
+  "feature_type": "logit",
+  "use_calib": true,
+  "oof_source": "calibrated",
+  "feature_col": "logit_calib",
+  "pairing_strategy": "inner",
+  "meta_tag": "swin_tiny__logit__calibTrue",
+  "lr_folder": "OCT0_LR3e-06_OCT1_LR2e-06_OCTA3_LR2e-06",
+  "run_tags": {
+    "OCT0": "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9",
+    "OCT1": "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+    "OCTA3": "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6"
+  },
+  "lr_per_modality": {
+    "OCT0": "3e-06",
+    "OCT1": "2e-06",
+    "OCTA3": "2e-06"
+  },
+  "samples": {
+    "oct0_oof": 1469,
+    "oct1_oof": 1381,
+    "octa3_oof": 888,
+    "paired": 873,
+    "unpaired": 596,
+    "meta_train": 873,
+    "active": 113,
+    "inactive": 760,
+    "imbalance_ratio": 6.7257
+  },
+  "oof_paths": {
+    "OCT0": "/data/Irene/SwinTransformer/Swin_Meta/outputs/oof_predictions/swin_tiny/OCT0/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/all_folds_oof_calibrated.csv",
+    "OCT1": "/data/Irene/SwinTransformer/Swin_Meta/outputs/oof_predictions/swin_tiny/OCT1/BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/all_folds_oof_calibrated.csv",
+    "OCTA3": "/data/Irene/SwinTransformer/Swin_Meta/outputs/oof_predictions/swin_tiny/OCTA3/BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof_calibrated.csv"
+  },
+  "output_files": {
+    "meta_train_oof": "/data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR3e-06_OCT1_LR2e-06_OCTA3_LR2e-06/meta_train_oof.csv",
+    "pairing_log": "/data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR3e-06_OCT1_LR2e-06_OCTA3_LR2e-06/pairing_log.csv",
+    "meta_dataset_info": "/data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR3e-06_OCT1_LR2e-06_OCTA3_LR2e-06/meta_dataset_info.json"
+  }
+}
