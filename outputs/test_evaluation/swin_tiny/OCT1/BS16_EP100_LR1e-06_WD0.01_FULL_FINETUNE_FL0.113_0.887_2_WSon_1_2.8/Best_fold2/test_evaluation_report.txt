@@ -1,0 +1,117 @@
+========================================================================
+BASE MODEL — INDEPENDENT TEST SET EVALUATION REPORT
+========================================================================
+
+[RUN CONFIG]
+  INPUT_DIR                           : /data/Irene/SwinTransformer/Swin_Meta/outputs/training/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
+  model_name                          : swin_tiny
+  timm_backbone                       : swin_tiny_patch4_window7_224
+  num_classes                         : 1
+  modality                            : OCT1
+  run_tag                             : BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
+  best_fold                           : 2
+  temperature_T*                      : 0.783439
+  nll_before_ts                       : 0.30050840973854065
+  nll_after_ts                        : 0.2920238673686981
+  best_val_bce                        : 0.30050835401988496
+  best_val_auc                        : 0.8366935483870968
+  best_epoch                          : 91
+  checkpoint                          : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2/model_best.pth
+  manifest_csv                        : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+  split_set_filter                    : test
+  threshold                           : 0.5
+  ece_n_bins                          : 10
+  batch_size                          : 16
+  img_size                            : 224
+  device                              : cuda
+  out_dir                             : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
+
+[TEST SET COMPOSITION]
+  Total    : 256
+  Active   : 38  (14.8%)
+  Inactive : 218  (85.2%)
+  Imbalance: 5.74:1
+
+[TEMPERATURE SCALING]
+  T* (val set)  : 0.783439
+  ECE uncal     : 0.0717
+  ECE calib     : 0.0446
+  ECE Δ         : 0.0272  (↓ improved)
+  Brier uncal   : 0.0950
+  Brier calib   : 0.0925
+
+[1. DISCRIMINATIVE PERFORMANCE]
+  Metric                        Uncalib    Calibrated
+  -------------------------  ----------  ------------
+  AUROC                          0.8460        0.8460
+  AUPRC                          0.5881        0.5881
+
+[2. THRESHOLD-BASED METRICS  (thr=0.50)]
+  Metric                        Uncalib    Calibrated
+  -------------------------  ----------  ------------
+  Balanced Accuracy              0.6682        0.6682
+  Sensitivity                    0.3684        0.3684
+  Specificity                    0.9679        0.9679
+  PPV                            0.6667        0.6667
+  F1 (active)                    0.4746        0.4746
+  F1 (macro)                     0.7031        0.7031
+  Accuracy                       0.8789        0.8789
+
+[3. CLINICAL SAFETY METRICS  (calibrated)]
+  PPV (active)    : 0.6667
+  NPV (inactive)  : 0.8979  ← rule-out safety
+  Balanced Acc    : 0.6682
+
+  Confusion Matrix (calibrated):
+                        Pred active   Pred inactive
+    True active                14              24
+    True inactive               7             211
+
+[4. CALIBRATION QUALITY]
+  ECE  : 0.0717 → 0.0446
+  Brier: 0.0950 → 0.0925
+
+────────────────────────────────────────────────────────────────────────
+SUMMARY TABLE  (calibrated, post-TS)
+────────────────────────────────────────────────────────────────────────
+  Metric                       Value
+  ----------------------  ----------
+  AUROC                       0.8460
+  AUPRC                       0.5881
+  Balanced Accuracy           0.6682
+  Sensitivity                 0.3684
+  Specificity                 0.9679
+  PPV                         0.6667
+  NPV                         0.8979
+  F1 (active)                 0.4746
+  F1 (macro)                  0.7031
+  Accuracy                    0.8789
+  ECE                         0.0446
+  Brier                       0.0925
+────────────────────────────────────────────────────────────────────────
+
+[REFERENCES]
+  AUROC/AUPRC : Saito & Rehmsmeier, PLOS ONE 2015
+    https://doi.org/10.1371/journal.pone.0118432
+  ECE / TS    : Guo et al., ICML 2017
+    https://proceedings.mlr.press/v70/guo17a.html
+  NPV Clinical: STARD-AI, Nature Medicine 2020
+    https://doi.org/10.1038/s41591-020-0941-1
+
+[OUTPUT FILES]
+  confusion_matrix.png
+  roc_curve.png
+  pr_curve.png
+  reliability_diagram.png
+  test_metrics.csv      (tall-format: one row per metric, 3 cols)
+  test_summary.json     (structured summary — run info + all metrics)
+  roc_data.csv
+  pr_data.csv
+  calibration_data.csv
+  test_preds.csv        (KEY: input for evaluate_meta_on_test.py)
+  test_evaluation_report.txt
+  test_evaluation.log
+
+[PIPELINE ROLE]
+  test_preds.csv → direct input for evaluate_meta_on_test.py
+  (Stacking LR reads prob_calib from OCT0 / OCT1 / OCTA3)

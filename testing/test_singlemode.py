@@ -1,6 +1,8 @@
 # test_singlemode.py
+
 """
 Base Model Independent Test Set Evaluation  ─  Single-Modality
+mCNV binary classification  (active / inactive)
 """
 
 # ── Standard library ──────────────────────────────────────────────────────────
@@ -20,6 +22,7 @@ from matplotlib.colors import LinearSegmentedColormap
 
 import numpy as np
 import pandas as pd
+from scipy.special import expit as _stable_sigmoid
 import seaborn as sns
 
 import timm
@@ -54,10 +57,14 @@ warnings.filterwarnings("ignore", category=UserWarning)
 #        <PROJECT_ROOT>/outputs/training/<model_name>/<modality>/<run_tag>/Best_fold{N}
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/"
-    "swin_tiny/OCT0/"
-    "BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/"
-    "Best_fold5"
+    "swin_tiny/OCTA3/"
+    "BS16_EP100_LR5e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
+    "Best_fold2"
 )
+# OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/
+# OCT1: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/
+# OCTA3: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/
+
 
 # ★ 2. master_manifest.csv — same file used by train_singlemode_oof.py.
 #      Leave "" to auto-detect from PROJECT_ROOT (recommended).
@@ -125,7 +132,13 @@ def log(logf, msg: str) -> None:
 
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
-    return 1.0 / (1.0 + np.exp(-x))
+    """
+    Numerically stable sigmoid via scipy.special.expit.
+    Equivalent to 1/(1+exp(-x)) but avoids RuntimeWarning: overflow
+    encountered in exp for extreme logit values (|z| >> 10).
+    Ref: scipy docs — expit(x) = 1/(1+exp(-x)), implemented in C.
+    """
+    return _stable_sigmoid(x).astype(np.float32)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -442,6 +455,10 @@ def load_test_dataframe(
             f"with {has_col}==1."
         )
 
+    # Hard guarantee: no train_valid row may enter metric computation.
+    assert (df["split_set"] == "train_valid").sum() == 0, \
+        "DATA LEAKAGE: train_valid rows found in test DataFrame — abort."
+
     return df
 
 
@@ -500,7 +517,8 @@ def load_checkpoint(
 # ─────────────────────────────────────────────────────────────────────────────
 
 class SingleModalityDataset(Dataset):
-    """Test-set dataset. Returns (img_tensor, label, exam_key)."""
+    """Test-set dataset. Returns (img_tensor, label, exam_key).
+    Any unreadable image raises RuntimeError immediately — no silent fallback."""
 
     def __init__(
         self, df: pd.DataFrame, img_col: str, transform,
@@ -519,9 +537,11 @@ class SingleModalityDataset(Dataset):
         img_path = str(row[self.img_col])
         try:
             img = Image.open(img_path).convert("RGB")
-        except Exception:
-            # Return black image rather than crashing; logged via logit range check
-            img = Image.new("RGB", (IMG_SIZE, IMG_SIZE), (0, 0, 0))
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to read test image: {img_path} "
+                f"({type(e).__name__}: {e})"
+            )
         if self.transform:
             img = self.transform(img)
         return img, label, exam_key
@@ -643,7 +663,7 @@ def _cls_metrics(
     Complete metric block: AUROC, AUPRC, Balanced Accuracy, Sensitivity,
     Specificity, PPV, NPV, F1-active, F1-macro, Accuracy, Brier, TP/FP/FN/TN.
     """
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
     sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
     spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
     ppv  = tp / (tp + fp) if (tp + fp) > 0 else 0.0
@@ -674,6 +694,13 @@ def compute_all_metrics(
     threshold: float = 0.5,
     ece_n_bins: int  = 10,
 ) -> Tuple[dict, List[dict], List[dict]]:
+    # Guard: AUROC / ROC are undefined for single-class test sets.
+    if len(np.unique(y_true)) < 2:
+        raise RuntimeError(
+            "Test set contains only one class. "
+            "AUROC, ROC, and several binary metrics are undefined. "
+            "Verify the independent test split."
+        )
     prob_uncal           = sigmoid(logits_uncal)
     logits_cal, prob_cal = apply_temperature_scaling(logits_uncal, temperature)
 
@@ -723,8 +750,22 @@ def plot_confusion_matrix(
     y_true: np.ndarray, y_pred: np.ndarray,
     out_path: str, title: str,
 ) -> None:
+    """
+    Confusion matrix heatmap.
+
+    Plotting tool: Matplotlib + Seaborn (Python).
+    This combination is standard in medical imaging AI publications
+    (IEEE TMI, Nature Medicine, MICCAI) and produces vector-quality
+    figures suitable for journal submission.
+
+    Layout note:
+      Sens / Spec / NPV are NOT annotated on the figure because they
+      are fully recorded in test_metrics.csv and test_summary.json.
+      Keeping the figure clean avoids overlap with the colorbar and
+      follows journal figure guidelines (one message per panel).
+    """
     _set_style()
-    cm = confusion_matrix(y_true, y_pred)
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
     fig, ax = plt.subplots(figsize=(5, 4.5))
     cmap = LinearSegmentedColormap.from_list("cm_cmap", ["#f0f4ff", "#2563EB"])
     sns.heatmap(cm, annot=True, fmt="d", cmap=cmap,
@@ -733,15 +774,6 @@ def plot_confusion_matrix(
     ax.set_xlabel("Predicted label", fontweight="bold")
     ax.set_ylabel("True label",      fontweight="bold")
     ax.set_title(title,              fontweight="bold")
-    tn, fp, fn, tp = cm.ravel()
-    sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-    npv  = tn / (tn + fn) if (tn + fn) > 0 else 0.0
-    ax.text(1.05, 0.5,
-            f"Sens = {sens:.3f}\nSpec = {spec:.3f}\nNPV  = {npv:.3f}",
-            transform=ax.transAxes, va="center", ha="left", fontsize=9.5,
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="#f8fafc",
-                      edgecolor="#cbd5e1"))
     plt.tight_layout()
     plt.savefig(out_path, bbox_inches="tight")
     plt.close()
@@ -1168,7 +1200,9 @@ def write_report(metrics: dict, run_cfg: dict, out_path: str) -> None:
         f.write(f"  Total    : {n}\n")
         f.write(f"  Active   : {na}  ({na/n*100:.1f}%)\n")
         f.write(f"  Inactive : {ni}  ({ni/n*100:.1f}%)\n")
-        f.write(f"  Imbalance: {metrics['imbalance_ratio']:.2f}:1\n")
+        _imb = metrics["imbalance_ratio"]
+        _imb_text = f"{_imb:.2f}:1" if _imb is not None else "undefined (no active cases)"
+        f.write(f"  Imbalance: {_imb_text}\n")
 
         f.write("\n[TEMPERATURE SCALING]\n")
         f.write(f"  T* (val set)  : {metrics['temperature']:.6f}\n")
@@ -1252,7 +1286,7 @@ def write_report(metrics: dict, run_cfg: dict, out_path: str) -> None:
         for fname in [
             "confusion_matrix.png", "roc_curve.png", "pr_curve.png",
             "reliability_diagram.png",
-            "test_metrics.csv      (wide: row1=calibrated, row2=uncalibrated)",
+            "test_metrics.csv      (tall-format: one row per metric, 3 cols)",
             "test_summary.json     (structured summary — run info + all metrics)",
             "roc_data.csv", "pr_data.csv", "calibration_data.csv",
             "test_preds.csv        (KEY: input for evaluate_meta_on_test.py)",
@@ -1292,7 +1326,7 @@ def main() -> None:
         ckpt_root, model_name, modality, run_tag, best_fold
     )
 
-    out_dir = os.path.join(test_eval_root, model_name, modality, run_tag)
+    out_dir = os.path.join(test_eval_root, model_name, modality, run_tag, f"Best_fold{best_fold}")
     ensure_dir(out_dir)
 
     logf = open(os.path.join(out_dir, "test_evaluation.log"),
@@ -1344,10 +1378,11 @@ def main() -> None:
     n_active   = int((df_test["y_true"] == 1).sum())
     n_inactive = int((df_test["y_true"] == 0).sum())
 
+    _imb_str = f"{n_inactive/n_active:.2f}:1" if n_active > 0 else "undefined (no active cases)"
     log(logf, f"Test set final : {n_test} samples  "
               f"active={n_active} ({n_active/n_test*100:.1f}%)  "
               f"inactive={n_inactive} ({n_inactive/n_test*100:.1f}%)  "
-              f"imbalance={n_inactive/n_active:.2f}:1")
+              f"imbalance={_imb_str}")
 
     # ── Step 2: Build model and load checkpoint ───────────────────────────────
     log(logf, "─" * 66)
@@ -1480,7 +1515,7 @@ def main() -> None:
     )
 
     log(logf, "All data files saved.")
-    log(logf, "  test_metrics.csv  : wide table (row1=calibrated, row2=uncalibrated)")
+    log(logf, "  test_metrics.csv  : tall-format table (one row per metric)")
     log(logf, "  test_summary.json : full structured summary")
     log(logf, "  [KEY] test_preds.csv → evaluate_meta_on_test.py")
 

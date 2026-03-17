@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-03-17 18:30:41",
+  "run_info": {
+    "INPUT_DIR": "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/swin_tiny/OCT1/BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1",
+    "model_name": "swin_tiny",
+    "timm_backbone": "swin_tiny_patch4_window7_224",
+    "modality": "OCT1",
+    "run_tag": "BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+    "best_fold": 1,
+    "best_epoch": 30,
+    "checkpoint": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCT1/BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/model_best.pth",
+    "manifest_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1",
+    "device": "cuda",
+    "threshold": 0.5,
+    "ece_n_bins": 10
+  },
+  "training_val_reference": {
+    "best_val_bce": 0.247326,
+    "best_val_auc": 0.8386,
+    "best_epoch": 30,
+    "val_exam_units": 340
+  },
+  "temperature_scaling": {
+    "temperature_T*": 0.828409,
+    "nll_before_ts": 0.247326,
+    "nll_after_ts": 0.24183,
+    "ece_uncal": 0.0597,
+    "ece_calib": 0.0359,
+    "ece_reduction": 0.0238,
+    "ece_improved": true
+  },
+  "test_dataset": {
+    "n_total": 256,
+    "n_active": 38,
+    "n_inactive": 218,
+    "imbalance_ratio": 5.74,
+    "prevalence": 0.1484
+  },
+  "calibrated": {
+    "AUROC": 0.8941,
+    "AUPRC": 0.6838,
+    "Balanced_Accuracy": 0.6899,
+    "Sensitivity": 0.4211,
+    "Specificity": 0.9587,
+    "PPV": 0.64,
+    "NPV": 0.9048,
+    "F1_active": 0.5079,
+    "F1_macro": 0.7194,
+    "Accuracy": 0.8789,
+    "ECE": 0.0359,
+    "Brier_Score": 0.0791
+  },
+  "uncalibrated": {
+    "AUROC": 0.8941,
+    "AUPRC": 0.6838,
+    "Balanced_Accuracy": 0.6899,
+    "Sensitivity": 0.4211,
+    "Specificity": 0.9587,
+    "PPV": 0.64,
+    "NPV": 0.9048,
+    "F1_active": 0.5079,
+    "F1_macro": 0.7194,
+    "Accuracy": 0.8789,
+    "ECE": 0.0597,
+    "Brier_Score": 0.0799
+  },
+  "confusion_matrix_calibrated": {
+    "TP": 16,
+    "FP": 9,
+    "FN": 22,
+    "TN": 209
+  }
+}
