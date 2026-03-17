@@ -55,7 +55,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/"
     "swin_tiny/OCT0/"
-    "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/"
+    "BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/"
     "Best_fold5"
 )
 
