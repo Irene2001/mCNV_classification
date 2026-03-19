@@ -1,0 +1,58 @@
+{
+  "run_config": {
+    "model_name": "swin_tiny",
+    "modalities": [
+      "OCT0",
+      "OCT1",
+      "OCTA3"
+    ],
+    "feature_type": "logit",
+    "use_calib": true,
+    "feature_col": "logit_calib",
+    "feature_cols_X": [
+      "oct0_feat",
+      "oct1_feat",
+      "octa3_feat"
+    ],
+    "meta_model_path": "/data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/meta_lr_model.pkl",
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "run_tags": {
+      "OCT0": "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9",
+      "OCT1": "BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+      "OCTA3": "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6"
+    },
+    "best_folds": {
+      "OCT0": 2,
+      "OCT1": 1,
+      "OCTA3": 2
+    },
+    "test_eval_root": "/data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/test_evaluation",
+    "note": "Independent test set -- never seen during base model training, validation, or meta-learner training."
+  },
+  "metrics": {
+    "n_total": 119,
+    "n_active": 21,
+    "n_inactive": 98,
+    "imbalance_ratio": 4.67,
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "auroc": 0.9169096209912536,
+    "auprc": 0.7619615198002188,
+    "balanced_accuracy": 0.8265306122448979,
+    "sensitivity": 0.8571428571428571,
+    "specificity": 0.7959183673469388,
+    "ppv": 0.47368421052631576,
+    "npv": 0.9629629629629629,
+    "f1_active": 0.6101694915254237,
+    "f1_macro": 0.7408389357068459,
+    "accuracy": 0.8067226890756303,
+    "ece": 0.31242002818524295,
+    "brier_score": 0.17911926761894637,
+    "TP": 18,
+    "FP": 20,
+    "FN": 3,
+    "TN": 78
+  }
+}

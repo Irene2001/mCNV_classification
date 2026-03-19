@@ -1,0 +1,56 @@
+[2026-03-19 04:29:39] ============================================================
+[2026-03-19 04:29:39] STACKING META-LEARNER TEST EVALUATION
+[2026-03-19 04:29:39] ============================================================
+[2026-03-19 04:29:39] model_name   : swin_tiny
+[2026-03-19 04:29:39] modalities   : ['OCT0', 'OCT1', 'OCTA3']
+[2026-03-19 04:29:39] feature_type : logit  use_calib=True
+[2026-03-19 04:29:39] feature_col  : logit_calib
+[2026-03-19 04:29:39] threshold    : 0.5
+[2026-03-19 04:29:39] meta_model   : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/meta_lr_model.pkl
+[2026-03-19 04:29:39] out_dir      : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/test_evaluation
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 1: Load trained meta-learner pipeline
+[2026-03-19 04:29:39] Pipeline loaded: Pipeline
+[2026-03-19 04:29:39] Feature cols (inferred): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-19 04:29:39] Feature cols (from config JSON): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-19 04:29:39] Best C (from training): 0.001000
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 2: Load base model test predictions (test_preds.csv)
+[2026-03-19 04:29:39]   Source: TEST_EVAL_ROOT/<model>/<modality>/<run_tag>/Best_fold{N}/test_preds.csv
+[2026-03-19 04:29:39]   feature_col = 'logit_calib'  →  renamed to <modality>_feat
+[2026-03-19 04:29:39]   OCT0: 256 samples  active=38  inactive=218  feat_col=logit_calib→oct0_feat
+[2026-03-19 04:29:39]   OCT1: 256 samples  active=38  inactive=218  feat_col=logit_calib→oct1_feat
+[2026-03-19 04:29:39]   OCTA3: 119 samples  active=21  inactive=98  feat_col=logit_calib→octa3_feat
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 3: Build meta-test feature matrix (inner join on exam_key)
+[2026-03-19 04:29:39] Meta-test (inner join): 119 exams  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-19 04:29:39] Feature columns: ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 4: Meta-learner inference
+[2026-03-19 04:29:39] Prediction shape : (119,)
+[2026-03-19 04:29:39] Prob range       : [0.2685, 0.7614]  mean=0.4226
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 5: Compute metrics (threshold=0.5)
+[2026-03-19 04:29:39] RESULTS:
+[2026-03-19 04:29:39]   AUROC            : 0.8936
+[2026-03-19 04:29:39]   AUPRC            : 0.7448
+[2026-03-19 04:29:39]   Balanced Accuracy: 0.8061
+[2026-03-19 04:29:39]   Sensitivity      : 0.7143
+[2026-03-19 04:29:39]   Specificity      : 0.8980
+[2026-03-19 04:29:39]   PPV              : 0.6000
+[2026-03-19 04:29:39]   NPV              : 0.9362
+[2026-03-19 04:29:39]   F1 (active)      : 0.6522
+[2026-03-19 04:29:39]   F1 (macro)       : 0.7844
+[2026-03-19 04:29:39]   Accuracy         : 0.8655
+[2026-03-19 04:29:39]   Brier Score      : 0.1651
+[2026-03-19 04:29:39]   TP=15  FP=10  FN=6  TN=88
+[2026-03-19 04:29:39] ────────────────────────────────────────────────────────────
+[2026-03-19 04:29:39] Step 6: Save results
+[2026-03-19 04:29:39] All results saved → /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/test_evaluation
+[2026-03-19 04:29:39] ============================================================
+[2026-03-19 04:29:39] EVALUATION COMPLETE
+[2026-03-19 04:29:39]   AUROC   : 0.8936
+[2026-03-19 04:29:39]   AUPRC   : 0.7448
+[2026-03-19 04:29:39]   NPV     : 0.9362
+[2026-03-19 04:29:39]   Results : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/test_evaluation
+[2026-03-19 04:29:39] ============================================================

@@ -1,0 +1,12 @@
+[2026-03-19 04:17:06] ============================================================
+[2026-03-19 04:17:06] STACKING META-LEARNER TEST EVALUATION
+[2026-03-19 04:17:06] ============================================================
+[2026-03-19 04:17:06] model_name   : swin_tiny
+[2026-03-19 04:17:06] modalities   : ['OCT0', 'OCT1', 'OCTA3']
+[2026-03-19 04:17:06] feature_type : logit  use_calib=True
+[2026-03-19 04:17:06] feature_col  : logit_calib
+[2026-03-19 04:17:06] threshold    : 0.5
+[2026-03-19 04:17:06] meta_model   : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/meta_lr_model.pkl
+[2026-03-19 04:17:06] out_dir      : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/test_evaluation
+[2026-03-19 04:17:06] ────────────────────────────────────────────────────────────
+[2026-03-19 04:17:06] Step 1: Load trained meta-learner pipeline
