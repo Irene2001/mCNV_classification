@@ -1,22 +1,7 @@
 # train_singlemode_oof.py
 
 """
-Single-mode OOF training for mCNV binary classification.
-
-Compatible with
----------------
-- manifests/build_master_manifest.py
-- manifests/build_global_patient_fold_map.py
-- training/model_factory.py
-
-Data assumptions
-----------------
-- master_manifest.csv already contains fold_id
-- patient-level split is already fixed
-- modality-specific usable rows:
-    OCT0  -> has_oct0 == 1
-    OCT1  -> has_oct1 == 1
-    OCTA3 -> has_octa3 == 1
+Base model training (OOF val output) for mCNV binary classification.
 
 Outputs
 -------
@@ -43,6 +28,8 @@ outputs/oof_predictions/
 Terminal
 -------
 python train_singlemode_oof.py --model_name swin_tiny --modality OCT0
+python train_singlemode_oof.py --model_name VGG16 --modality OCT0
+python train_singlemode_oof.py --model_name efficientnet_b0 --modality OCT0
 """
 
 import os

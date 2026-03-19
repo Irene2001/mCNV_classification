@@ -22,11 +22,8 @@ where:
               e.g. swin_tiny__logit__calibTrue
   lr_folder = "OCT0_LR<lr>_OCT1_LR<lr>_OCTA3_LR<lr>"
               LR is extracted from each modality's RUN_TAG
-              e.g. OCT0_LR2e-06_OCT1_LR3e-06_OCTA3_LR4e-06
-
-Usage
------
-python build_meta_dataset.py         
+              e.g. OCT0_LR2e-06_OCT1_LR3e-06_OCTA3_LR4e-06     
+image title: 
 """
 
 import os
@@ -47,9 +44,9 @@ MODEL_NAME = "swin_tiny"
 # Each modality may have a different run_tag (and therefore a different LR).
 # LR is automatically extracted from the run_tag string.
 RUN_TAGS = {
-    "OCT0":  "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9",
-    "OCT1":  "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
-    "OCTA3": "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6",
+    "OCT0":  "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9",
+    "OCT1":  "BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+    "OCTA3": "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6",
 }
 
 # Feature to use as meta-input:

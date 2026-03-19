@@ -1,0 +1,61 @@
+[2026-03-18 14:59:02] ============================================================
+[2026-03-18 14:59:02] STACKING META-LEARNER TRAINING  (training only)
+[2026-03-18 14:59:02] ============================================================
+[2026-03-18 14:59:02] model          : swin_tiny (swin_tiny)
+[2026-03-18 14:59:02] meta_dataset_dir: /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06
+[2026-03-18 14:59:02] meta_tag       : swin_tiny__logit__calibTrue
+[2026-03-18 14:59:02] lr_tag         : OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06
+[2026-03-18 14:59:02] feat_cols      : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-18 14:59:02] C_GRID         : [0.001, 0.01, 0.1, 1.0, 10.0]   cv_folds=5
+[2026-03-18 14:59:02] solver         : lbfgs   class_weight=balanced   max_iter=2000
+[2026-03-18 14:59:02] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06
+[2026-03-18 14:59:02] ────────────────────────────────────────────────────────────
+[2026-03-18 14:59:02] Step 1: Load meta-train dataset (from build_meta_dataset.py)
+[2026-03-18 14:59:02] Loaded   : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/meta_train_oof.csv
+[2026-03-18 14:59:02] Samples  : total=873  active=113 (12.9%)  inactive=760 (87.1%)  ratio=6.73:1
+[2026-03-18 14:59:02] Features : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-18 14:59:02] Alpha    : α_j = N/(2×N_j)  α_active=3.8628  α_inactive=0.5743  ratio=6.73x  (active upweighted)
+[2026-03-18 14:59:02] ────────────────────────────────────────────────────────────
+[2026-03-18 14:59:02] Step 2: Train Pipeline(StandardScaler, LogisticRegressionCV)
+[2026-03-18 14:59:02] Pipeline: StandardScaler → LogisticRegressionCV(solver=lbfgs)
+[2026-03-18 14:59:02]   Cs=[0.001, 0.01, 0.1, 1.0, 10.0]  cv=5(StratifiedKFold)  scoring=roc_auc  class_weight=balanced  max_iter=2000
+[2026-03-18 14:59:03] Done in 1.45s  |  best C=0.001  λ=1/C=1000.0000
+[2026-03-18 14:59:03] C Grid CV AUC (mean ± std):  ← C selection only, NOT performance eval
+[2026-03-18 14:59:03]   C=0.001     0.8729 ± 0.0586 ← BEST
+[2026-03-18 14:59:03]   C=0.01      0.8723 ± 0.0576
+[2026-03-18 14:59:03]   C=0.1       0.8710 ± 0.0562
+[2026-03-18 14:59:03]   C=1.0       0.8700 ± 0.0556
+[2026-03-18 14:59:03]   C=10.0      0.8698 ± 0.0555
+[2026-03-18 14:59:03] Modality weights w (post-scaling, sorted by |w|):
+[2026-03-18 14:59:03]   oct0_feat            w=+0.195600  |w|=0.195600
+[2026-03-18 14:59:03]   oct1_feat            w=+0.180924  |w|=0.180924
+[2026-03-18 14:59:03]   octa3_feat           w=+0.107236  |w|=0.107236
+[2026-03-18 14:59:03] Intercept b = -0.211239
+[2026-03-18 14:59:03] Decision: P(active) = σ(w·z + b)  where z = StandardScaler(features)
+[2026-03-18 14:59:03] In-sample metrics (training data — informational only):
+[2026-03-18 14:59:03]   AUC-ROC=0.8717  AUPRC=N/A(train)  Brier=0.1915  BalAcc=0.8021
+[2026-03-18 14:59:03]   F1-macro=0.7134  F1-active=0.5337  Acc=0.8259
+[2026-03-18 14:59:03]   Sens=0.7699  Spec=0.8342
+[2026-03-18 14:59:03]   TP=87  FP=126  FN=26  TN=634
+[2026-03-18 14:59:03]   [!] True performance → evaluate_meta_on_test.py (independent test set)
+[2026-03-18 14:59:03] ────────────────────────────────────────────────────────────
+[2026-03-18 14:59:03] Step 3: Save artefacts
+[2026-03-18 14:59:04] Artefacts → /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06
+[2026-03-18 14:59:04]   meta_lr_model.pkl
+[2026-03-18 14:59:04]   meta_lr_config.json
+[2026-03-18 14:59:04]   meta_lr_results.json
+[2026-03-18 14:59:04]   meta_lr_cv_results.csv
+[2026-03-18 14:59:04]   meta_lr_coef.csv
+[2026-03-18 14:59:04]   meta_lr_training_report.txt
+[2026-03-18 14:59:04]   validation_curve.png
+[2026-03-18 14:59:04]   modality_importance.png
+[2026-03-18 14:59:04] ============================================================
+[2026-03-18 14:59:04] TRAINING COMPLETE
+[2026-03-18 14:59:04]   Best C         : 0.001  (λ=1000.0000)
+[2026-03-18 14:59:04]   Weights        : oct0_feat=+0.1956  oct1_feat=+0.1809  octa3_feat=+0.1072
+[2026-03-18 14:59:04]   Intercept b    : -0.2112
+[2026-03-18 14:59:04]   In-sample AUC  : 0.8717  (training data only)
+[2026-03-18 14:59:04]   In-sample Brier: 0.1915  (baseline for TS comparison)
+[2026-03-18 14:59:04]   model saved    : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue/OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06/meta_lr_model.pkl
+[2026-03-18 14:59:04]   → evaluate_meta_on_test.py for test-set evaluation
+[2026-03-18 14:59:04] ============================================================

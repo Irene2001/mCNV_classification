@@ -1,89 +1,89 @@
-[2026-03-17 18:28:14] ==================================================================
-[2026-03-17 18:28:14] BASE MODEL TEST EVALUATION
-[2026-03-17 18:28:14] ==================================================================
-[2026-03-17 18:28:14] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/outputs/training/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
-[2026-03-17 18:28:14] model_name     : swin_tiny
-[2026-03-17 18:28:14] modality       : OCT1
-[2026-03-17 18:28:14] run_tag        : BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
-[2026-03-17 18:28:14] best_fold      : 2
-[2026-03-17 18:28:14] project_root   : /data/Irene/SwinTransformer/Swin_Meta
-[2026-03-17 18:28:14] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
-[2026-03-17 18:28:14] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2/model_best.pth
-[2026-03-17 18:28:14] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
-[2026-03-17 18:28:14] device         : cuda
-[2026-03-17 18:28:14] timm_model     : swin_tiny_patch4_window7_224
-[2026-03-17 18:28:14] num_classes    : 1  (single sigmoid head, output [B,1])
-[2026-03-17 18:28:14] temperature T* : 0.783439  (from val set)
-[2026-03-17 18:28:14] NLL before TS  : 0.300508
-[2026-03-17 18:28:14] NLL after  TS  : 0.292024
-[2026-03-17 18:28:14] Best val BCE   : 0.30050835401988496
-[2026-03-17 18:28:14] Best val AUC   : 0.8366935483870968
-[2026-03-17 18:28:14] Best epoch     : 91
-[2026-03-17 18:28:14] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:14] Step 1: Load test split from master_manifest.csv
-[2026-03-17 18:28:14]   Applying same filters as train_singlemode_oof.py:
-[2026-03-17 18:28:14]   label_conflict==0  →  y_true notna  →  has_oct1==1  →  image_path notna  →  split_set=='test'
-[2026-03-17 18:28:14]   After label_conflict==0 filter : 1725 / 1725 rows
-[2026-03-17 18:28:14]   After y_true notna filter      : 1725 rows
-[2026-03-17 18:28:14]   After has_oct1==1 filter       : 1637 rows
-[2026-03-17 18:28:14]   After oct1_image_path not-null filter : 1637 rows
-[2026-03-17 18:28:14]   split_set='train_valid' available  : 1381 rows  (using 'test' only)
-[2026-03-17 18:28:14]   split_set='test' available  : 256 rows  (using 'test' only)
-[2026-03-17 18:28:14] Test set final : 256 samples  active=38 (14.8%)  inactive=218 (85.2%)  imbalance=5.74:1
-[2026-03-17 18:28:14] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:14] Step 2: Build model and load checkpoint
-[2026-03-17 18:28:15] Model ready: swin_tiny_patch4_window7_224  num_classes=1  output=[B,1]
-[2026-03-17 18:28:15] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:15] Step 3: Create DataLoader
-[2026-03-17 18:28:15] DataLoader: 256 samples  16 batches  bs=16
-[2026-03-17 18:28:15] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:15] Step 4: Inference
-[2026-03-17 18:28:16]   Inference: 3/16 batches done
-[2026-03-17 18:28:16]   Inference: 6/16 batches done
-[2026-03-17 18:28:16]   Inference: 9/16 batches done
-[2026-03-17 18:28:16]   Inference: 12/16 batches done
-[2026-03-17 18:28:16]   Inference: 15/16 batches done
-[2026-03-17 18:28:16] Done: 256 samples  logit [-3.759, 3.963]  mean=-1.625
-[2026-03-17 18:28:16] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16] Step 5: Temperature Scaling (T*=0.783439)
-[2026-03-17 18:28:16] Prob uncal [0.023, 0.981]  mean=0.208
-[2026-03-17 18:28:16] Prob calib [0.008, 0.994]  mean=0.173
-[2026-03-17 18:28:16] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16] Step 6: Compute metrics
-[2026-03-17 18:28:16] ────────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16] SUMMARY TABLE  —  SWIN_TINY / OCT1  (threshold=0.50)
-[2026-03-17 18:28:16] ────────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16]   Metric                     Uncalib    Calibrated
-[2026-03-17 18:28:16]   ──────────────────────  ──────────  ────────────
-[2026-03-17 18:28:16]   AUROC                       0.8460        0.8460
-[2026-03-17 18:28:16]   AUPRC                       0.5881        0.5881
-[2026-03-17 18:28:16]   Balanced Accuracy           0.6682        0.6682
-[2026-03-17 18:28:16]   Sensitivity                 0.3684        0.3684
-[2026-03-17 18:28:16]   Specificity                 0.9679        0.9679
-[2026-03-17 18:28:16]   PPV                         0.6667        0.6667
-[2026-03-17 18:28:16]   NPV                         0.8979        0.8979
-[2026-03-17 18:28:16]   F1 (active)                 0.4746        0.4746
-[2026-03-17 18:28:16]   F1 (macro)                  0.7031        0.7031
-[2026-03-17 18:28:16]   Accuracy                    0.8789        0.8789
-[2026-03-17 18:28:16]   Brier Score                 0.0950        0.0925
-[2026-03-17 18:28:16]   ──────────────────────  ──────────  ────────────
-[2026-03-17 18:28:16]   ECE                         0.0717        0.0446
-[2026-03-17 18:28:16] ────────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16]   Confusion Matrix (calib):  TP=14  FP=7  FN=24  TN=211
-[2026-03-17 18:28:16] ────────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:16] Step 7: Generate plots
-[2026-03-17 18:28:17] Plots saved.
-[2026-03-17 18:28:17] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:17] Step 8: Save data files
-[2026-03-17 18:28:17] All data files saved.
-[2026-03-17 18:28:17]   test_metrics.csv  : tall-format table (one row per metric)
-[2026-03-17 18:28:17]   test_summary.json : full structured summary
-[2026-03-17 18:28:17]   [KEY] test_preds.csv → evaluate_meta_on_test.py
-[2026-03-17 18:28:17] ──────────────────────────────────────────────────────────────────
-[2026-03-17 18:28:17] Step 9: Write report
-[2026-03-17 18:28:17] ==================================================================
-[2026-03-17 18:28:17] EVALUATION COMPLETE
-[2026-03-17 18:28:17]   Results : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
-[2026-03-17 18:28:17]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
-[2026-03-17 18:28:17] ==================================================================
+[2026-03-18 05:41:20] ==================================================================
+[2026-03-18 05:41:20] BASE MODEL TEST EVALUATION
+[2026-03-18 05:41:20] ==================================================================
+[2026-03-18 05:41:20] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/outputs/training/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
+[2026-03-18 05:41:20] model_name     : swin_tiny
+[2026-03-18 05:41:20] modality       : OCT1
+[2026-03-18 05:41:20] run_tag        : BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
+[2026-03-18 05:41:20] best_fold      : 2
+[2026-03-18 05:41:20] project_root   : /data/Irene/SwinTransformer/Swin_Meta
+[2026-03-18 05:41:20] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-18 05:41:20] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2/model_best.pth
+[2026-03-18 05:41:20] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
+[2026-03-18 05:41:20] device         : cuda
+[2026-03-18 05:41:20] timm_model     : swin_tiny_patch4_window7_224
+[2026-03-18 05:41:20] num_classes    : 1  (single sigmoid head, output [B,1])
+[2026-03-18 05:41:20] temperature T* : 0.783439  (from val set)
+[2026-03-18 05:41:20] NLL before TS  : 0.300508
+[2026-03-18 05:41:20] NLL after  TS  : 0.292024
+[2026-03-18 05:41:20] Best val BCE   : 0.30050835401988496
+[2026-03-18 05:41:20] Best val AUC   : 0.8366935483870968
+[2026-03-18 05:41:20] Best epoch     : 91
+[2026-03-18 05:41:20] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:20] Step 1: Load test split from master_manifest.csv
+[2026-03-18 05:41:20]   Applying same filters as train_singlemode_oof.py:
+[2026-03-18 05:41:20]   label_conflict==0  →  y_true notna  →  has_oct1==1  →  image_path notna  →  split_set=='test'
+[2026-03-18 05:41:20]   After label_conflict==0 filter : 1725 / 1725 rows
+[2026-03-18 05:41:20]   After y_true notna filter      : 1725 rows
+[2026-03-18 05:41:20]   After has_oct1==1 filter       : 1637 rows
+[2026-03-18 05:41:20]   After oct1_image_path not-null filter : 1637 rows
+[2026-03-18 05:41:20]   split_set='train_valid' available  : 1381 rows  (using 'test' only)
+[2026-03-18 05:41:20]   split_set='test' available  : 256 rows  (using 'test' only)
+[2026-03-18 05:41:20] Test set final : 256 samples  active=38 (14.8%)  inactive=218 (85.2%)  imbalance=5.74:1
+[2026-03-18 05:41:20] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:20] Step 2: Build model and load checkpoint
+[2026-03-18 05:41:21] Model ready: swin_tiny_patch4_window7_224  num_classes=1  output=[B,1]
+[2026-03-18 05:41:21] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] Step 3: Create DataLoader
+[2026-03-18 05:41:21] DataLoader: 256 samples  16 batches  bs=16
+[2026-03-18 05:41:21] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] Step 4: Inference
+[2026-03-18 05:41:21]   Inference: 3/16 batches done
+[2026-03-18 05:41:21]   Inference: 6/16 batches done
+[2026-03-18 05:41:21]   Inference: 9/16 batches done
+[2026-03-18 05:41:21]   Inference: 12/16 batches done
+[2026-03-18 05:41:21]   Inference: 15/16 batches done
+[2026-03-18 05:41:21] Done: 256 samples  logit [-3.759, 3.963]  mean=-1.625
+[2026-03-18 05:41:21] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] Step 5: Temperature Scaling (T*=0.783439)
+[2026-03-18 05:41:21] Prob uncal [0.023, 0.981]  mean=0.208
+[2026-03-18 05:41:21] Prob calib [0.008, 0.994]  mean=0.173
+[2026-03-18 05:41:21] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] Step 6: Compute metrics
+[2026-03-18 05:41:21] ────────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] SUMMARY TABLE  —  SWIN_TINY / OCT1  (threshold=0.50)
+[2026-03-18 05:41:21] ────────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21]   Metric                     Uncalib    Calibrated
+[2026-03-18 05:41:21]   ──────────────────────  ──────────  ────────────
+[2026-03-18 05:41:21]   AUROC                       0.8460        0.8460
+[2026-03-18 05:41:21]   AUPRC                       0.5881        0.5881
+[2026-03-18 05:41:21]   Balanced Accuracy           0.6682        0.6682
+[2026-03-18 05:41:21]   Sensitivity                 0.3684        0.3684
+[2026-03-18 05:41:21]   Specificity                 0.9679        0.9679
+[2026-03-18 05:41:21]   PPV                         0.6667        0.6667
+[2026-03-18 05:41:21]   NPV                         0.8979        0.8979
+[2026-03-18 05:41:21]   F1 (active)                 0.4746        0.4746
+[2026-03-18 05:41:21]   F1 (macro)                  0.7031        0.7031
+[2026-03-18 05:41:21]   Accuracy                    0.8789        0.8789
+[2026-03-18 05:41:21]   Brier Score                 0.0950        0.0925
+[2026-03-18 05:41:21]   ──────────────────────  ──────────  ────────────
+[2026-03-18 05:41:21]   ECE                         0.0717        0.0446
+[2026-03-18 05:41:21] ────────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21]   Confusion Matrix (calib):  TP=14  FP=7  FN=24  TN=211
+[2026-03-18 05:41:21] ────────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:21] Step 7: Generate plots
+[2026-03-18 05:41:22] Plots saved.
+[2026-03-18 05:41:22] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:22] Step 8: Save data files
+[2026-03-18 05:41:22] All data files saved.
+[2026-03-18 05:41:22]   test_metrics.csv  : tall-format table (one row per metric)
+[2026-03-18 05:41:22]   test_summary.json : full structured summary
+[2026-03-18 05:41:22]   [KEY] test_preds.csv → evaluate_meta_on_test.py
+[2026-03-18 05:41:22] ──────────────────────────────────────────────────────────────────
+[2026-03-18 05:41:22] Step 9: Write report
+[2026-03-18 05:41:22] ==================================================================
+[2026-03-18 05:41:22] EVALUATION COMPLETE
+[2026-03-18 05:41:22]   Results : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR1e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold2
+[2026-03-18 05:41:22]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
+[2026-03-18 05:41:22] ==================================================================

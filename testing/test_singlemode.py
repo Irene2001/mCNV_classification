@@ -1,11 +1,9 @@
 # test_singlemode.py
 
 """
-Base Model Independent Test Set Evaluation  ─  Single-Modality
-mCNV binary classification  (active / inactive)
+Base Model tseting for mCNV binary classification.
 """
 
-# ── Standard library ──────────────────────────────────────────────────────────
 import gc
 import json
 import os
@@ -14,7 +12,6 @@ import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-# ── Third-party ───────────────────────────────────────────────────────────────
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -58,13 +55,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/"
     "swin_tiny/OCTA3/"
-    "BS16_EP100_LR5e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
+    "BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
     "Best_fold2"
 )
 # OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/
 # OCT1: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/
-# OCTA3: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/
-
+# OCTA3: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/
 
 # ★ 2. master_manifest.csv — same file used by train_singlemode_oof.py.
 #      Leave "" to auto-detect from PROJECT_ROOT (recommended).
@@ -735,14 +731,45 @@ def compute_all_metrics(
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Plots
+# Plotting tool: Matplotlib + Seaborn (Python)
+# Standard in medical imaging AI publications (IEEE TMI, Nature Medicine, MICCAI)
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ── Plot style constants (adjust here to change all figures at once) ─────────
+_TITLE_SIZE      = 15        # figure title font size
+_AXIS_LABEL_SIZE = 14        # x/y axis label font size
+_TICK_SIZE       = 12        # axis tick label font size  (< title)
+_LEGEND_SIZE     = 8.5        # legend font size
+_ANNOT_SIZE      = 11        # annotation / small text font size
+_FIG_DPI         = 150       # output resolution
+
+# Curve colours (calib=primary, uncal=muted grey, reference=red/black)
+_COL_CALIB_ROC   = "#2563EB"  # calibrated ROC line
+_COL_CALIB_PR    = "#7C3AED"  # calibrated PR line
+_COL_CALIB_REL   = "#2563EB"  # calibrated reliability diagram
+_COL_UNCAL       = "#94a3b8"  # uncalibrated (all plots)
+_COL_RANDOM      = "#374151"  # random baseline (ROC diagonal)
+_COL_BASELINE    = "#DC2626"  # prevalence baseline (PR plot)
+_COL_PERFECT_CAL = "#374151"  # perfect calibration diagonal
+
+# Confusion matrix colormap anchor colours (light → dark blue)
+_CM_COLOR_LOW    = "#dbeafe"  # lightest cell  (more contrast than #f0f4ff)
+_CM_COLOR_HIGH   = "#1e40af"  # darkest cell   (deeper than #2563EB)
+_CM_ANNOT_SIZE   = 20         # number font size inside CM cells
+
+
 def _set_style() -> None:
+    """Apply global rcParams once per figure call."""
     plt.rcParams.update({
-        "font.size": 11, "axes.titlesize": 12, "axes.labelsize": 11,
-        "xtick.labelsize": 10, "ytick.labelsize": 10,
-        "figure.dpi": 150, "savefig.dpi": 150,
-        "axes.spines.top": False, "axes.spines.right": False,
+        "font.size":          _ANNOT_SIZE,
+        "axes.titlesize":     _TITLE_SIZE,
+        "axes.labelsize":     _AXIS_LABEL_SIZE,
+        "xtick.labelsize":    _TICK_SIZE,
+        "ytick.labelsize":    _TICK_SIZE,
+        "figure.dpi":         _FIG_DPI,
+        "savefig.dpi":        _FIG_DPI,
+        "axes.spines.top":    False,
+        "axes.spines.right":  False,
     })
 
 
@@ -752,28 +779,22 @@ def plot_confusion_matrix(
 ) -> None:
     """
     Confusion matrix heatmap.
-
-    Plotting tool: Matplotlib + Seaborn (Python).
-    This combination is standard in medical imaging AI publications
-    (IEEE TMI, Nature Medicine, MICCAI) and produces vector-quality
-    figures suitable for journal submission.
-
-    Layout note:
-      Sens / Spec / NPV are NOT annotated on the figure because they
-      are fully recorded in test_metrics.csv and test_summary.json.
-      Keeping the figure clean avoids overlap with the colorbar and
-      follows journal figure guidelines (one message per panel).
     """
     _set_style()
     cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
-    fig, ax = plt.subplots(figsize=(5, 4.5))
-    cmap = LinearSegmentedColormap.from_list("cm_cmap", ["#f0f4ff", "#2563EB"])
-    sns.heatmap(cm, annot=True, fmt="d", cmap=cmap,
-                xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES,
-                linewidths=0.5, linecolor="white", ax=ax, cbar=True)
+    fig, ax = plt.subplots(figsize=(5.5, 5))
+    cmap = LinearSegmentedColormap.from_list(
+        "cm_cmap", [_CM_COLOR_LOW, _CM_COLOR_HIGH]
+    )
+    sns.heatmap(
+        cm, annot=True, fmt="d", cmap=cmap,
+        xticklabels=CLASS_NAMES, yticklabels=CLASS_NAMES,
+        linewidths=1.0, linecolor="white", ax=ax, cbar=True,
+        annot_kws={"size": _CM_ANNOT_SIZE, "weight": "bold"},
+    )
     ax.set_xlabel("Predicted label", fontweight="bold")
     ax.set_ylabel("True label",      fontweight="bold")
-    ax.set_title(title,              fontweight="bold")
+    ax.set_title(title, fontweight="bold", pad=10)
     plt.tight_layout()
     plt.savefig(out_path, bbox_inches="tight")
     plt.close()
@@ -790,15 +811,16 @@ def plot_roc_curve(
     fpr_u, tpr_u, _     = roc_curve(y_true, prob_uncal)
     fpr_c, tpr_c, thr_c = roc_curve(y_true, prob_calib)
     fig, ax = plt.subplots(figsize=(5.5, 5))
-    ax.plot(fpr_u, tpr_u, color="#94a3b8", lw=1.5, linestyle="--",
+    ax.plot(fpr_u, tpr_u, color=_COL_UNCAL, lw=1.5, linestyle="--",
             label=f"Uncalibrated  AUC={auc_u:.4f}")
-    ax.plot(fpr_c, tpr_c, color="#2563EB", lw=2,
+    ax.plot(fpr_c, tpr_c, color=_COL_CALIB_ROC, lw=2,
             label=f"Calibrated (Post-TS)  AUC={auc_c:.4f}")
-    ax.plot([0, 1], [0, 1], "k--", lw=0.8, alpha=0.5, label="Random")
+    ax.plot([0, 1], [0, 1], color=_COL_RANDOM, lw=0.8,
+            linestyle="--", alpha=0.5, label="Random")
     ax.set_xlabel("False Positive Rate (1 – Specificity)", fontweight="bold")
     ax.set_ylabel("True Positive Rate (Sensitivity)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold")
-    ax.legend(loc="lower right", fontsize=9.5)
+    ax.set_title(title, fontweight="bold", pad=10)
+    ax.legend(loc="lower right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.01])
     ax.grid(True, alpha=0.25)
     plt.tight_layout()
@@ -819,16 +841,16 @@ def plot_pr_curve(
     pre_u, rec_u, _     = precision_recall_curve(y_true, prob_uncal)
     pre_c, rec_c, thr_c = precision_recall_curve(y_true, prob_calib)
     fig, ax = plt.subplots(figsize=(5.5, 5))
-    ax.plot(rec_u, pre_u, color="#94a3b8", lw=1.5, linestyle="--",
+    ax.plot(rec_u, pre_u, color=_COL_UNCAL, lw=1.5, linestyle="--",
             label=f"Uncalibrated  AUPRC={ap_u:.4f}")
-    ax.plot(rec_c, pre_c, color="#7C3AED", lw=2,
+    ax.plot(rec_c, pre_c, color=_COL_CALIB_PR, lw=2,
             label=f"Calibrated (Post-TS)  AUPRC={ap_c:.4f}")
-    ax.axhline(y=baseline, color="#DC2626", lw=0.8, linestyle=":",
+    ax.axhline(y=baseline, color=_COL_BASELINE, lw=0.8, linestyle=":",
                label=f"Baseline prevalence={baseline:.3f}")
     ax.set_xlabel("Recall (Sensitivity)", fontweight="bold")
     ax.set_ylabel("Precision (PPV)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold")
-    ax.legend(loc="upper right", fontsize=9.5)
+    ax.set_title(title, fontweight="bold", pad=10)
+    ax.legend(loc="upper right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.05])
     ax.grid(True, alpha=0.25)
     plt.tight_layout()
@@ -857,27 +879,29 @@ def plot_reliability_diagram(
     xc, yc, nc = _extract(bins_calib)
 
     fig, ax = plt.subplots(figsize=(5.5, 5))
-    ax.plot([0, 1], [0, 1], "k--", lw=0.8, alpha=0.5, label="Perfect calibration")
+    ax.plot([0, 1], [0, 1], color=_COL_PERFECT_CAL, lw=0.8,
+            linestyle="--", alpha=0.5, label="Perfect calibration")
     if len(xu) > 0:
         ax.scatter(xu, yu, s=nu / max(nu.max(), 1) * 300 + 30,
-                   color="#94a3b8", alpha=0.7, zorder=3,
+                   color=_COL_UNCAL, alpha=0.7, zorder=3,
                    label=f"Uncalibrated  ECE={ece_uncal:.4f}")
-        ax.plot(xu, yu, color="#94a3b8", lw=1.2, linestyle="--", alpha=0.6)
+        ax.plot(xu, yu, color=_COL_UNCAL, lw=1.2, linestyle="--", alpha=0.6)
     if len(xc) > 0:
         ax.scatter(xc, yc, s=nc / max(nc.max(), 1) * 300 + 30,
-                   color="#2563EB", alpha=0.85, zorder=4,
+                   color=_COL_CALIB_REL, alpha=0.85, zorder=4,
                    label=f"Calibrated (Post-TS)  ECE={ece_calib:.4f}")
-        ax.plot(xc, yc, color="#2563EB", lw=1.5)
+        ax.plot(xc, yc, color=_COL_CALIB_REL, lw=1.5)
     ax.set_xlabel("Mean predicted confidence", fontweight="bold")
     ax.set_ylabel("Fraction of positives (accuracy)", fontweight="bold")
-    ax.set_title(title, fontweight="bold")
-    ax.legend(loc="upper left", fontsize=9.5)
+    ax.set_title(title, fontweight="bold", pad=10)
+    ax.legend(loc="upper left", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.02, 1.02]); ax.set_ylim([-0.02, 1.02])
     ax.grid(True, alpha=0.25)
     ax.text(0.98, 0.04,
             f"ECE: {ece_uncal:.4f} → {ece_calib:.4f}\n"
             f"(↓{ece_uncal - ece_calib:.4f})",
-            transform=ax.transAxes, ha="right", va="bottom", fontsize=9,
+            transform=ax.transAxes, ha="right", va="bottom",
+            fontsize=_ANNOT_SIZE - 1,
             bbox=dict(boxstyle="round,pad=0.3", facecolor="#f0fdf4",
                       edgecolor="#86efac"))
     plt.tight_layout()
@@ -911,40 +935,6 @@ _METRICS_TABLE = [
 
 
 def save_metrics_csv(metrics: dict, out_path: str) -> None:
-    """
-    Tall-format CSV: one row per metric, columns = metric / calibrated / uncalibrated.
-
-    Layout (23 rows × 3 cols):
-
-      metric               | calibrated (post-TS) | uncalibrated
-      ---------------------+----------------------+-------------
-      AUROC                | 0.9100               | 0.9000
-      AUPRC                | 0.7200               | 0.7100
-      Balanced_Accuracy    | ...                  | ...
-      Sensitivity          | ...                  | ...
-      Specificity          | ...                  | ...
-      PPV                  | ...                  | ...
-      NPV                  | ...                  | ...
-      F1_active            | ...                  | ...
-      F1_macro             | ...                  | ...
-      Accuracy             | ...                  | ...
-      ECE                  | ...                  | ...
-      Brier_Score          | ...                  | ...
-      ── context (shared) ──
-      temperature          | T*                   | T*
-      threshold            | 0.5                  | 0.5
-      TP                   | calib_TP             | uncal_TP
-      FP                   | calib_FP             | uncal_FP
-      FN                   | calib_FN             | uncal_FN
-      TN                   | calib_TN             | uncal_TN
-      n_total              | N                    | N
-      n_active             | N_pos                | N_pos
-      n_inactive           | N_neg                | N_neg
-      imbalance_ratio      | ratio                | ratio
-
-    Easy to read in Excel / Origin: metric names in column A,
-    calibrated values in column B, uncalibrated in column C.
-    """
     rows = []
 
     # ── 12 performance metrics ─────────────────────────────────────────────
@@ -1443,29 +1433,28 @@ def main() -> None:
     log(logf, "─" * 66)
     log(logf, "Step 7: Generate plots")
 
-    tp_str       = f"{model_name.upper()} / {modality} (Test Set)"
     y_pred_calib = (prob_calib >= THRESHOLD).astype(int)
 
     plot_confusion_matrix(
         y_true, y_pred_calib,
         os.path.join(out_dir, "confusion_matrix.png"),
-        f"Confusion Matrix — {tp_str}")
+        f"Confusion Matrix")
 
     fpr_c, tpr_c, roc_thr_c = plot_roc_curve(
         y_true, prob_uncal, prob_calib,
         os.path.join(out_dir, "roc_curve.png"),
-        f"ROC Curve — {tp_str}")
+        f"ROC Curve")
 
     pre_c, rec_c, pr_thr_c = plot_pr_curve(
         y_true, prob_uncal, prob_calib,
         os.path.join(out_dir, "pr_curve.png"),
-        f"Precision-Recall Curve — {tp_str}")
+        f"Precision-Recall Curve")
 
     plot_reliability_diagram(
         bins_uncal, bins_calib,
         metrics["ece_uncal"], metrics["ece_calib"],
         os.path.join(out_dir, "reliability_diagram.png"),
-        f"Reliability Diagram — {tp_str}")
+        f"Reliability Diagram")
 
     log(logf, "Plots saved.")
 

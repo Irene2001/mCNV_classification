@@ -80,7 +80,7 @@ META_OUTPUT_ROOT  = os.path.join(PROJECT_ROOT, "outputs", "meta_training")
 META_DATASET_DIR  = os.path.join(
     META_DATASET_ROOT,
     "swin_tiny__logit__calibTrue",              # ← change meta_tag if needed
-    "OCT0_LR3e-06_OCT1_LR2e-06_OCTA3_LR2e-06", # ← change lr_tag if needed
+    "OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06", # ← change lr_tag if needed
 )
 
 # Feature columns fixed by build_meta_dataset.py

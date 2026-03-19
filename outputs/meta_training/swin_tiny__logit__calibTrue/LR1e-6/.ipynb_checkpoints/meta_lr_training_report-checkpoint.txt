@@ -1,0 +1,81 @@
+======================================================================
+STACKING META-LEARNER TRAINING REPORT
+======================================================================
+
+[RUN CONFIG]
+  model_name                      : swin_tiny
+  backbone                        : swin_tiny
+  meta_tag                        : swin_tiny__logit__calibTrue
+  feature_type                    : logit
+  use_calib                       : True
+  feature_cols                    : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+  meta_dataset_dir                : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue
+  C_grid                          : [0.001, 0.01, 0.1, 1.0, 10.0]
+  cv_folds                        : 5
+  cv_scoring                      : roc_auc
+  solver                          : lbfgs
+  class_weight                    : balanced
+  max_iter                        : 2000
+  random_seed                     : 42
+  out_dir                         : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_training/swin_tiny__logit__calibTrue
+  note                            : alpha: compute_class_weight(balanced), α_j=N/(n_classes×N_j); C: LogisticRegressionCV 5-fold roc_auc grid search (C selection only); w: lbfgs solver; true performance evaluation → evaluate_meta_on_test.py
+
+[META-TRAIN DATASET]
+  source   : /data/Irene/SwinTransformer/Swin_Meta/outputs/meta_dataset/swin_tiny__logit__calibTrue/meta_train_oof.csv
+  total    : 873
+  active   : 113 (12.9%)
+  inactive : 760 (87.1%)
+  ratio    : 6.73:1
+  features : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+
+[ALPHA  (sklearn compute_class_weight, balanced)]
+  formula  : α_j = N_total / (n_classes × N_j)
+  α_active   = 873/(2×113) = 3.8628
+  α_inactive = 873/(2×760) = 0.5743
+  ratio      = 6.73x  (active upweighted to compensate 6.7:1 imbalance)
+
+[C SELECTION  (LogisticRegressionCV 5-fold — C only, NOT evaluation)]
+  C             mean_AUC   std_AUC  per-fold AUC
+  ----------  ----------  --------  --------------------------------------
+  0.001           0.8280    0.0421  [0.8544  0.7757  0.8444  0.8834  0.7823]
+  0.01            0.8293    0.0385  [0.8524  0.7823  0.8435  0.8813  0.7871]  ← BEST
+  0.1             0.8288    0.0385  [0.8493  0.7875  0.8412  0.8837  0.7826]
+  1.0             0.8284    0.0389  [0.8490  0.7883  0.8412  0.8834  0.7799]
+  10.0            0.8281    0.0390  [0.8490  0.7883  0.8407  0.8834  0.7793]
+
+  Best C = 0.01  (λ = 1/C = 100.0000)
+
+[MODALITY WEIGHTS w  (lbfgs, post-StandardScaling)]
+  Loss: L = -(1/N)Σαᵢ[y log p̂+(1-y)log(1-p̂)] + (λ/2)||w||²
+  P(active) = σ(w₁·z_oct0 + w₂·z_oct1 + w₃·z_octa3 + b)
+  where z = StandardScaler(feature)
+
+  Feature                        w         |w|   scaler_mean  scaler_scale
+  --------------------  ----------  ----------  ------------  ------------
+  oct0_feat              +0.554881    0.554881     -0.579272      1.556961
+  oct1_feat              +0.528277    0.528277     -1.024116      1.633953
+  octa3_feat             +0.276659    0.276659     -0.535507      1.171945
+  intercept b            -0.400256
+
+[IN-SAMPLE METRICS  (training data — informational only)]
+  Purpose: overfitting detection (compare with test set metrics)
+  *** TRUE performance → evaluate_meta_on_test.py ***
+
+  AUC-ROC        : 0.8331
+  Brier Score    : 0.1744  (baseline for TS calibration comparison)
+  Balanced Acc   : 0.7357  = (Sens+Spec)/2
+  F1-macro       : 0.6244
+  F1-active      : 0.4192
+  Accuracy       : 0.7365
+  Sensitivity    : 0.7345
+  Specificity    : 0.7368
+  Confusion      : TP=83  FP=200  FN=30  TN=560
+
+[OUTPUT FILES]
+  meta_lr_model.pkl
+  meta_lr_config.json
+  meta_lr_results.json
+  meta_lr_cv_results.csv
+  meta_lr_coef.csv
+  validation_curve.png
+  modality_importance.png
