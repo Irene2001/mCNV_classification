@@ -1,4 +1,4 @@
-# test_singlemode.py
+# old_test_singlemode.py
 
 """
 Base Model tseting for mCNV binary classification.

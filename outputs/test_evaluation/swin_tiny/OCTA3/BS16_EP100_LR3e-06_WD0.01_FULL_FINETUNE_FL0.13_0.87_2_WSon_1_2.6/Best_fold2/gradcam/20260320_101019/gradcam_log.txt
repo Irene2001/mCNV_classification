@@ -1,0 +1,57 @@
+[2026-03-20 10:10:19] ==============================================================
+[2026-03-20 10:10:19] GRAD-CAM  SINGLE-MODALITY  mCNV CLASSIFICATION
+[2026-03-20 10:10:19] ==============================================================
+[2026-03-20 10:10:19] model      : swin_tiny  (swin_tiny_patch4_window7_224)
+[2026-03-20 10:10:19] modality   : OCTA3
+[2026-03-20 10:10:19] run_tag    : BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+[2026-03-20 10:10:19] best_fold  : 2
+[2026-03-20 10:10:19] device     : cuda
+[2026-03-20 10:10:19] checkpoint : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/model_best.pth
+[2026-03-20 10:10:19] preds_csv  : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/test_preds.csv
+[2026-03-20 10:10:19] out_dir    : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019
+[2026-03-20 10:10:19] target_layer : model.norm  (Global LayerNorm, all 4 stages)
+[2026-03-20 10:10:19] cam_threshold: 0.3  (zero pixels < threshold*max)
+[2026-03-20 10:10:19] random_seed  : None (None=time-based, diff every run)
+[2026-03-20 10:10:19] reference    : Selvaraju et al. ICCV 2017 (Grad-CAM)
+[2026-03-20 10:10:19] --------------------------------------------------------------
+[2026-03-20 10:10:19] Step 1: Load test_preds.csv
+[2026-03-20 10:10:19] Loaded 119 samples  temperature T*=0.409748
+[2026-03-20 10:10:19] Using calibrated predictions (prob_calib, threshold=0.5)
+[2026-03-20 10:10:19] --------------------------------------------------------------
+[2026-03-20 10:10:19] Step 2: Group by confusion-matrix quadrant
+[2026-03-20 10:10:19] TP=11  FP=17  FN=10  TN=81
+[2026-03-20 10:10:19]   TP: exam_key=6007880_OD_20161221  gt=1  pred=1  prob_calib=0.9908
+[2026-03-20 10:10:19]   FP: exam_key=3676329_OD_20191113  gt=0  pred=1  prob_calib=0.6246
+[2026-03-20 10:10:19]   FN: exam_key=3253750_OS_20161226  gt=1  pred=0  prob_calib=0.3318
+[2026-03-20 10:10:19]   TN: exam_key=3676329_OD_20190814  gt=0  pred=0  prob_calib=0.1379
+[2026-03-20 10:10:19] --------------------------------------------------------------
+[2026-03-20 10:10:19] Step 3: Build model and load checkpoint
+[2026-03-20 10:10:21] Checkpoint T*=0.409748  (using CSV T*=0.409748)
+[2026-03-20 10:10:21] Grad-CAM engine ready  target=model.norm
+[2026-03-20 10:10:21] --------------------------------------------------------------
+[2026-03-20 10:10:21] Step 4: Generate Grad-CAM heatmaps
+[2026-03-20 10:10:22]   [TP] 6007880OD 20161221_OCTA3.jpg  gt=active  pred=active  P(active)=0.9908  cam0_max=0.999  cam1_max=1.000
+[2026-03-20 10:10:22]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/TP_panel.png
+[2026-03-20 10:10:22]   [FP] 3676329OD 20191113_OCTA3.jpg  gt=inactive  pred=active  P(active)=0.6246  cam0_max=1.000  cam1_max=1.000
+[2026-03-20 10:10:23]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/FP_panel.png
+[2026-03-20 10:10:23]   [FN] 3253750OS 20161226_OCTA3.jpg  gt=active  pred=inactive  P(active)=0.3318  cam0_max=1.000  cam1_max=1.000
+[2026-03-20 10:10:23]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/FN_panel.png
+[2026-03-20 10:10:23]   [TN] 3676329OD 20190814_OCTA3.jpg  gt=inactive  pred=inactive  P(active)=0.1379  cam0_max=1.000  cam1_max=0.999
+[2026-03-20 10:10:24]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/TN_panel.png
+[2026-03-20 10:10:24] --------------------------------------------------------------
+[2026-03-20 10:10:24] Step 5: Save combined 4x3 panel
+[2026-03-20 10:10:25] Saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/GradCAM_4x3_panel.png
+[2026-03-20 10:10:25] --------------------------------------------------------------
+[2026-03-20 10:10:25] Step 6: Save CSV record
+[2026-03-20 10:10:25] Saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019/gradcam_samples.csv
+[2026-03-20 10:10:25] ==============================================================
+[2026-03-20 10:10:25] GRAD-CAM COMPLETE
+[2026-03-20 10:10:25]   Output: /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/gradcam/20260320_101019
+[2026-03-20 10:10:25]   Files : GradCAM_4x3_panel.png
+[2026-03-20 10:10:25]           TP_panel.png
+[2026-03-20 10:10:25]           FP_panel.png
+[2026-03-20 10:10:25]           FN_panel.png
+[2026-03-20 10:10:25]           TN_panel.png
+[2026-03-20 10:10:25]           gradcam_samples.csv
+[2026-03-20 10:10:25]           gradcam_log.txt
+[2026-03-20 10:10:25] ==============================================================
