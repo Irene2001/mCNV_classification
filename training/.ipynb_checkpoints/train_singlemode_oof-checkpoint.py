@@ -86,19 +86,15 @@ PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR,
-    "outputs",
-    "manifests",
-    "master_split",
-    "master_manifest.csv"
+    "outputs", "manifests", "master_split", "master_manifest.csv"
 )
 
-CHECKPOINT_ROOT = os.path.join(PROJECT_ROOT_DIR, "checkpoints")
+CHECKPOINT_ROOT      = os.path.join(PROJECT_ROOT_DIR, "checkpoints")
 TRAINING_OUTPUT_ROOT = os.path.join(PROJECT_ROOT_DIR, "outputs", "training")
-OOF_ROOT = os.path.join(PROJECT_ROOT_DIR, "outputs", "oof_predictions")
+OOF_ROOT             = os.path.join(PROJECT_ROOT_DIR, "outputs", "oof_predictions")
 
 CLASS_NAMES = ["inactive", "active"]
 NUM_CLASSES = 1
-
 IMG_SIZE = 224
 NUM_WORKERS = 4
 RANDOM_SEED = 42
@@ -1164,9 +1160,9 @@ def main():
         f"{ws_tag}"
     )
 
-    ckpt_run_dir = os.path.join(CHECKPOINT_ROOT, model_name, modality, run_tag)
-    train_run_dir = os.path.join(TRAINING_OUTPUT_ROOT, model_name, modality, run_tag)
-    oof_run_dir = os.path.join(OOF_ROOT, model_name, modality, run_tag)
+    ckpt_run_dir     = os.path.join(CHECKPOINT_ROOT,      model_name, modality, run_tag)
+    train_run_dir    = os.path.join(TRAINING_OUTPUT_ROOT, model_name, modality, run_tag)
+    oof_run_dir      = os.path.join(OOF_ROOT,             model_name, modality, run_tag)
     per_fold_oof_dir = os.path.join(oof_run_dir, "_per_fold")
 
     ensure_dir(os.path.join(ckpt_run_dir, "Kfold"))

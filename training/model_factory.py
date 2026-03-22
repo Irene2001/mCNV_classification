@@ -8,11 +8,6 @@ Supported models
 - swin_tiny
 - vgg16
 - efficientnet_b0
-
-Notes
------
-- All models output a single logit for binary classification.
-- Used by train_singlemode_oof.py / test_singlemode.py
 """
 
 from typing import List
