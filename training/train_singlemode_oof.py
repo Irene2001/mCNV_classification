@@ -525,7 +525,7 @@ def plot_learning_curves(history: dict, save_path: str):
     ax2.legend()
 
     plt.tight_layout()
-    plt.savefig(save_path, dpi=220, bbox_inches="tight")
+    plt.savefig(save_path, dpi=300, bbox_inches="tight")
     plt.close()
 
 

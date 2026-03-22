@@ -81,8 +81,9 @@ torch.backends.cudnn.benchmark     = False
 # ===================== CONFIG =====================
 PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
-# Add VGG16 outout folder!
+# Add VGG16_outputs & Partial_B5 folder!
 VGG16_BASE_DIR = "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs"
+STRATEGY_NAME = "Partial_B5"
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR, "outputs", "manifests", "master_split", "master_manifest.csv"
@@ -105,7 +106,7 @@ SINGLE_FOLD_INDEX   = 1
 # ---------- VGG16-specific training hyper-parameters ----------
 BATCH_SIZE    = 16
 NUM_EPOCHS    = 100
-LR            = 1e-5        
+LR            = 9e-6        
 WEIGHT_DECAY  = 0.01
 GRAD_CLIP     = 1.0
 DROP_RATE     = 0.5         # VGG16 torchvision default dropout
@@ -523,7 +524,7 @@ def plot_learning_curves(history: dict, save_path: str):
     ax2.grid(True, alpha=0.3); ax2.legend()
 
     plt.tight_layout()
-    plt.savefig(save_path, dpi=220, bbox_inches="tight")
+    plt.savefig(save_path, dpi=300, bbox_inches="tight")
     plt.close()
 
 
@@ -1034,9 +1035,9 @@ def main():
         f"{ws_tag}"
     )
 
-    ckpt_run_dir     = os.path.join(CHECKPOINT_ROOT,      model_name, modality, run_tag)
-    train_run_dir    = os.path.join(TRAINING_OUTPUT_ROOT, model_name, modality, run_tag)
-    oof_run_dir      = os.path.join(OOF_ROOT,             model_name, modality, run_tag)
+    ckpt_run_dir     = os.path.join(CHECKPOINT_ROOT,      model_name, STRATEGY_NAME, modality, run_tag)
+    train_run_dir    = os.path.join(TRAINING_OUTPUT_ROOT, model_name, STRATEGY_NAME, modality, run_tag)
+    oof_run_dir      = os.path.join(OOF_ROOT,             model_name, STRATEGY_NAME, modality, run_tag)
     per_fold_oof_dir = os.path.join(oof_run_dir, "_per_fold")
 
     for d in [

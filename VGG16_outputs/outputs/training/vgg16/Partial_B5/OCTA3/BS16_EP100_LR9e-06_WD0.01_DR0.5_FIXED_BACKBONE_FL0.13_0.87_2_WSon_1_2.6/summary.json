@@ -1,0 +1,76 @@
+{
+  "configuration": {
+    "model_name": "vgg16",
+    "backbone_name": "vgg16 (torchvision)",
+    "modality": "OCTA3",
+    "num_folds": 5,
+    "batch_size": 16,
+    "num_epochs": 100,
+    "lr": 9e-06,
+    "weight_decay": 0.01,
+    "drop_rate": 0.5,
+    "weighted_sampler": true,
+    "temperature_scaling": true,
+    "unfreeze_mode": "FIXED_BACKBONE",
+    "vgg16_block5_start": 24,
+    "backbone_lr_mult": 0.1,
+    "focal_alpha": [
+      0.13,
+      0.87
+    ],
+    "focal_gamma": 2.0,
+    "run_tag": "BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6",
+    "execute_single_fold": false,
+    "single_fold_index": null
+  },
+  "fold_results": [
+    {
+      "fold": 1,
+      "best_val_key": 0.3692903439748233,
+      "best_val_auc": 0.7846733668341709,
+      "best_epoch": 30,
+      "temperature": 0.4038060758992775,
+      "nll_before": 0.369290292263031,
+      "nll_after": 0.2867267429828644
+    },
+    {
+      "fold": 2,
+      "best_val_key": 0.45689853915461787,
+      "best_val_auc": 0.7819726285983956,
+      "best_epoch": 20,
+      "temperature": 0.3864871423243445,
+      "nll_before": 0.4568985104560852,
+      "nll_after": 0.37664252519607544
+    },
+    {
+      "fold": 3,
+      "best_val_key": 0.5528256409085555,
+      "best_val_auc": 0.6616777531411677,
+      "best_epoch": 25,
+      "temperature": 1.1136089997338645,
+      "nll_before": 0.5528256297111511,
+      "nll_after": 0.5516349077224731
+    },
+    {
+      "fold": 4,
+      "best_val_key": 0.6521400676054113,
+      "best_val_auc": 0.695364238410596,
+      "best_epoch": 5,
+      "temperature": 0.43184447615607324,
+      "nll_before": 0.6521400809288025,
+      "nll_after": 0.6347982287406921
+    },
+    {
+      "fold": 5,
+      "best_val_key": 0.5772908260352421,
+      "best_val_auc": 0.6258680555555556,
+      "best_epoch": 30,
+      "temperature": 0.5397894302510939,
+      "nll_before": 0.5772908329963684,
+      "nll_after": 0.5534145832061768
+    }
+  ],
+  "best_fold_num": 1,
+  "all_folds_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/outputs/oof_predictions/vgg16/Partial_B5/OCTA3/BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof.csv",
+  "training_time_minutes": 24.429201217492423
+}

@@ -1,0 +1,23 @@
+{
+  "fold": 4,
+  "model_name": "vgg16",
+  "backbone_name": "vgg16 (torchvision)",
+  "modality": "OCT0",
+  "train_exam_units": 1187,
+  "val_exam_units": 282,
+  "train_patients": 75,
+  "val_patients": 18,
+  "best_val_bce": 0.467986857426082,
+  "best_val_auc": 0.7759928029816219,
+  "best_epoch": 8,
+  "temperature": 0.6227575694332466,
+  "nll_before_ts": 0.4679868221282959,
+  "nll_after_ts": 0.4456841051578522,
+  "artifacts": {
+    "model_best": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold4/model_best.pth",
+    "checkpoint_last": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold4/checkpoint_last.pth",
+    "metrics_csv": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/outputs/training/vgg16/Partial_B5/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold4/metrics.csv",
+    "learning_curves_png": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/outputs/training/vgg16/Partial_B5/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold4/learning_curves.png",
+    "fold_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/outputs/training/vgg16/Partial_B5/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold4/val_oof_predictions_fold4.csv"
+  }
+}
