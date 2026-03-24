@@ -1,0 +1,32 @@
+{
+  "model_name": "vgg16",
+  "backbone": "vgg16",
+  "meta_tag": "vgg16__logit__calibTrue",
+  "lr_tag": "OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06",
+  "feature_cols": [
+    "oct0_feat",
+    "oct1_feat",
+    "octa3_feat"
+  ],
+  "meta_dataset_dir": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_dataset/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06",
+  "C_grid": [
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "cv_folds": 5,
+  "cv_scoring": "roc_auc",
+  "solver": "lbfgs",
+  "class_weight": "balanced",
+  "max_iter": 2000,
+  "random_seed": 42,
+  "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06",
+  "note": "alpha: compute_class_weight(balanced), α_j=N/(n_classes×N_j); C: LogisticRegressionCV 5-fold roc_auc grid search (C selection only); w: lbfgs solver; true performance evaluation → evaluate_meta_on_test.py",
+  "alpha_active": 3.8628318584070795,
+  "alpha_inactive": 0.5743421052631579,
+  "alpha_formula": "α_j = N_total / (n_classes × N_j)",
+  "alpha_ref": "sklearn.utils.class_weight.compute_class_weight",
+  "pipeline_ref": "sklearn.pipeline.Pipeline(StandardScaler, LogisticRegressionCV)"
+}

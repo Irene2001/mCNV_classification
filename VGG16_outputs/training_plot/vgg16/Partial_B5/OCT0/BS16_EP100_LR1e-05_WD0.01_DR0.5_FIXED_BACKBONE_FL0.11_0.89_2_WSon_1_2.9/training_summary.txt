@@ -1,0 +1,42 @@
+================================================================================
+K-FOLD SINGLE-MODE OOF TRAINING SUMMARY (VGG16)
+================================================================================
+
+CONFIGURATION
+----------------------------------------
+model_name: vgg16
+backbone_name: vgg16 (torchvision)
+modality: OCT0
+num_folds: 5
+batch_size: 16
+num_epochs: 100
+lr: 1e-05
+weight_decay: 0.01
+drop_rate: 0.5
+weighted_sampler: True
+temperature_scaling: True
+unfreeze_mode: FIXED_BACKBONE
+vgg16_block5_start: 24
+backbone_lr_mult: 0.1
+focal_alpha: [0.11, 0.89]
+focal_gamma: 2.0
+run_tag: BS16_EP100_LR1e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9
+execute_single_fold: False
+single_fold_index: None
+
+FOLD RESULTS
+----------------------------------------
+Fold 1: best_val_bce=0.403757, best_val_auc=0.7666, best_epoch=29, T*=0.6969
+Fold 2: best_val_bce=0.279902, best_val_auc=0.8145, best_epoch=51, T*=0.9963
+Fold 3: best_val_bce=0.446417, best_val_auc=0.6887, best_epoch=22, T*=0.9197
+Fold 4: best_val_bce=0.454952, best_val_auc=0.7899, best_epoch=26, T*=0.6934
+Fold 5: best_val_bce=0.427748, best_val_auc=0.8993, best_epoch=21, T*=0.5894
+
+AVERAGE PERFORMANCE
+----------------------------------------
+val_bce: 0.402555 (±0.063795)
+val_auc: 0.7918 (±0.0683)
+
+Best fold: 2
+All folds OOF CSV: /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/oof_predictions/vgg16/Partial_B5/OCT0/BS16_EP100_LR1e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/all_folds_oof.csv
+Total training time (min): 33.22

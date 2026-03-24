@@ -1,0 +1,69 @@
+[2026-03-24 11:33:02] ==============================================================
+[2026-03-24 11:33:02] VGG16 STACKING META-LEARNER TEST EVALUATION
+[2026-03-24 11:33:02] ==============================================================
+[2026-03-24 11:33:02] model_name    : vgg16
+[2026-03-24 11:33:02] strategy_name : Partial_B5
+[2026-03-24 11:33:02] modalities    : ['OCT0', 'OCT1', 'OCTA3']
+[2026-03-24 11:33:02] feature_type  : logit  use_calib=True
+[2026-03-24 11:33:02] feature_col   : logit_calib
+[2026-03-24 11:33:02] threshold     : 0.5
+[2026-03-24 11:33:02] ece_n_bins    : 10
+[2026-03-24 11:33:02] meta_model    : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/meta_lr_model.pkl
+[2026-03-24 11:33:02] out_dir       : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/test_evaluation
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 1: Load trained meta-learner pipeline
+[2026-03-24 11:33:02] Pipeline loaded: Pipeline
+[2026-03-24 11:33:02] Feature cols (inferred): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-24 11:33:02] Feature cols (from config): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-24 11:33:02] Best C (from training): 0.100000
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 2: Load base model test predictions
+[2026-03-24 11:33:02]   feature_col='logit_calib' -> renamed to <modality>_feat
+[2026-03-24 11:33:02]   OCT0: 256 samples  active=38  inactive=218  logit_calib -> oct0_feat
+[2026-03-24 11:33:02]   OCT1: 256 samples  active=38  inactive=218  logit_calib -> oct1_feat
+[2026-03-24 11:33:02]   OCTA3: 119 samples  active=21  inactive=98  logit_calib -> octa3_feat
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 3: Build meta-test feature matrix (inner join)
+[2026-03-24 11:33:02] Meta-test (inner join): 119 exams  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-24 11:33:02] Feature columns: ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 4: Meta-learner inference
+[2026-03-24 11:33:02] Prediction : shape=(119,)  range=[0.0226, 0.9636]  mean=0.3751
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 5: Compute metrics (threshold=0.5)
+[2026-03-24 11:33:02] RESULTS:
+[2026-03-24 11:33:02]   AUROC            : 0.8294
+[2026-03-24 11:33:02]   AUPRC            : 0.6143
+[2026-03-24 11:33:02]   Balanced Accuracy: 0.7211
+[2026-03-24 11:33:02]   Sensitivity      : 0.6667
+[2026-03-24 11:33:02]   Specificity      : 0.7755
+[2026-03-24 11:33:02]   PPV              : 0.3889
+[2026-03-24 11:33:02]   NPV              : 0.9157
+[2026-03-24 11:33:02]   F1 (active)      : 0.4912
+[2026-03-24 11:33:02]   F1 (macro)       : 0.6655
+[2026-03-24 11:33:02]   Accuracy         : 0.7563
+[2026-03-24 11:33:02]   ECE              : 0.2015
+[2026-03-24 11:33:02]   Brier Score      : 0.1536
+[2026-03-24 11:33:02]   TP=14  FP=22  FN=7  TN=76
+[2026-03-24 11:33:02] --------------------------------------------------------------
+[2026-03-24 11:33:02] Step 6: Generate plots and save all outputs
+[2026-03-24 11:33:03] All outputs saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/test_evaluation
+[2026-03-24 11:33:03]   confusion_matrix.png
+[2026-03-24 11:33:03]   roc_curve.png
+[2026-03-24 11:33:03]   pr_curve.png
+[2026-03-24 11:33:03]   reliability_diagram.png
+[2026-03-24 11:33:03]   meta_lr_test_metrics.csv
+[2026-03-24 11:33:03]   meta_lr_test_predictions.csv
+[2026-03-24 11:33:03]   meta_lr_test_results.json
+[2026-03-24 11:33:03]   meta_lr_roc_curve.csv
+[2026-03-24 11:33:03]   meta_lr_pr_curve.csv
+[2026-03-24 11:33:03]   meta_lr_calibration_data.csv
+[2026-03-24 11:33:03]   meta_lr_test_report.txt
+[2026-03-24 11:33:03] ==============================================================
+[2026-03-24 11:33:03] EVALUATION COMPLETE
+[2026-03-24 11:33:03]   AUROC   : 0.8294
+[2026-03-24 11:33:03]   AUPRC   : 0.6143
+[2026-03-24 11:33:03]   NPV     : 0.9157
+[2026-03-24 11:33:03]   ECE     : 0.2015
+[2026-03-24 11:33:03]   Results : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/test_evaluation
+[2026-03-24 11:33:03] ==============================================================

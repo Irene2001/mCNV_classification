@@ -1,4 +1,5 @@
 # build_meta_dataset.py
+
 """
 Construct meta-training dataset for stacking ensemble
 mCNV binary classification (active / inactive)
@@ -23,7 +24,6 @@ where:
   lr_folder = "OCT0_LR<lr>_OCT1_LR<lr>_OCTA3_LR<lr>"
               LR is extracted from each modality's RUN_TAG
               e.g. OCT0_LR2e-06_OCT1_LR3e-06_OCTA3_LR4e-06     
-image title: 
 """
 
 import os

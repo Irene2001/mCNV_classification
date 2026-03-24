@@ -90,8 +90,8 @@ MASTER_MANIFEST_CSV = os.path.join(
 )
 
 CHECKPOINT_ROOT      = os.path.join(PROJECT_ROOT_DIR, "checkpoints")
-TRAINING_OUTPUT_ROOT = os.path.join(VGG16_BASE_DIR, "outputs", "training")
-OOF_ROOT             = os.path.join(VGG16_BASE_DIR, "outputs", "oof_predictions")
+TRAINING_OUTPUT_ROOT = os.path.join(VGG16_BASE_DIR  , "training")
+OOF_ROOT             = os.path.join(VGG16_BASE_DIR  , "oof_predictions")
 
 CLASS_NAMES  = ["inactive", "active"]
 NUM_CLASSES  = 1
@@ -106,7 +106,7 @@ SINGLE_FOLD_INDEX   = 1
 # ---------- VGG16-specific training hyper-parameters ----------
 BATCH_SIZE    = 16
 NUM_EPOCHS    = 100
-LR            = 9e-6        
+LR            = 1e-5        
 WEIGHT_DECAY  = 0.01
 GRAD_CLIP     = 1.0
 DROP_RATE     = 0.5         # VGG16 torchvision default dropout

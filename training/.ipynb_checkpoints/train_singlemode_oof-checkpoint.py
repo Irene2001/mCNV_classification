@@ -28,8 +28,8 @@ outputs/oof_predictions/
 Terminal
 -------
 python train_singlemode_oof.py --model_name swin_tiny --modality OCT0
-python train_singlemode_oof.py --model_name VGG16 --modality OCT0
-python train_singlemode_oof.py --model_name efficientnet_b0 --modality OCT0
+python train_singlemode_oof.py --model_name swin_tiny --modality OCT1
+python train_singlemode_oof.py --model_name swin_tiny --modality OCTA3
 """
 
 import os

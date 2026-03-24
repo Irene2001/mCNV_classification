@@ -1,0 +1,62 @@
+[2026-03-24 10:51:21] ============================================================
+[2026-03-24 10:51:21] STACKING META-LEARNER TRAINING  (training only)
+[2026-03-24 10:51:21] ============================================================
+[2026-03-24 10:51:21] model          : vgg16 (vgg16)
+[2026-03-24 10:51:21] strategy        : Partial_B5
+[2026-03-24 10:51:21] meta_dataset_dir: /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_dataset/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06
+[2026-03-24 10:51:21] meta_tag       : vgg16__logit__calibTrue
+[2026-03-24 10:51:21] lr_tag         : OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06
+[2026-03-24 10:51:21] feat_cols      : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-24 10:51:21] C_GRID         : [0.001, 0.01, 0.1, 1.0, 10.0]   cv_folds=5
+[2026-03-24 10:51:21] solver         : lbfgs   class_weight=balanced   max_iter=2000
+[2026-03-24 10:51:21] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06
+[2026-03-24 10:51:21] ────────────────────────────────────────────────────────────
+[2026-03-24 10:51:21] Step 1: Load meta-train dataset (from build_meta_dataset.py)
+[2026-03-24 10:51:21] Loaded   : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_dataset/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/meta_train_oof.csv
+[2026-03-24 10:51:21] Samples  : total=873  active=113 (12.9%)  inactive=760 (87.1%)  ratio=6.73:1
+[2026-03-24 10:51:21] Features : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-24 10:51:21] Alpha    : α_j = N/(2×N_j)  α_active=3.8628  α_inactive=0.5743  ratio=6.73x  (active upweighted)
+[2026-03-24 10:51:21] ────────────────────────────────────────────────────────────
+[2026-03-24 10:51:21] Step 2: Train Pipeline(StandardScaler, LogisticRegressionCV)
+[2026-03-24 10:51:21] Pipeline: StandardScaler → LogisticRegressionCV(solver=lbfgs)
+[2026-03-24 10:51:21]   Cs=[0.001, 0.01, 0.1, 1.0, 10.0]  cv=5(StratifiedKFold)  scoring=roc_auc  class_weight=balanced  max_iter=2000
+[2026-03-24 10:51:22] Done in 1.48s  |  best C=0.1  λ=1/C=10.0000
+[2026-03-24 10:51:22] C Grid CV AUC (mean ± std):  ← C selection only, NOT performance eval
+[2026-03-24 10:51:22]   C=0.001     0.7994 ± 0.0783
+[2026-03-24 10:51:22]   C=0.01      0.8002 ± 0.0776
+[2026-03-24 10:51:22]   C=0.1       0.8010 ± 0.0772 ← BEST
+[2026-03-24 10:51:22]   C=1.0       0.7999 ± 0.0773
+[2026-03-24 10:51:22]   C=10.0      0.7999 ± 0.0772
+[2026-03-24 10:51:22] Modality weights w (post-scaling, sorted by |w|):
+[2026-03-24 10:51:22]   oct1_feat            w=+0.587381  |w|=0.587381
+[2026-03-24 10:51:22]   octa3_feat           w=+0.525435  |w|=0.525435
+[2026-03-24 10:51:22]   oct0_feat            w=+0.511085  |w|=0.511085
+[2026-03-24 10:51:22] Intercept b = -0.519498
+[2026-03-24 10:51:22] Decision: P(active) = σ(w·z + b)  where z = StandardScaler(features)
+[2026-03-24 10:51:22] In-sample metrics (training data — informational only):
+[2026-03-24 10:51:22]   AUC-ROC=0.8054  AUPRC=N/A(train)  Brier=0.1763  BalAcc=0.7211
+[2026-03-24 10:51:22]   F1-macro=0.6156  F1-active=0.4051  Acc=0.7308
+[2026-03-24 10:51:22]   Sens=0.7080  Spec=0.7342
+[2026-03-24 10:51:22]   TP=80  FP=202  FN=33  TN=558
+[2026-03-24 10:51:22]   [!] True performance → evaluate_meta_on_test.py (independent test set)
+[2026-03-24 10:51:22] ────────────────────────────────────────────────────────────
+[2026-03-24 10:51:22] Step 3: Save artefacts
+[2026-03-24 10:51:23] Artefacts → /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06
+[2026-03-24 10:51:23]   meta_lr_model.pkl
+[2026-03-24 10:51:23]   meta_lr_config.json
+[2026-03-24 10:51:23]   meta_lr_results.json
+[2026-03-24 10:51:23]   meta_lr_cv_results.csv
+[2026-03-24 10:51:23]   meta_lr_coef.csv
+[2026-03-24 10:51:23]   meta_lr_training_report.txt
+[2026-03-24 10:51:23]   validation_curve.png
+[2026-03-24 10:51:23]   modality_importance.png
+[2026-03-24 10:51:23] ============================================================
+[2026-03-24 10:51:23] TRAINING COMPLETE
+[2026-03-24 10:51:23]   Best C         : 0.1  (λ=10.0000)
+[2026-03-24 10:51:23]   Weights        : oct0_feat=+0.5111  oct1_feat=+0.5874  octa3_feat=+0.5254
+[2026-03-24 10:51:23]   Intercept b    : -0.5195
+[2026-03-24 10:51:23]   In-sample AUC  : 0.8054  (training data only)
+[2026-03-24 10:51:23]   In-sample Brier: 0.1763  (baseline for TS comparison)
+[2026-03-24 10:51:23]   model saved    : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibTrue/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/meta_lr_model.pkl
+[2026-03-24 10:51:23]   → evaluate_meta_on_test.py for test-set evaluation
+[2026-03-24 10:51:23] ============================================================

@@ -1,0 +1,279 @@
+[2026-03-24 03:31:56] ==================================================================
+[2026-03-24 03:31:56] BASE MODEL TEST EVALUATION
+[2026-03-24 03:31:56] ==================================================================
+[2026-03-24 03:31:56] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/training/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:31:56] model_name     : vgg16
+[2026-03-24 03:31:56] strategy       : Partial_B5
+[2026-03-24 03:31:56] modality       : OCTA3
+[2026-03-24 03:31:56] run_tag        : BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6
+[2026-03-24 03:31:56] best_fold      : 1
+[2026-03-24 03:31:56] project_root   : /data/Irene/SwinTransformer/Swin_Meta
+[2026-03-24 03:31:56] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-24 03:31:56] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1/model_best.pth
+[2026-03-24 03:31:56] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:31:56] device         : cuda
+[2026-03-24 03:31:56] timm_model     : vgg16
+[2026-03-24 03:31:56] num_classes    : 1  (single sigmoid head, output [B,1])
+[2026-03-24 03:31:56] temperature T* : 0.359845  (from val set)
+[2026-03-24 03:31:56] NLL before TS  : 0.398211
+[2026-03-24 03:31:56] NLL after  TS  : 0.298378
+[2026-03-24 03:31:56] Best val BCE   : 0.39821074651256544
+[2026-03-24 03:31:56] Best val AUC   : 0.7824120603015076
+[2026-03-24 03:31:56] Best epoch     : 30
+[2026-03-24 03:31:56] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:56] Step 1: Load test split from master_manifest.csv
+[2026-03-24 03:31:56]   Applying same filters as train_singlemode_oof.py:
+[2026-03-24 03:31:56]   label_conflict==0  →  y_true notna  →  has_octa3==1  →  image_path notna  →  split_set=='test'
+[2026-03-24 03:31:56]   After label_conflict==0 filter : 1725 / 1725 rows
+[2026-03-24 03:31:56]   After y_true notna filter      : 1725 rows
+[2026-03-24 03:31:56]   After has_octa3==1 filter       : 1007 rows
+[2026-03-24 03:31:56]   After octa3_image_path not-null filter : 1007 rows
+[2026-03-24 03:31:56]   split_set='train_valid' available  : 888 rows  (using 'test' only)
+[2026-03-24 03:31:56]   split_set='test' available  : 119 rows  (using 'test' only)
+[2026-03-24 03:31:56] Test set final : 119 samples  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-24 03:31:56] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:56] Step 2: Build model and load checkpoint
+[2026-03-24 03:31:58] Model ready: vgg16 (torchvision) | num_classes=1 | output=[B,1]
+[2026-03-24 03:31:58] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:58] Step 3: Create DataLoader
+[2026-03-24 03:31:58] DataLoader: 119 samples  8 batches  bs=16
+[2026-03-24 03:31:58] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:58] Step 4: Inference
+[2026-03-24 03:31:59]   Inference: 1/8 batches done
+[2026-03-24 03:31:59]   Inference: 2/8 batches done
+[2026-03-24 03:31:59]   Inference: 3/8 batches done
+[2026-03-24 03:31:59]   Inference: 4/8 batches done
+[2026-03-24 03:31:59]   Inference: 5/8 batches done
+[2026-03-24 03:31:59]   Inference: 6/8 batches done
+[2026-03-24 03:31:59]   Inference: 7/8 batches done
+[2026-03-24 03:31:59]   Inference: 8/8 batches done
+[2026-03-24 03:31:59] Done: 119 samples  logit [-1.735, 0.949]  mean=-0.593
+[2026-03-24 03:31:59] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59] Step 5: Temperature Scaling (T*=0.359845)
+[2026-03-24 03:31:59] Prob uncal [0.150, 0.721]  mean=0.366
+[2026-03-24 03:31:59] Prob calib [0.008, 0.933]  mean=0.248
+[2026-03-24 03:31:59] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59] Step 6: Compute metrics
+[2026-03-24 03:31:59] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59] SUMMARY TABLE  —  VGG16 / OCTA3  (threshold=0.50)
+[2026-03-24 03:31:59] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59]   Metric                     Uncalib    Calibrated
+[2026-03-24 03:31:59]   ──────────────────────  ──────────  ────────────
+[2026-03-24 03:31:59]   AUROC                       0.7362        0.7362
+[2026-03-24 03:31:59]   AUPRC                       0.3277        0.3277
+[2026-03-24 03:31:59]   Balanced Accuracy           0.6378        0.6378
+[2026-03-24 03:31:59]   Sensitivity                 0.4286        0.4286
+[2026-03-24 03:31:59]   Specificity                 0.8469        0.8469
+[2026-03-24 03:31:59]   PPV                         0.3750        0.3750
+[2026-03-24 03:31:59]   NPV                         0.8737        0.8737
+[2026-03-24 03:31:59]   F1 (active)                 0.4000        0.4000
+[2026-03-24 03:31:59]   F1 (macro)                  0.6301        0.6301
+[2026-03-24 03:31:59]   Accuracy                    0.7731        0.7731
+[2026-03-24 03:31:59]   Brier Score                 0.1688        0.1548
+[2026-03-24 03:31:59]   ──────────────────────  ──────────  ────────────
+[2026-03-24 03:31:59]   ECE                         0.1894        0.1259
+[2026-03-24 03:31:59] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59]   Confusion Matrix (calib):  TP=9  FP=15  FN=12  TN=83
+[2026-03-24 03:31:59] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:31:59] Step 7: Generate plots
+[2026-03-24 03:32:00] Plots saved.
+[2026-03-24 03:32:00] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:00] Step 8: Save data files
+[2026-03-24 03:32:00] All data files saved.
+[2026-03-24 03:32:00]   test_metrics.csv  : tall-format table (one row per metric)
+[2026-03-24 03:32:00]   test_summary.json : full structured summary
+[2026-03-24 03:32:00]   [KEY] test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 03:32:00] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:00] Step 9: Write report
+[2026-03-24 03:32:00] ==================================================================
+[2026-03-24 03:32:00] EVALUATION COMPLETE
+[2026-03-24 03:32:00]   Results : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:32:00]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 03:32:00] ==================================================================
+[2026-03-24 03:32:47] ==================================================================
+[2026-03-24 03:32:47] BASE MODEL TEST EVALUATION
+[2026-03-24 03:32:47] ==================================================================
+[2026-03-24 03:32:47] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/training/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:32:47] model_name     : vgg16
+[2026-03-24 03:32:47] strategy       : Partial_B5
+[2026-03-24 03:32:47] modality       : OCTA3
+[2026-03-24 03:32:47] run_tag        : BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6
+[2026-03-24 03:32:47] best_fold      : 1
+[2026-03-24 03:32:47] project_root   : /data/Irene/SwinTransformer/Swin_Meta
+[2026-03-24 03:32:47] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-24 03:32:47] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1/model_best.pth
+[2026-03-24 03:32:47] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:32:47] device         : cuda
+[2026-03-24 03:32:47] timm_model     : vgg16
+[2026-03-24 03:32:47] num_classes    : 1  (single sigmoid head, output [B,1])
+[2026-03-24 03:32:47] temperature T* : 0.359845  (from val set)
+[2026-03-24 03:32:47] NLL before TS  : 0.398211
+[2026-03-24 03:32:47] NLL after  TS  : 0.298378
+[2026-03-24 03:32:47] Best val BCE   : 0.39821074651256544
+[2026-03-24 03:32:47] Best val AUC   : 0.7824120603015076
+[2026-03-24 03:32:47] Best epoch     : 30
+[2026-03-24 03:32:47] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:47] Step 1: Load test split from master_manifest.csv
+[2026-03-24 03:32:47]   Applying same filters as train_singlemode_oof.py:
+[2026-03-24 03:32:47]   label_conflict==0  →  y_true notna  →  has_octa3==1  →  image_path notna  →  split_set=='test'
+[2026-03-24 03:32:47]   After label_conflict==0 filter : 1725 / 1725 rows
+[2026-03-24 03:32:47]   After y_true notna filter      : 1725 rows
+[2026-03-24 03:32:47]   After has_octa3==1 filter       : 1007 rows
+[2026-03-24 03:32:47]   After octa3_image_path not-null filter : 1007 rows
+[2026-03-24 03:32:47]   split_set='train_valid' available  : 888 rows  (using 'test' only)
+[2026-03-24 03:32:47]   split_set='test' available  : 119 rows  (using 'test' only)
+[2026-03-24 03:32:47] Test set final : 119 samples  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-24 03:32:47] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:47] Step 2: Build model and load checkpoint
+[2026-03-24 03:32:49] Model ready: vgg16 (torchvision) | num_classes=1 | output=[B,1]
+[2026-03-24 03:32:49] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:49] Step 3: Create DataLoader
+[2026-03-24 03:32:49] DataLoader: 119 samples  8 batches  bs=16
+[2026-03-24 03:32:49] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:49] Step 4: Inference
+[2026-03-24 03:32:50]   Inference: 1/8 batches done
+[2026-03-24 03:32:50]   Inference: 2/8 batches done
+[2026-03-24 03:32:50]   Inference: 3/8 batches done
+[2026-03-24 03:32:50]   Inference: 4/8 batches done
+[2026-03-24 03:32:50]   Inference: 5/8 batches done
+[2026-03-24 03:32:50]   Inference: 6/8 batches done
+[2026-03-24 03:32:50]   Inference: 7/8 batches done
+[2026-03-24 03:32:50]   Inference: 8/8 batches done
+[2026-03-24 03:32:50] Done: 119 samples  logit [-1.735, 0.949]  mean=-0.593
+[2026-03-24 03:32:50] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50] Step 5: Temperature Scaling (T*=0.359845)
+[2026-03-24 03:32:50] Prob uncal [0.150, 0.721]  mean=0.366
+[2026-03-24 03:32:50] Prob calib [0.008, 0.933]  mean=0.248
+[2026-03-24 03:32:50] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50] Step 6: Compute metrics
+[2026-03-24 03:32:50] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50] SUMMARY TABLE  —  VGG16 / OCTA3  (threshold=0.50)
+[2026-03-24 03:32:50] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50]   Metric                     Uncalib    Calibrated
+[2026-03-24 03:32:50]   ──────────────────────  ──────────  ────────────
+[2026-03-24 03:32:50]   AUROC                       0.7362        0.7362
+[2026-03-24 03:32:50]   AUPRC                       0.3277        0.3277
+[2026-03-24 03:32:50]   Balanced Accuracy           0.6378        0.6378
+[2026-03-24 03:32:50]   Sensitivity                 0.4286        0.4286
+[2026-03-24 03:32:50]   Specificity                 0.8469        0.8469
+[2026-03-24 03:32:50]   PPV                         0.3750        0.3750
+[2026-03-24 03:32:50]   NPV                         0.8737        0.8737
+[2026-03-24 03:32:50]   F1 (active)                 0.4000        0.4000
+[2026-03-24 03:32:50]   F1 (macro)                  0.6301        0.6301
+[2026-03-24 03:32:50]   Accuracy                    0.7731        0.7731
+[2026-03-24 03:32:50]   Brier Score                 0.1688        0.1548
+[2026-03-24 03:32:50]   ──────────────────────  ──────────  ────────────
+[2026-03-24 03:32:50]   ECE                         0.1894        0.1259
+[2026-03-24 03:32:50] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50]   Confusion Matrix (calib):  TP=9  FP=15  FN=12  TN=83
+[2026-03-24 03:32:50] ────────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:50] Step 7: Generate plots
+[2026-03-24 03:32:51] Plots saved.
+[2026-03-24 03:32:51] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:51] Step 8: Save data files
+[2026-03-24 03:32:51] All data files saved.
+[2026-03-24 03:32:51]   test_metrics.csv  : tall-format table (one row per metric)
+[2026-03-24 03:32:51]   test_summary.json : full structured summary
+[2026-03-24 03:32:51]   [KEY] test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 03:32:51] ──────────────────────────────────────────────────────────────────
+[2026-03-24 03:32:51] Step 9: Write report
+[2026-03-24 03:32:51] ==================================================================
+[2026-03-24 03:32:51] EVALUATION COMPLETE
+[2026-03-24 03:32:51]   Results : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 03:32:51]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 03:32:51] ==================================================================
+[2026-03-24 12:09:08] ==================================================================
+[2026-03-24 12:09:08] BASE MODEL TEST EVALUATION
+[2026-03-24 12:09:08] ==================================================================
+[2026-03-24 12:09:08] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/training/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 12:09:08] model_name     : vgg16
+[2026-03-24 12:09:08] strategy       : Partial_B5
+[2026-03-24 12:09:08] modality       : OCTA3
+[2026-03-24 12:09:08] run_tag        : BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6
+[2026-03-24 12:09:08] best_fold      : 1
+[2026-03-24 12:09:08] project_root   : /data/Irene/SwinTransformer/Swin_Meta
+[2026-03-24 12:09:08] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-24 12:09:08] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1/model_best.pth
+[2026-03-24 12:09:08] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 12:09:08] device         : cuda
+[2026-03-24 12:09:08] timm_model     : vgg16
+[2026-03-24 12:09:08] num_classes    : 1  (single sigmoid head, output [B,1])
+[2026-03-24 12:09:08] temperature T* : 0.359845  (from val set)
+[2026-03-24 12:09:08] NLL before TS  : 0.398211
+[2026-03-24 12:09:08] NLL after  TS  : 0.298378
+[2026-03-24 12:09:08] Best val BCE   : 0.39821074651256544
+[2026-03-24 12:09:08] Best val AUC   : 0.7824120603015076
+[2026-03-24 12:09:08] Best epoch     : 30
+[2026-03-24 12:09:08] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:08] Step 1: Load test split from master_manifest.csv
+[2026-03-24 12:09:08]   Applying same filters as train_singlemode_oof.py:
+[2026-03-24 12:09:08]   label_conflict==0  →  y_true notna  →  has_octa3==1  →  image_path notna  →  split_set=='test'
+[2026-03-24 12:09:08]   After label_conflict==0 filter : 1725 / 1725 rows
+[2026-03-24 12:09:08]   After y_true notna filter      : 1725 rows
+[2026-03-24 12:09:08]   After has_octa3==1 filter       : 1007 rows
+[2026-03-24 12:09:08]   After octa3_image_path not-null filter : 1007 rows
+[2026-03-24 12:09:08]   split_set='train_valid' available  : 888 rows  (using 'test' only)
+[2026-03-24 12:09:08]   split_set='test' available  : 119 rows  (using 'test' only)
+[2026-03-24 12:09:08] Test set final : 119 samples  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-24 12:09:08] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:08] Step 2: Build model and load checkpoint
+[2026-03-24 12:09:11] Model ready: vgg16 (torchvision) | num_classes=1 | output=[B,1]
+[2026-03-24 12:09:11] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] Step 3: Create DataLoader
+[2026-03-24 12:09:11] DataLoader: 119 samples  8 batches  bs=16
+[2026-03-24 12:09:11] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] Step 4: Inference
+[2026-03-24 12:09:11]   Inference: 1/8 batches done
+[2026-03-24 12:09:11]   Inference: 2/8 batches done
+[2026-03-24 12:09:11]   Inference: 3/8 batches done
+[2026-03-24 12:09:11]   Inference: 4/8 batches done
+[2026-03-24 12:09:11]   Inference: 5/8 batches done
+[2026-03-24 12:09:11]   Inference: 6/8 batches done
+[2026-03-24 12:09:11]   Inference: 7/8 batches done
+[2026-03-24 12:09:11]   Inference: 8/8 batches done
+[2026-03-24 12:09:11] Done: 119 samples  logit [-1.735, 0.949]  mean=-0.593
+[2026-03-24 12:09:11] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] Step 5: Temperature Scaling (T*=0.359845)
+[2026-03-24 12:09:11] Prob uncal [0.150, 0.721]  mean=0.366
+[2026-03-24 12:09:11] Prob calib [0.008, 0.933]  mean=0.248
+[2026-03-24 12:09:11] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] Step 6: Compute metrics
+[2026-03-24 12:09:11] ────────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] SUMMARY TABLE  —  VGG16 / OCTA3  (threshold=0.50)
+[2026-03-24 12:09:11] ────────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11]   Metric                     Uncalib    Calibrated
+[2026-03-24 12:09:11]   ──────────────────────  ──────────  ────────────
+[2026-03-24 12:09:11]   AUROC                       0.7362        0.7362
+[2026-03-24 12:09:11]   AUPRC                       0.3277        0.3277
+[2026-03-24 12:09:11]   Balanced Accuracy           0.6378        0.6378
+[2026-03-24 12:09:11]   Sensitivity                 0.4286        0.4286
+[2026-03-24 12:09:11]   Specificity                 0.8469        0.8469
+[2026-03-24 12:09:11]   PPV                         0.3750        0.3750
+[2026-03-24 12:09:11]   NPV                         0.8737        0.8737
+[2026-03-24 12:09:11]   F1 (active)                 0.4000        0.4000
+[2026-03-24 12:09:11]   F1 (macro)                  0.6301        0.6301
+[2026-03-24 12:09:11]   Accuracy                    0.7731        0.7731
+[2026-03-24 12:09:11]   Brier Score                 0.1688        0.1548
+[2026-03-24 12:09:11]   ──────────────────────  ──────────  ────────────
+[2026-03-24 12:09:11]   ECE                         0.1894        0.1259
+[2026-03-24 12:09:11] ────────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11]   Confusion Matrix (calib):  TP=9  FP=15  FN=12  TN=83
+[2026-03-24 12:09:11] ────────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:11] Step 7: Generate plots
+[2026-03-24 12:09:12] Plots saved.
+[2026-03-24 12:09:12] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:12] Step 8: Save data files
+[2026-03-24 12:09:12] All data files saved.
+[2026-03-24 12:09:12]   test_metrics.csv  : tall-format table (one row per metric)
+[2026-03-24 12:09:12]   test_summary.json : full structured summary
+[2026-03-24 12:09:12]   [KEY] test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 12:09:12] ──────────────────────────────────────────────────────────────────
+[2026-03-24 12:09:12] Step 9: Write report
+[2026-03-24 12:09:12] ==================================================================
+[2026-03-24 12:09:12] EVALUATION COMPLETE
+[2026-03-24 12:09:12]   Results : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCTA3/BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-03-24 12:09:12]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
+[2026-03-24 12:09:12] ==================================================================

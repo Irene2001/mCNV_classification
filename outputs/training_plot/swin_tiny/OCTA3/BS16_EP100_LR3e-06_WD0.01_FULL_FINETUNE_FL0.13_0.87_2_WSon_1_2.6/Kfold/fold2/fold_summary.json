@@ -1,0 +1,23 @@
+{
+  "fold": 2,
+  "model_name": "swin_tiny",
+  "backbone_name": "swin_tiny_patch4_window7_224",
+  "modality": "OCTA3",
+  "train_exam_units": 699,
+  "val_exam_units": 189,
+  "train_patients": 65,
+  "val_patients": 16,
+  "best_val_bce": 0.4565625695324449,
+  "best_val_auc": 0.7763095799905615,
+  "best_epoch": 26,
+  "temperature": 0.4097477904218666,
+  "nll_before_ts": 0.45656251907348633,
+  "nll_after_ts": 0.3854876756668091,
+  "artifacts": {
+    "model_best": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold2/model_best.pth",
+    "checkpoint_last": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold2/checkpoint_last.pth",
+    "metrics_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/training_plot/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold2/metrics.csv",
+    "learning_curves_png": "/data/Irene/SwinTransformer/Swin_Meta/outputs/training_plot/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold2/learning_curves.png",
+    "fold_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/training_plot/swin_tiny/OCTA3/BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold2/val_oof_predictions_fold2.csv"
+  }
+}
