@@ -1,4 +1,4 @@
-# revise_gradcam_singlemode.py
+# gradcam_singlemode.py
 
 """
 Reads test_preds.csv produced by test_singlemode.py, groups samples by

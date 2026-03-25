@@ -84,9 +84,9 @@ import matplotlib.pyplot as plt
 #    Structure: TEST_EVAL_ROOT/<model>/<modality>/<run_tag>/Best_fold{N}/
 TEST_EVAL_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/"
-    "swin_tiny/OCTA3/"
-    "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
-    "Best_fold2"
+    "swin_tiny/OCT1/"
+    "BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/"
+    "Best_fold1"
 )
 # OCT0:  BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9
 # OCT1:  BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
@@ -598,7 +598,7 @@ def main() -> None:
     preds_csv = os.path.join(TEST_EVAL_DIR, "test_preds.csv")
     ts        = time.strftime("%Y%m%d_%H%M%S")
     # scorecam folder, distinct from gradcam to avoid mixing results
-    out_dir   = os.path.join(TEST_EVAL_DIR, "scorecam", ts)
+    out_dir   = os.path.join(TEST_EVAL_DIR, "test_scorecam", ts)
     ensure_dir(out_dir)
 
     logf = open(os.path.join(out_dir, "scorecam_log.txt"),
