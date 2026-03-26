@@ -1,7 +1,7 @@
 # train_singlemode_oof.py
 
 """
-Base model training (OOF val output) for mCNV binary classification.
+Swin_Tiny base model training (OOF val output) for mCNV binary classification.
 
 Outputs
 -------

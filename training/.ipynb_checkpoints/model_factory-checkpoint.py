@@ -11,7 +11,6 @@ Supported models
 """
 
 from typing import List
-
 import timm
 import torch.nn as nn
 
