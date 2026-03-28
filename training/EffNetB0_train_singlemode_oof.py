@@ -1,7 +1,7 @@
 # EffNetB0_train_singlemode_oof.py
 
 """
-Architecture note
+Architecture 
 -----------------
 EfficientNetB0 (timm) comprises:
   conv_stem          → stem 3×3 conv (stage 0, general low-level edges)
@@ -19,7 +19,6 @@ EfficientNetB0 (timm) comprises:
 Unfreeze strategy for small medical datasets (PARTIAL_FINETUNE)
 ---------------------------------------------------------------
 Chosen mode → PARTIAL_FINETUNE:
-  Frozen : conv_stem, bn1, blocks[0..3]   (low/mid-level ImageNet features)
   Trained : blocks[4], blocks[5], blocks[6], conv_head, bn2, classifier
   This preserves texture/edge priors while adapting high-level semantic
   representations to mCNV pathology features.
@@ -49,10 +48,11 @@ EffNetB0_outputs/oof_predictions/
 
 Terminal
 --------
-python EffNetB0_train_singlemode_oof.py --model_name efficientnet_b0 --modality OCT0
-python EffNetB0_train_singlemode_oof.py --model_name efficientnet_b0 --modality OCT1
-python EffNetB0_train_singlemode_oof.py --model_name efficientnet_b0 --modality OCTA3
+python EffNetB0_train_singlemode_oof.py --modality OCT0
+python EffNetB0_train_singlemode_oof.py --modality OCT1
+python EffNetB0_train_singlemode_oof.py --modality OCTA3
 """
+    
 
 import os
 import gc
@@ -85,17 +85,24 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 try:
-    from training.model_factory import (
+    from EffNetB0_model_factory import (
         create_model,
         normalize_model_name,
         get_backbone_name,
     )
-except Exception:
-    from model_factory import (
-        create_model,
-        normalize_model_name,
-        get_backbone_name,
-    )
+except ImportError:
+    try:
+        from training.EffNetB0_model_factory import (
+            create_model,
+            normalize_model_name,
+            get_backbone_name,
+        )
+    except ImportError:
+        from model_factory import (
+            create_model,
+            normalize_model_name,
+            get_backbone_name,
+        )
 
 
 # deterministic
@@ -106,42 +113,49 @@ torch.backends.cudnn.benchmark = False
 # ===================== DEFAULT CONFIG =====================
 PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
-#Add: EfficientNetB0 folder!
+# Add: EfficientNetB0 folder!!
 EFFNET_BASE_DIR = os.path.join(PROJECT_ROOT_DIR, "EffNetB0_outputs")
+STRATEGY_NAME = "Partial_B5_6"
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR,
     "outputs", "manifests", "master_split", "master_manifest.csv"
 )
 
-CHECKPOINT_ROOT      = os.path.join(EFFNET_BASE_DIR, "checkpoints")
+CHECKPOINT_ROOT      = os.path.join(PROJECT_ROOT_DIR, "checkpoints")
 TRAINING_OUTPUT_ROOT = os.path.join(EFFNET_BASE_DIR, "training")
 OOF_ROOT             = os.path.join(EFFNET_BASE_DIR, "oof_predictions")
 
 CLASS_NAMES = ["inactive", "active"]
 NUM_CLASSES = 1
-IMG_SIZE    = 224       
+IMG_SIZE    = 224        
 NUM_WORKERS = 4
 RANDOM_SEED = 42
 NUM_FOLDS   = 5
 
 # execution control
 EXECUTE_SINGLE_FOLD = False
-SINGLE_FOLD_INDEX   = 1  
+SINGLE_FOLD_INDEX   = 1   
 
-# train hyperparameters 
+# train hyperparameters
 BATCH_SIZE   = 16
 NUM_EPOCHS   = 100
-LR           = 5e-6      
+LR           = 3e-5
 WEIGHT_DECAY = 0.01
 GRAD_CLIP    = 1.0
-DROP_RATE = 0.2  
 
-# unfreeze mode ─────────────────────────────────────────────────────────────
-# PARTIAL_FINETUNE: freeze stem + blocks[0..3]，unfreeze blocks[4..6] + head
+# EfficientNetB0 原始論文 drop_rate=0.2（classifier head dropout）
+DROP_RATE      = 0.2
+# drop_path_rate: MBConv blocks 內的 stochastic depth（None = timm 預設 0.2）
+# 傳入 EffNetB0_model_factory.create_model() 的 drop_path_rate 參數
+DROP_PATH_RATE = None
+
+# unfreeze mode 
+# PARTIAL_FINETUNE: freeze stem + blocks[0..3]，unf blocks[4..6] + head
 UNFREEZE_MODE    = "PARTIAL_FINETUNE"
-BACKBONE_LR_MULT = 0.1    
+BACKBONE_LR_MULT = 0.1
 LLRD_DECAY       = 0.85
+
 
 FOCAL_LOSS_ALPHA = {
     "OCT0":  [0.110, 0.890],
@@ -149,6 +163,7 @@ FOCAL_LOSS_ALPHA = {
     "OCTA3": [0.130, 0.870],
 }
 FOCAL_LOSS_GAMMA = 2.0
+
 
 USE_WEIGHTED_SAMPLER = True
 MANUAL_SAMPLE_WEIGHTS = {
@@ -158,15 +173,15 @@ MANUAL_SAMPLE_WEIGHTS = {
 }
 
 USE_TEMPERATURE_SCALING  = True
-EARLY_STOPPING_PATIENCE  = 10
+EARLY_STOPPING_PATIENCE  = 20
 EARLY_STOP_MIN_DELTA     = 1e-4
 
 # ── EfficientNetB0 block structure (timm) ─────────────────────────────────────
 # blocks[0..3] → frozen  (stem + stage1-4, low/mid-level features)
 # blocks[4..6] → trained (stage 5-7, high-level semantic features)
 # conv_head, bn2, classifier → trained
-EFFNET_FROZEN_BLOCK_INDICES   = [0, 1, 2, 3]   # freeze
-EFFNET_TRAINABLE_BLOCK_INDICES = [4, 5, 6]       # unfreeze
+EFFNET_FROZEN_BLOCK_INDICES   = [0, 1, 2, 3, 4]     # freeze
+EFFNET_TRAINABLE_BLOCK_INDICES = [5, 6]       # unfreeze
 
 
 # ===================== UTILS =====================
@@ -330,16 +345,24 @@ def set_requires_grad(model: nn.Module, requires_grad: bool):
 
 def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
     """
-    freeze：conv_stem, bn1, blocks[0..3]
-    unfreeze：blocks[4..6], conv_head, bn2, classifier
+    EfficientNetB0 Unfreezing strategy:
+
+    PARTIAL_FINETUNE (推薦醫療小資料集)
+    ------------------------------------
+    凍結：conv_stem, bn1, blocks[0..3]
+    解凍：blocks[4..6], conv_head, bn2, classifier
+
+    FIXED_BACKBONE
+    --------------
+    僅解凍 classifier head
     """
     mode = str(mode).upper()
 
     if mode == "PARTIAL_FINETUNE":
-        # 先全部凍結
+        # freez all
         set_requires_grad(model, False)
 
-        # 解凍 blocks[4], blocks[5], blocks[6]
+        # unfreeze blocks[4], blocks[5], blocks[6]
         if hasattr(model, "blocks"):
             total_blocks = len(model.blocks)
             for idx in EFFNET_TRAINABLE_BLOCK_INDICES:
@@ -352,7 +375,8 @@ def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
             if logf:
                 log(logf, "  [WARNING] model.blocks not found; skipping block-level unfreeze")
 
-        # 解凍 conv_head, bn2, classifier
+        # unfreeze conv_head, bn2, classifier (Forced infreeze Head)
+        # Automatically unfreeze the final projection layer and classification header (unaffected by the aforementioned Index)
         for attr in ["conv_head", "bn2", "classifier", "head", "fc"]:
             if hasattr(model, attr):
                 module = getattr(model, attr)
@@ -362,7 +386,7 @@ def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
                     if logf:
                         log(logf, f"  [unfreeze] {attr}")
 
-        # 統計可訓練參數
+        # count trainable parameters
         trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
         total     = sum(p.numel() for p in model.parameters())
         if logf:
@@ -417,8 +441,8 @@ def build_optimizer(
     weight_decay: float,
 ):
     """
-    EfficientNetB0 專用 optimizer builder。
-    使用 AdamW，no_weight_decay 對 bias / norm 參數套用。
+    EfficientNetB0's dedicated optimizer builder.
+    Uses AdamW, with `no_weight_decay` applied to the bias/norm parameters.
     """
     decay_params    = []
     no_decay_params = []
@@ -681,16 +705,21 @@ def train_one_fold(
     )
 
     # ── model ────────────────────────────────────────────────────────────────
+    # drop_rate      : classifier head dropout (0.2, EfficientNetB0 default)
+    # drop_path_rate : stochastic depth within MBConv blocks (None = timm default)
+    #                  passed through EffNetB0_model_factory.create_model()
     model = create_model(
         model_name=model_name,
         num_classes=1,
         pretrained=not args.no_pretrained,
-        drop_rate=DROP_RATE,          # EfficientNetB0 head dropout = 0.2
+        drop_rate=DROP_RATE,
+        drop_path_rate=DROP_PATH_RATE,
     ).to(device)
 
     # EfficientNetB0 專用解凍
     apply_unfreeze_mode_effnet(model, UNFREEZE_MODE, logf=logf)
 
+    # ---------- Loss / Optimizer / Scheduler ----------
     focal     = FocalBCELoss(alpha=FOCAL_LOSS_ALPHA[modality], gamma=FOCAL_LOSS_GAMMA)
     bce       = nn.BCEWithLogitsLoss()
     optimizer = build_optimizer(model, lr=LR, weight_decay=WEIGHT_DECAY)
@@ -1096,12 +1125,6 @@ def build_argparser():
         description="EfficientNetB0 single-modality OOF training for mCNV classification"
     )
     parser.add_argument(
-        "--model_name", type=str,
-        default="efficientnet_b0",
-        choices=["efficientnet_b0"],
-        help="Model name (fixed to efficientnet_b0 for this script)"
-    )
-    parser.add_argument(
         "--modality", type=str,
         required=True,
         choices=["OCT0", "OCT1", "OCTA3"]
@@ -1120,7 +1143,7 @@ def build_argparser():
 def main():
     args = build_argparser().parse_args()
 
-    model_name = normalize_model_name(args.model_name)
+    model_name = "efficientnet_b0"
     modality   = args.modality
 
     set_seed(RANDOM_SEED)
@@ -1143,15 +1166,15 @@ def main():
         f"_EP{NUM_EPOCHS}"
         f"_LR{fmt(LR)}"
         f"_WD{fmt(WEIGHT_DECAY)}"
+        f"_DR{fmt(DROP_RATE)}" # Add DROP_RATE for EffNetB0!!
         f"_{UNFREEZE_MODE}"
-        f"_DR{fmt(DROP_RATE)}"
         f"_FL{fmt(FOCAL_LOSS_ALPHA[modality][0])}_{fmt(FOCAL_LOSS_ALPHA[modality][1])}_{fmt(FOCAL_LOSS_GAMMA)}"
         f"{ws_tag}"
     )
 
-    ckpt_run_dir     = os.path.join(CHECKPOINT_ROOT,      model_name, modality, run_tag)
-    train_run_dir    = os.path.join(TRAINING_OUTPUT_ROOT, model_name, modality, run_tag)
-    oof_run_dir      = os.path.join(OOF_ROOT,             model_name, modality, run_tag)
+    ckpt_run_dir     = os.path.join(CHECKPOINT_ROOT,      model_name, STRATEGY_NAME, modality, run_tag)
+    train_run_dir    = os.path.join(TRAINING_OUTPUT_ROOT, model_name, STRATEGY_NAME, modality, run_tag)
+    oof_run_dir      = os.path.join(OOF_ROOT,             model_name, STRATEGY_NAME, modality, run_tag)
     per_fold_oof_dir = os.path.join(oof_run_dir, "_per_fold")
 
     ensure_dir(os.path.join(ckpt_run_dir,  "Kfold"))
@@ -1164,6 +1187,7 @@ def main():
     run_config = {
         "model_name":            model_name,
         "backbone_name":         get_backbone_name(model_name),
+        "strategy_name":         STRATEGY_NAME,
         "modality":              modality,
         "master_manifest_csv":   args.master_manifest_csv,
         "effnet_output_root":    EFFNET_BASE_DIR,

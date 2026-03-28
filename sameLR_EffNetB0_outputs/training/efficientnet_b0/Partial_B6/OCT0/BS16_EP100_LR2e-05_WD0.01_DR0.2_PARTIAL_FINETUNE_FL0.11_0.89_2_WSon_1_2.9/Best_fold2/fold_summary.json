@@ -1,0 +1,36 @@
+{
+  "fold": 2,
+  "model_name": "efficientnet_b0",
+  "backbone_name": "efficientnet_b0",
+  "modality": "OCT0",
+  "unfreeze_mode": "PARTIAL_FINETUNE",
+  "drop_rate": 0.2,
+  "frozen_blocks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "trainable_blocks": [
+    6
+  ],
+  "train_exam_units": 1197,
+  "val_exam_units": 272,
+  "train_patients": 74,
+  "val_patients": 19,
+  "best_val_bce": 0.8422245032647077,
+  "best_val_auc": 0.5783696961584794,
+  "best_epoch": 56,
+  "temperature": 3.669171285248443,
+  "nll_before_ts": 0.8422244787216187,
+  "nll_after_ts": 0.5015772581100464,
+  "artifacts": {
+    "model_best": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold2/model_best.pth",
+    "checkpoint_last": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold2/checkpoint_last.pth",
+    "metrics_csv": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold2/metrics.csv",
+    "learning_curves_png": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold2/learning_curves.png",
+    "fold_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR2e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold2/val_oof_predictions_fold2.csv"
+  }
+}

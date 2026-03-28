@@ -1,0 +1,62 @@
+[2026-03-26 11:18:09] ==================================================================
+[2026-03-26 11:18:09] GRAD-CAM  VGG16  SINGLE-MODALITY  mCNV CLASSIFICATION
+[2026-03-26 11:18:09] ==================================================================
+[2026-03-26 11:18:09] model        : vgg16  (torchvision vgg16)
+[2026-03-26 11:18:09] modality     : OCT0
+[2026-03-26 11:18:09] run_tag      : BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9
+[2026-03-26 11:18:09] best_fold    : 5
+[2026-03-26 11:18:09] device       : cuda
+[2026-03-26 11:18:09] checkpoint   : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/model_best.pth
+[2026-03-26 11:18:09] preds_csv    : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/test_preds.csv
+[2026-03-26 11:18:09] out_dir      : /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809
+[2026-03-26 11:18:09] target_layer : model.features[28]  (last Conv2d Block5, 14x14, 512ch)
+[2026-03-26 11:18:09] cam_threshold: 0.3  (zero pixels < threshold*max at 14x14)
+[2026-03-26 11:18:09] upsample     : bicubic 14x14 -> 224x224  (16x)
+[2026-03-26 11:18:09] drop_rate    : 0.5
+[2026-03-26 11:18:09] random_seed  : None  (None=time-based, diff every run)
+[2026-03-26 11:18:09] reference    : Selvaraju et al. ICCV 2017 (Grad-CAM)
+[2026-03-26 11:18:09] reference    : Simonyan & Zisserman arXiv:1409.1556 (VGG)
+[2026-03-26 11:18:09] ------------------------------------------------------------------
+[2026-03-26 11:18:09] Step 1: Load test_preds.csv
+[2026-03-26 11:18:09] Loaded 256 samples  temperature T*=0.915132
+[2026-03-26 11:18:09] Using calibrated predictions (prob_calib, threshold=0.5)
+[2026-03-26 11:18:09] ------------------------------------------------------------------
+[2026-03-26 11:18:09] Step 2: Group by confusion-matrix quadrant
+[2026-03-26 11:18:09] TP=21  FP=15  FN=17  TN=203
+[2026-03-26 11:18:09]   TP: exam_key=6297852_OD_20160727  gt=1  pred=1  prob_calib=0.8927
+[2026-03-26 11:18:09]   FP: exam_key=6124713_OD_20190108  gt=0  pred=1  prob_calib=0.9228
+[2026-03-26 11:18:09]   FN: exam_key=2648007_OS_20161117  gt=1  pred=0  prob_calib=0.2915
+[2026-03-26 11:18:09]   TN: exam_key=6124713_OD_20220301  gt=0  pred=0  prob_calib=0.0853
+[2026-03-26 11:18:09] ------------------------------------------------------------------
+[2026-03-26 11:18:09] Step 3: Build VGG16 model and load checkpoint
+[2026-03-26 11:18:12] Checkpoint T*=1.000000  (using CSV T*=0.915132)
+[2026-03-26 11:18:12] Model: torchvision VGG16  classifier[6]=Linear(4096,1)
+[2026-03-26 11:18:12] Grad-CAM engine ready  target=model.features[28]
+[2026-03-26 11:18:12]   Feature map shape at target: [B, 512, 14, 14]
+[2026-03-26 11:18:12] ------------------------------------------------------------------
+[2026-03-26 11:18:12] Step 4: Generate Grad-CAM heatmaps
+[2026-03-26 11:18:12]   [TP] 6297852OD 20160727_OCT0.jpg  gt=active  pred=active  P(active)=0.8928  cam0_max=1.000  cam1_max=1.000
+[2026-03-26 11:18:13]     saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/TP_panel.png
+[2026-03-26 11:18:13]   [FP] 6124713OD 20190108_OCT0.jpg  gt=inactive  pred=active  P(active)=0.9232  cam0_max=1.000  cam1_max=1.000
+[2026-03-26 11:18:13]     saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/FP_panel.png
+[2026-03-26 11:18:13]   [FN] 2648007OS 20161117_OCT0.jpg  gt=active  pred=inactive  P(active)=0.2909  cam0_max=0.996  cam1_max=1.000
+[2026-03-26 11:18:14]     saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/FN_panel.png
+[2026-03-26 11:18:14]   [TN] 6124713OD 20220301_OCT0.jpg  gt=inactive  pred=inactive  P(active)=0.0861  cam0_max=1.000  cam1_max=1.000
+[2026-03-26 11:18:14]     saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/TN_panel.png
+[2026-03-26 11:18:14] ------------------------------------------------------------------
+[2026-03-26 11:18:14] Step 5: Save combined 4x3 panel
+[2026-03-26 11:18:15] Saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/GradCAM_4x3_panel.png
+[2026-03-26 11:18:15] ------------------------------------------------------------------
+[2026-03-26 11:18:15] Step 6: Save CSV record
+[2026-03-26 11:18:15] Saved -> /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809/gradcam_samples.csv
+[2026-03-26 11:18:15] ==================================================================
+[2026-03-26 11:18:15] GRAD-CAM VGG16 COMPLETE
+[2026-03-26 11:18:15]   Output: /data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/vgg16/Partial_B5/OCT0/BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/Best_fold5/gradcam_vgg16/20260326_111809
+[2026-03-26 11:18:15]   Files : GradCAM_4x3_panel.png
+[2026-03-26 11:18:15]           TP_panel.png
+[2026-03-26 11:18:15]           FP_panel.png
+[2026-03-26 11:18:15]           FN_panel.png
+[2026-03-26 11:18:15]           TN_panel.png
+[2026-03-26 11:18:15]           gradcam_samples.csv
+[2026-03-26 11:18:15]           gradcam_log.txt
+[2026-03-26 11:18:15] ==================================================================

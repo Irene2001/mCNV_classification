@@ -1,0 +1,85 @@
+{
+  "configuration": {
+    "model_name": "efficientnet_b0",
+    "backbone_name": "efficientnet_b0",
+    "modality": "OCTA3",
+    "num_folds": 5,
+    "batch_size": 16,
+    "num_epochs": 100,
+    "lr": 7e-06,
+    "weight_decay": 0.01,
+    "drop_rate": 0.2,
+    "weighted_sampler": true,
+    "temperature_scaling": true,
+    "unfreeze_mode": "PARTIAL_FINETUNE",
+    "frozen_blocks": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "trainable_blocks": [
+      4,
+      5,
+      6
+    ],
+    "focal_alpha": [
+      0.13,
+      0.87
+    ],
+    "focal_gamma": 2.0,
+    "run_tag": "BS16_EP100_LR7e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6",
+    "execute_single_fold": false,
+    "single_fold_index": null
+  },
+  "fold_results": [
+    {
+      "fold": 1,
+      "best_val_key": 1.1214280833392383,
+      "best_val_auc": 0.499748743718593,
+      "best_epoch": 68,
+      "temperature": 5.089105180751725,
+      "nll_before": 1.12142813205719,
+      "nll_after": 0.581148087978363
+    },
+    {
+      "fold": 2,
+      "best_val_key": 0.9062088116136178,
+      "best_val_auc": 0.5455403492213309,
+      "best_epoch": 1,
+      "temperature": 3.895644068718475,
+      "nll_before": 0.9062088131904602,
+      "nll_after": 0.5782772898674011
+    },
+    {
+      "fold": 3,
+      "best_val_key": 1.1894920626816723,
+      "best_val_auc": 0.5966371027346637,
+      "best_epoch": 7,
+      "temperature": 5.637611821457798,
+      "nll_before": 1.189492106437683,
+      "nll_after": 0.5831999182701111
+    },
+    {
+      "fold": 4,
+      "best_val_key": 2.3853899899651023,
+      "best_val_auc": 0.527710003485535,
+      "best_epoch": 3,
+      "temperature": 10.0,
+      "nll_before": 2.385390043258667,
+      "nll_after": 0.7516989707946777
+    },
+    {
+      "fold": 5,
+      "best_val_key": 0.5947009755768405,
+      "best_val_auc": 0.6684027777777778,
+      "best_epoch": 6,
+      "temperature": 2.914655232611468,
+      "nll_before": 0.5947009325027466,
+      "nll_after": 0.3797517716884613
+    }
+  ],
+  "best_fold_num": 5,
+  "all_folds_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/oof_predictions/efficientnet_b0/Partial_B4_6/OCTA3/BS16_EP100_LR7e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof.csv",
+  "training_time_minutes": 5.131958369414011
+}

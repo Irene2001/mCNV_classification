@@ -1,0 +1,39 @@
+================================================================================
+K-FOLD SINGLE-MODE OOF TRAINING SUMMARY  [EfficientNetB0]
+================================================================================
+
+CONFIGURATION
+----------------------------------------
+Model: efficientnet_b0 (efficientnet_b0)
+Modality: OCTA3
+Num folds: 5
+Batch size: 16
+Epochs: 100
+LR: 3e-05
+Weight decay: 0.01
+Drop rate: 0.2
+Weighted sampler: True
+Temperature scaling: True
+Unfreeze mode: PARTIAL_FINETUNE
+Frozen blocks: [0, 1, 2, 3, 4]
+Trainable blocks: [5, 6]
+Focal alpha: [0.13, 0.87]
+Focal gamma: 2.0
+Run tag: BS16_EP100_LR3e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+
+FOLD RESULTS
+----------------------------------------
+Fold 1: best_val_bce=0.690018, best_val_auc=0.6043, best_epoch=59, T=3.1178
+Fold 2: best_val_bce=1.028423, best_val_auc=0.6583, best_epoch=17, T=4.5142
+Fold 3: best_val_bce=1.022979, best_val_auc=0.6244, best_epoch=61, T=4.6509
+Fold 4: best_val_bce=1.153929, best_val_auc=0.5002, best_epoch=1, T=5.7381
+Fold 5: best_val_bce=0.911367, best_val_auc=0.5755, best_epoch=60, T=3.9925
+
+AVERAGE PERFORMANCE
+----------------------------------------
+val_bce: 0.961343 (±0.155887)
+val_auc: 0.5925 (±0.0535)
+
+Best fold: 1
+All folds OOF CSV: /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/oof_predictions/efficientnet_b0/Partial_B5_6/OCTA3/BS16_EP100_LR3e-05_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof.csv
+Total training time (min): 5.83

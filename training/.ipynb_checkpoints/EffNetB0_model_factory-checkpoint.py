@@ -38,14 +38,14 @@ def create_model(
     num_classes: int = 1,
     pretrained: bool = True,
     drop_rate: float = 0.0,
-    drop_path_rate: Optional[float] = None, # 針對 EfficientNet 的隨機深度
+    drop_path_rate: Optional[float] = None, # Random depth for EfficientNet
 ) -> nn.Module:
     model_name = normalize_model_name(model_name)
     backbone_name = MODEL_NAME_MAP[model_name]
 
-    # 針對 EfficientNetB0，timm 會將其結構化為 model.blocks
-    # 這裡的 drop_rate 對應的是 classifier head 的 dropout
-    # 這裡的 drop_path_rate 對應的是 MBConv 內部的 Stochastic Depth
+    # For EfficientNetB0, timm will structure it into model.blocks.
+    # Drop_rate corresponds to the dropout of the classifier head.
+    # Drop_path_rate corresponds to the Stochastic Depth within MBConv.
     
     kwargs = {
         "pretrained": pretrained,
@@ -53,7 +53,6 @@ def create_model(
         "drop_rate": drop_rate,
     }
     
-    # 如果是 EfficientNet 且有提供隨機深度設定（醫療影像建議 0.1-0.2）
     if "efficientnet" in model_name and drop_path_rate is not None:
         kwargs["drop_path_rate"] = drop_path_rate
 

@@ -1,0 +1,29 @@
+RUN CONFIG
+================================================================================
+model_name=efficientnet_b0
+backbone_name=efficientnet_b0
+strategy_name=Partial_B6
+modality=OCTA3
+master_manifest_csv=/data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+effnet_output_root=/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs
+batch_size=16
+num_epochs=100
+lr=8e-06
+weight_decay=0.01
+grad_clip=1.0
+drop_rate=0.2
+weighted_sampler=True
+temperature_scaling=True
+unfreeze_mode=PARTIAL_FINETUNE
+frozen_blocks=[0, 1, 2, 3, 4, 5]
+trainable_blocks=[6]
+focal_alpha=[0.13, 0.87]
+focal_gamma=2.0
+train_valid_exam_units=888
+test_exam_units=119
+train_valid_patients=81
+test_patients=11
+usable_folds=[1, 2, 3, 4, 5]
+run_tag=BS16_EP100_LR8e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+execute_single_fold=False
+single_fold_index=None

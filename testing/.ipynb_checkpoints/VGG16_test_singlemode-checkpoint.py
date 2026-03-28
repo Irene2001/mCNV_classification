@@ -65,8 +65,8 @@ from training.VGG16_model_factory import (
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/training/"
     "vgg16/Partial_B5/OCT0/"
-    "BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/"
-    "Best_fold2"
+    "BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/"
+    "Best_fold5"
 )
 
 # OCT0: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)

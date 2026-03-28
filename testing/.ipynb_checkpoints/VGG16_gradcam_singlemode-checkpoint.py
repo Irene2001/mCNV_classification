@@ -81,10 +81,11 @@ import matplotlib.pyplot as plt
 #    Structure: TEST_EVAL_ROOT/<model>/<modality>/<run_tag>/Best_fold{N}/
 TEST_EVAL_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/"
-    "vgg16/Partial_B5/OCTA3/"
-    "BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6/"
-    "Best_fold1"
+    "vgg16/Partial_B5/OCT0/"
+    "BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/"
+    "Best_fold5"
 )
+
 
 # OCT0: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)
 # OCT1: BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.113_0.887_2_WSon_1_2.8 (Best_fold5)
@@ -109,7 +110,7 @@ CLASS_NAMES   = ["inactive", "active"]
 # Set 0.0 to disable.
 # Note: VGG16 14x14 CAM has finer spatial detail than Swin 7x7;
 #       0.25-0.35 is a reasonable starting point.
-CAM_THRESHOLD = 0.3
+CAM_THRESHOLD = 0.0
 
 # 5. Random seed.
 #    None = time-based (different sample every run).
@@ -376,12 +377,11 @@ class VGG16GradCAM:
         cam_min, cam_max = cam.min(), cam.max()
         if cam_max > cam_min:
             cam = (cam - cam_min) / (cam_max - cam_min + 1e-8)
-
         # Threshold: zero out pixels below CAM_THRESHOLD * max.
         # Applied at 14x14 to suppress low-contribution background regions.
         if CAM_THRESHOLD > 0.0:
             cam = cam * (cam >= CAM_THRESHOLD).float()
-
+       
         # Bicubic upsample 14x14 -> 224x224 (16x upscaling).
         # Bicubic provides smoother transitions than bilinear.
         cam_up = F.interpolate(

@@ -1,0 +1,40 @@
+[2026-03-28 09:29:55]   [unfreeze] blocks[6]
+[2026-03-28 09:29:55]   [unfreeze] conv_head
+[2026-03-28 09:29:55]   [unfreeze] bn2
+[2026-03-28 09:29:55]   [unfreeze] classifier
+[2026-03-28 09:29:55]   [PARTIAL_FINETUNE] trainable=1,130,673 / total=4,008,829 (28.2%)
+[2026-03-28 09:29:55] Start Fold 3 | MODEL=efficientnet_b0(efficientnet_b0) MODALITY=OCT0 BS=16 EP=100 LR=8e-06 WD=0.01 UNFREEZE_MODE=PARTIAL_FINETUNE DROP_RATE=0.2 FocalAlpha=[0.11, 0.89] FocalGamma=2.0
+[2026-03-28 09:29:56] [Epoch 1] lr_max=7.988e-06 lr_min=7.988e-06 train_focal=1.742765 train_bce=2.539478 train_acc=0.6828 val_bce=1.895799 val_acc=0.6496 val_auc=0.4516
+[2026-03-28 09:29:57] [NEW_BEST] epoch=1 val_bce=1.895799 val_acc=0.6496 val_auc=0.4516
+[2026-03-28 09:29:58] [Epoch 2] lr_max=7.95141e-06 lr_min=7.95141e-06 train_focal=1.191337 train_bce=1.964447 train_acc=0.6728 val_bce=1.741708 val_acc=0.6423 val_auc=0.4661
+[2026-03-28 09:29:58] [NEW_BEST] epoch=2 val_bce=1.741708 val_acc=0.6423 val_auc=0.4661
+[2026-03-28 09:29:59] [Epoch 3] lr_max=7.89046e-06 lr_min=7.89046e-06 train_focal=0.941244 train_bce=1.816318 train_acc=0.6368 val_bce=1.771398 val_acc=0.6241 val_auc=0.4721
+[2026-03-28 09:30:01] [Epoch 4] lr_max=7.80552e-06 lr_min=7.80552e-06 train_focal=0.766452 train_bce=1.792378 train_acc=0.6259 val_bce=3.734127 val_acc=0.6277 val_auc=0.4694
+[2026-03-28 09:30:02] [Epoch 5] lr_max=7.69712e-06 lr_min=7.69712e-06 train_focal=0.731983 train_bce=1.880375 train_acc=0.6251 val_bce=8.195777 val_acc=0.6058 val_auc=0.4604
+[2026-03-28 09:30:03] [Epoch 6] lr_max=7.56593e-06 lr_min=7.56593e-06 train_focal=0.557855 train_bce=1.713770 train_acc=0.6167 val_bce=1.716076 val_acc=0.6496 val_auc=0.4756
+[2026-03-28 09:30:04] [NEW_BEST] epoch=6 val_bce=1.716076 val_acc=0.6496 val_auc=0.4756
+[2026-03-28 09:30:05] [Epoch 7] lr_max=7.41275e-06 lr_min=7.41275e-06 train_focal=0.485206 train_bce=1.814602 train_acc=0.6109 val_bce=1.814845 val_acc=0.6314 val_auc=0.4698
+[2026-03-28 09:30:06] [Epoch 8] lr_max=7.23853e-06 lr_min=7.23853e-06 train_focal=0.413943 train_bce=1.547937 train_acc=0.6494 val_bce=11.477920 val_acc=0.6569 val_auc=0.4902
+[2026-03-28 09:30:08] [Epoch 9] lr_max=7.04434e-06 lr_min=7.04434e-06 train_focal=0.455255 train_bce=1.534760 train_acc=0.6385 val_bce=1.727519 val_acc=0.6314 val_auc=0.4922
+[2026-03-28 09:30:09] [Epoch 10] lr_max=6.83139e-06 lr_min=6.83139e-06 train_focal=0.396132 train_bce=1.514399 train_acc=0.6502 val_bce=2.229157 val_acc=0.5985 val_auc=0.4679
+[2026-03-28 09:30:10] [Epoch 11] lr_max=6.60098e-06 lr_min=6.60098e-06 train_focal=0.402494 train_bce=1.534151 train_acc=0.6460 val_bce=4.605103 val_acc=0.5876 val_auc=0.4894
+[2026-03-28 09:30:12] [Epoch 12] lr_max=6.35453e-06 lr_min=6.35453e-06 train_focal=0.345937 train_bce=1.432391 train_acc=0.6552 val_bce=1.867030 val_acc=0.5912 val_auc=0.4564
+[2026-03-28 09:30:13] [Epoch 13] lr_max=6.09356e-06 lr_min=6.09356e-06 train_focal=0.377111 train_bce=1.437821 train_acc=0.6628 val_bce=4.317838 val_acc=0.5949 val_auc=0.4734
+[2026-03-28 09:30:14] [Epoch 14] lr_max=5.81969e-06 lr_min=5.81969e-06 train_focal=0.312212 train_bce=1.298268 train_acc=0.6736 val_bce=1.780328 val_acc=0.6204 val_auc=0.5040
+[2026-03-28 09:30:16] [Epoch 15] lr_max=5.5346e-06 lr_min=5.5346e-06 train_focal=0.384903 train_bce=1.463862 train_acc=0.6736 val_bce=5.714832 val_acc=0.5730 val_auc=0.4543
+[2026-03-28 09:30:17] [Epoch 16] lr_max=5.24005e-06 lr_min=5.24005e-06 train_focal=0.359670 train_bce=1.407224 train_acc=0.6879 val_bce=6.268047 val_acc=0.5584 val_auc=0.4679
+[2026-03-28 09:30:18] [Epoch 17] lr_max=4.93785e-06 lr_min=4.93785e-06 train_focal=0.356453 train_bce=1.283494 train_acc=0.6812 val_bce=1.734302 val_acc=0.6460 val_auc=0.4974
+[2026-03-28 09:30:20] [Epoch 18] lr_max=4.62987e-06 lr_min=4.62987e-06 train_focal=0.344673 train_bce=1.324128 train_acc=0.6736 val_bce=1.769686 val_acc=0.6277 val_auc=0.4950
+[2026-03-28 09:30:21] [Epoch 19] lr_max=4.31801e-06 lr_min=4.31801e-06 train_focal=0.346208 train_bce=1.271453 train_acc=0.6820 val_bce=9.832636 val_acc=0.5839 val_auc=0.4683
+[2026-03-28 09:30:22] [Epoch 20] lr_max=4.00419e-06 lr_min=4.00419e-06 train_focal=0.275386 train_bce=1.234720 train_acc=0.7046 val_bce=1.948891 val_acc=0.5949 val_auc=0.4736
+[2026-03-28 09:30:24] [Epoch 21] lr_max=3.69034e-06 lr_min=3.69034e-06 train_focal=0.330963 train_bce=1.295470 train_acc=0.6862 val_bce=1.837708 val_acc=0.5912 val_auc=0.4910
+[2026-03-28 09:30:25] [Epoch 22] lr_max=3.3784e-06 lr_min=3.3784e-06 train_focal=0.328733 train_bce=1.311047 train_acc=0.6820 val_bce=1.868038 val_acc=0.5985 val_auc=0.4787
+[2026-03-28 09:30:26] [Epoch 23] lr_max=3.07029e-06 lr_min=3.07029e-06 train_focal=0.354979 train_bce=1.219318 train_acc=0.7096 val_bce=5.210350 val_acc=0.6277 val_auc=0.4956
+[2026-03-28 09:30:27] [Epoch 24] lr_max=2.76792e-06 lr_min=2.76792e-06 train_focal=0.325362 train_bce=1.146867 train_acc=0.7222 val_bce=1.758387 val_acc=0.6241 val_auc=0.4979
+[2026-03-28 09:30:29] [Epoch 25] lr_max=2.47314e-06 lr_min=2.47314e-06 train_focal=0.329598 train_bce=1.226817 train_acc=0.6845 val_bce=1.732875 val_acc=0.6314 val_auc=0.5193
+[2026-03-28 09:30:30] [Epoch 26] lr_max=2.18777e-06 lr_min=2.18777e-06 train_focal=0.269982 train_bce=1.133845 train_acc=0.7146 val_bce=1.739621 val_acc=0.6168 val_auc=0.4988
+[2026-03-28 09:30:30] [early stop] Fold 3 at epoch 26
+[2026-03-28 09:30:31] [saved learning curves] /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR8e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold3/learning_curves.png
+[2026-03-28 09:30:31] [TS] T*=9.922819 | NLL 1.716076374053955->0.6354339122772217
+[2026-03-28 09:30:31] [saved checkpoint] /data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR8e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold3/model_best.pth
+[2026-03-28 09:30:31] [saved OOF] /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B6/OCT0/BS16_EP100_LR8e-06_WD0.01_DR0.2_PARTIAL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/Kfold/fold3/val_oof_predictions_fold3.csv

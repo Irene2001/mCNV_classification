@@ -106,7 +106,7 @@ SINGLE_FOLD_INDEX   = 1
 # ---------- VGG16-specific training hyper-parameters ----------
 BATCH_SIZE    = 16
 NUM_EPOCHS    = 100
-LR            = 1e-5        
+LR            = 3e-5        
 WEIGHT_DECAY  = 0.01
 GRAD_CLIP     = 1.0
 DROP_RATE     = 0.5         # VGG16 torchvision default dropout
@@ -144,7 +144,7 @@ MANUAL_SAMPLE_WEIGHTS = {
 
 # ---------- Temperature Scaling / Early Stop ----------
 USE_TEMPERATURE_SCALING  = True
-EARLY_STOPPING_PATIENCE  = 10
+EARLY_STOPPING_PATIENCE  = 20
 EARLY_STOP_MIN_DELTA     = 1e-4
 
 
@@ -1052,6 +1052,7 @@ def main():
     run_config = {
         "model_name":              model_name,
         "backbone_name":           get_backbone_name(model_name),
+        "strategy_name":         strategy_name,
         "modality":                modality,
         "master_manifest_csv":     args.master_manifest_csv,
         "batch_size":              BATCH_SIZE,
