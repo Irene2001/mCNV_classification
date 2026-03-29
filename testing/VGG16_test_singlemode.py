@@ -74,19 +74,17 @@ INPUT_DIR = (
 # OCTA3: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6 (Best_fold1)
 
 # ★ 2. master_manifest.csv — same file used by train_singlemode_oof.py.
-#      Leave "" to auto-detect from PROJECT_ROOT (recommended).
-#      Explicit example:
-#        "/data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/
-#         master_split/master_manifest.csv"
-MASTER_MANIFEST_CSV = ""
+MASTER_MANIFEST_CSV = os.path.join(
+    PROJECT_ROOT, "outputs", "manifests", "master_split", "master_manifest.csv"
+)
 
 # ★ 3. CHECKPOINT_ROOT — where train_singlemode_oof.py saved model weights.
 #      Must match CHECKPOINT_ROOT in the training script.
 #      Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
-CHECKPOINT_ROOT = ""
+CHECKPOINT_ROOT = os.path.join(PROJECT_ROOT, "checkpoints")
 
 # ================= Output root==================
-TEST_EVAL_ROOT = "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation"
+TEST_EVAL_ROOT = os.path.join(PROJECT_ROOT, "VGG16_outputs", "test_evaluation")
 
 # ============ Evaluation settings (no need to change)==========
 THRESHOLD    = 0.5   # binary decision threshold

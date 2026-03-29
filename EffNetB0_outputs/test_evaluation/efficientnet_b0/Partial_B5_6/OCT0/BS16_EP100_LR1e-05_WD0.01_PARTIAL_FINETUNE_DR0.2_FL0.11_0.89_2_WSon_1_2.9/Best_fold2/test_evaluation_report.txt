@@ -1,0 +1,122 @@
+========================================================================
+EfficientNetB0 BASE MODEL — INDEPENDENT TEST SET EVALUATION REPORT
+========================================================================
+
+[RUN CONFIG]
+  INPUT_DIR                           : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold2
+  model_name                          : efficientnet_b0
+  strategy                            : Partial_B5_6
+  timm_backbone                       : efficientnet_b0
+  num_classes                         : 1
+  drop_rate                           : 0.2
+  modality                            : OCT0
+  run_tag                             : BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9
+  best_fold                           : 2
+  temperature_T*                      : 3.637601
+  nll_before_ts                       : 0.7870751619338989
+  nll_after_ts                        : 0.46091488003730774
+  best_val_bce                        : 0.7870751597425517
+  best_val_auc                        : 0.747155668585196
+  best_epoch                          : 31
+  unfreeze_mode                       : PARTIAL_FINETUNE
+  frozen_blocks                       : [0, 1, 2, 3, 4]
+  trainable_blocks                    : [5, 6]
+  checkpoint                          : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold2/model_best.pth
+  manifest_csv                        : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+  split_set_filter                    : test
+  threshold                           : 0.5
+  ece_n_bins                          : 10
+  batch_size                          : 16
+  img_size                            : 224
+  device                              : cuda
+  out_dir                             : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold2
+
+[TEST SET COMPOSITION]
+  Total    : 256
+  Active   : 38  (14.8%)
+  Inactive : 218  (85.2%)
+  Imbalance: 5.74:1
+
+[TEMPERATURE SCALING]
+  T* (val set)  : 3.637601
+  ECE uncal     : 0.1513
+  ECE calib     : 0.1308
+  ECE Δ         : 0.0205  (↓ improved)
+  Brier uncal   : 0.1493
+  Brier calib   : 0.1322
+
+[1. DISCRIMINATIVE PERFORMANCE]
+  Metric                        Uncalib    Calibrated
+  -------------------------  ----------  ------------
+  AUROC                          0.7995        0.7995
+  AUPRC                          0.4886        0.4886
+
+[2. THRESHOLD-BASED METRICS  (thr=0.50)]
+  Metric                        Uncalib    Calibrated
+  -------------------------  ----------  ------------
+  Balanced Accuracy              0.7298        0.7298
+  Sensitivity                    0.5789        0.5789
+  Specificity                    0.8807        0.8807
+  PPV                            0.4583        0.4583
+  F1 (active)                    0.5116        0.5116
+  F1 (macro)                     0.7065        0.7065
+  Accuracy                       0.8359        0.8359
+
+[3. CLINICAL SAFETY METRICS  (calibrated)]
+  PPV (active)    : 0.4583
+  NPV (inactive)  : 0.9231  ← rule-out safety
+  Balanced Acc    : 0.7298
+
+  Confusion Matrix (calibrated):
+                        Pred active   Pred inactive
+    True active                22              16
+    True inactive              26             192
+
+[4. CALIBRATION QUALITY]
+  ECE  : 0.1513 → 0.1308
+  Brier: 0.1493 → 0.1322
+
+────────────────────────────────────────────────────────────────────────
+SUMMARY TABLE  (calibrated, post-TS)
+────────────────────────────────────────────────────────────────────────
+  Metric                       Value
+  ----------------------  ----------
+  AUROC                       0.7995
+  AUPRC                       0.4886
+  Balanced Accuracy           0.7298
+  Sensitivity                 0.5789
+  Specificity                 0.8807
+  PPV                         0.4583
+  NPV                         0.9231
+  F1 (active)                 0.5116
+  F1 (macro)                  0.7065
+  Accuracy                    0.8359
+  ECE                         0.1308
+  Brier                       0.1322
+────────────────────────────────────────────────────────────────────────
+
+[REFERENCES]
+  AUROC/AUPRC : Saito & Rehmsmeier, PLOS ONE 2015
+    https://doi.org/10.1371/journal.pone.0118432
+  ECE / TS    : Guo et al., ICML 2017
+    https://proceedings.mlr.press/v70/guo17a.html
+  NPV Clinical: STARD-AI, Nature Medicine 2020
+    https://doi.org/10.1038/s41591-020-0941-1
+
+[OUTPUT FILES]
+  confusion_matrix.png
+  roc_curve.png
+  pr_curve.png
+  reliability_diagram.png
+  test_metrics.csv      (tall-format: one row per metric, 3 cols)
+  test_summary.json     (structured summary — run info + all metrics)
+  roc_data.csv
+  pr_data.csv
+  calibration_data.csv
+  test_preds.csv        (KEY: input for evaluate_meta_on_test.py)
+  test_evaluation_report.txt
+  test_evaluation.log
+
+[PIPELINE ROLE]
+  test_preds.csv → direct input for evaluate_meta_on_test.py
+  (Stacking LR reads prob_calib from OCT0 / OCT1 / OCTA3)

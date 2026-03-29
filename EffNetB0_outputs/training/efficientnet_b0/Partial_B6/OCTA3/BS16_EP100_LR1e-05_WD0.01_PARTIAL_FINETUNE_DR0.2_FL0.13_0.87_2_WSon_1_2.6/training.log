@@ -1,0 +1,14 @@
+[2026-03-29 06:32:40] Loaded manifest: /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-29 06:32:40] Model=efficientnet_b0, Modality=OCTA3
+[2026-03-29 06:32:40] RunTag=BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6
+[2026-03-29 06:32:40] EfficientNetB0 output root: /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs
+[2026-03-29 06:32:40] Train_valid exam units=888, Test=119
+[2026-03-29 06:32:40] Unfreeze: PARTIAL_FINETUNE | frozen=[0, 1, 2, 3, 4, 5] | trainable=[6] | drop_rate=0.2 | head_lr=1e-05 | backbone_lr=1.0000000000000002e-06 | strategy=Partial_B6
+[2026-03-29 06:32:40] Fold 1: train=669, val=219
+[2026-03-29 06:33:30] Fold 2: train=699, val=189
+[2026-03-29 06:34:11] Fold 3: train=715, val=173
+[2026-03-29 06:34:52] Fold 4: train=718, val=170
+[2026-03-29 06:35:17] Fold 5: train=751, val=137
+[2026-03-29 06:35:58] Best fold=5
+[2026-03-29 06:35:58] All folds OOF CSV=/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/oof_predictions/efficientnet_b0/Partial_B6/OCTA3/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof.csv
+[2026-03-29 06:35:58] Total training time=3.29 min

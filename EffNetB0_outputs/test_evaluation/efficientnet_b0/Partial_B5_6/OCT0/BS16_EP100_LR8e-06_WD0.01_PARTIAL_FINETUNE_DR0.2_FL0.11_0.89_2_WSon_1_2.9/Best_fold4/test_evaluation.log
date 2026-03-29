@@ -1,0 +1,94 @@
+[2026-03-29 15:14:00] ==================================================================
+[2026-03-29 15:14:00] EfficientNetB0 BASE MODEL TEST EVALUATION
+[2026-03-29 15:14:00] ==================================================================
+[2026-03-29 15:14:00] INPUT_DIR      : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR8e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold4
+[2026-03-29 15:14:00] model_name     : efficientnet_b0
+[2026-03-29 15:14:00] strategy       : Partial_B5_6
+[2026-03-29 15:14:00] modality       : OCT0
+[2026-03-29 15:14:00] run_tag        : BS16_EP100_LR8e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9
+[2026-03-29 15:14:00] best_fold      : 4
+[2026-03-29 15:14:00] project_root   : /data/Irene/SwinTransformer/Swin_Meta
+[2026-03-29 15:14:00] manifest_csv   : /data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv
+[2026-03-29 15:14:00] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR8e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold4/model_best.pth
+[2026-03-29 15:14:00] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR8e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold4
+[2026-03-29 15:14:00] device         : cuda
+[2026-03-29 15:14:00] timm_model     : efficientnet_b0
+[2026-03-29 15:14:00] drop_rate      : 0.2  (EfficientNetB0 default)
+[2026-03-29 15:14:00] num_classes    : 1  (single sigmoid head, output [B,1])
+[2026-03-29 15:14:00] temperature T* : 3.884940  (from val set)
+[2026-03-29 15:14:00] NLL before TS  : 0.899455
+[2026-03-29 15:14:00] NLL after  TS  : 0.473772
+[2026-03-29 15:14:00] Best val BCE   : 0.8994546004220949
+[2026-03-29 15:14:00] Best val AUC   : 0.7257421925202416
+[2026-03-29 15:14:00] Best epoch     : 28
+[2026-03-29 15:14:00] Unfreeze mode  : PARTIAL_FINETUNE
+[2026-03-29 15:14:00] Frozen blocks  : [0, 1, 2, 3, 4]
+[2026-03-29 15:14:00] Trainable blocks: [5, 6]
+[2026-03-29 15:14:00] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:00] Step 1: Load test split from master_manifest.csv
+[2026-03-29 15:14:00]   Applying same filters as EffNetB0_train_singlemode_oof.py:
+[2026-03-29 15:14:00]   label_conflict==0  →  y_true notna  →  has_oct0==1  →  image_path notna  →  split_set=='test'
+[2026-03-29 15:14:00]   After label_conflict==0 filter : 1725 / 1725 rows
+[2026-03-29 15:14:00]   After y_true notna filter      : 1725 rows
+[2026-03-29 15:14:00]   After has_oct0==1 filter       : 1725 rows
+[2026-03-29 15:14:00]   After oct0_image_path not-null filter : 1725 rows
+[2026-03-29 15:14:00]   split_set='train_valid' available  : 1469 rows  (using 'test' only)
+[2026-03-29 15:14:00]   split_set='test' available  : 256 rows  (using 'test' only)
+[2026-03-29 15:14:00] Test set final : 256 samples  active=38 (14.8%)  inactive=218 (85.2%)  imbalance=5.74:1
+[2026-03-29 15:14:00] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:00] Step 2: Build EfficientNetB0 model and load checkpoint
+[2026-03-29 15:14:00] Model ready: efficientnet_b0 | num_classes=1 | output=[B,1] | drop_rate=0.2
+[2026-03-29 15:14:00] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:00] Step 3: Create DataLoader
+[2026-03-29 15:14:00] DataLoader: 256 samples  16 batches  bs=16
+[2026-03-29 15:14:00] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:00] Step 4: Inference
+[2026-03-29 15:14:01]   Inference: 3/16 batches done
+[2026-03-29 15:14:01]   Inference: 6/16 batches done
+[2026-03-29 15:14:01]   Inference: 9/16 batches done
+[2026-03-29 15:14:01]   Inference: 12/16 batches done
+[2026-03-29 15:14:01]   Inference: 15/16 batches done
+[2026-03-29 15:14:01] Done: 256 samples  logit [-16.381, 16.843]  mean=-3.431
+[2026-03-29 15:14:01] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] Step 5: Temperature Scaling (T*=3.884940)
+[2026-03-29 15:14:01] Prob uncal [0.000, 1.000]  mean=0.258
+[2026-03-29 15:14:01] Prob calib [0.015, 0.987]  mean=0.337
+[2026-03-29 15:14:01] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] Step 6: Compute metrics
+[2026-03-29 15:14:01] ────────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] SUMMARY TABLE  —  EFFICIENTNET_B0 / OCT0  (threshold=0.50)
+[2026-03-29 15:14:01] ────────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01]   Metric                     Uncalib    Calibrated
+[2026-03-29 15:14:01]   ──────────────────────  ──────────  ────────────
+[2026-03-29 15:14:01]   AUROC                       0.7419        0.7419
+[2026-03-29 15:14:01]   AUPRC                       0.3896        0.3896
+[2026-03-29 15:14:01]   Balanced Accuracy           0.6777        0.6777
+[2026-03-29 15:14:01]   Sensitivity                 0.5526        0.5526
+[2026-03-29 15:14:01]   Specificity                 0.8028        0.8028
+[2026-03-29 15:14:01]   PPV                         0.3281        0.3281
+[2026-03-29 15:14:01]   NPV                         0.9115        0.9115
+[2026-03-29 15:14:01]   F1 (active)                 0.4118        0.4118
+[2026-03-29 15:14:01]   F1 (macro)                  0.6327        0.6327
+[2026-03-29 15:14:01]   Accuracy                    0.7656        0.7656
+[2026-03-29 15:14:01]   Brier Score                 0.1789        0.1608
+[2026-03-29 15:14:01]   ──────────────────────  ──────────  ────────────
+[2026-03-29 15:14:01]   ECE                         0.1703        0.1914
+[2026-03-29 15:14:01] ────────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01]   Confusion Matrix (calib):  TP=21  FP=43  FN=17  TN=175
+[2026-03-29 15:14:01] ────────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] Step 7: Generate plots
+[2026-03-29 15:14:01] Plots saved.
+[2026-03-29 15:14:01] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:01] Step 8: Save data files
+[2026-03-29 15:14:02] All data files saved.
+[2026-03-29 15:14:02]   test_metrics.csv  : tall-format table (one row per metric)
+[2026-03-29 15:14:02]   test_summary.json : full structured summary
+[2026-03-29 15:14:02]   [KEY] test_preds.csv → evaluate_meta_on_test.py
+[2026-03-29 15:14:02] ──────────────────────────────────────────────────────────────────
+[2026-03-29 15:14:02] Step 9: Write report
+[2026-03-29 15:14:02] ==================================================================
+[2026-03-29 15:14:02] EVALUATION COMPLETE
+[2026-03-29 15:14:02]   Results : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT0/BS16_EP100_LR8e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9/Best_fold4
+[2026-03-29 15:14:02]   [NEXT]  test_preds.csv → evaluate_meta_on_test.py
+[2026-03-29 15:14:02] ==================================================================

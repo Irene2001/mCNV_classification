@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-03-29 15:20:35",
+  "run_info": {
+    "INPUT_DIR": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B5_6/OCTA3/BS16_EP100_LR9e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6/Best_fold2",
+    "model_name": "efficientnet_b0",
+    "timm_backbone": "efficientnet_b0",
+    "strategy": "Partial_B5_6",
+    "modality": "OCTA3",
+    "run_tag": "BS16_EP100_LR9e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6",
+    "best_fold": 2,
+    "best_epoch": 6,
+    "checkpoint": "/data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B5_6/OCTA3/BS16_EP100_LR9e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/model_best.pth",
+    "manifest_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/manifests/master_split/master_manifest.csv",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCTA3/BS16_EP100_LR9e-06_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6/Best_fold2",
+    "device": "cuda",
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "drop_rate": 0.2
+  },
+  "training_val_reference": {
+    "best_val_bce": 1.293547,
+    "best_val_auc": 0.5814,
+    "best_epoch": 6,
+    "val_exam_units": 189,
+    "unfreeze_mode": "PARTIAL_FINETUNE",
+    "frozen_blocks": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "trainable_blocks": [
+      5,
+      6
+    ]
+  },
+  "temperature_scaling": {
+    "temperature_T*": 6.11213,
+    "nll_before_ts": 1.293547,
+    "nll_after_ts": 0.593542,
+    "ece_uncal": 0.362,
+    "ece_calib": 0.2745,
+    "ece_reduction": 0.0875,
+    "ece_improved": true
+  },
+  "test_dataset": {
+    "n_total": 119,
+    "n_active": 21,
+    "n_inactive": 98,
+    "imbalance_ratio": 4.67,
+    "prevalence": 0.1765
+  },
+  "calibrated": {
+    "AUROC": 0.5418,
+    "AUPRC": 0.2244,
+    "Balanced_Accuracy": 0.5357,
+    "Sensitivity": 0.4286,
+    "Specificity": 0.6429,
+    "PPV": 0.2045,
+    "NPV": 0.84,
+    "F1_active": 0.2769,
+    "F1_macro": 0.5026,
+    "Accuracy": 0.605,
+    "ECE": 0.2745,
+    "Brier_Score": 0.2379
+  },
+  "uncalibrated": {
+    "AUROC": 0.5418,
+    "AUPRC": 0.2244,
+    "Balanced_Accuracy": 0.5357,
+    "Sensitivity": 0.4286,
+    "Specificity": 0.6429,
+    "PPV": 0.2045,
+    "NPV": 0.84,
+    "F1_active": 0.2769,
+    "F1_macro": 0.5026,
+    "Accuracy": 0.605,
+    "ECE": 0.362,
+    "Brier_Score": 0.332
+  },
+  "confusion_matrix_calibrated": {
+    "TP": 9,
+    "FP": 35,
+    "FN": 12,
+    "TN": 63
+  }
+}
