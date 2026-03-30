@@ -1,0 +1,59 @@
+{
+  "run_config": {
+    "model_name": "efficientnet_b0",
+    "strategy_name": "Partial_B5_6",
+    "modalities": [
+      "OCT0",
+      "OCT1",
+      "OCTA3"
+    ],
+    "feature_type": "logit",
+    "use_calib": true,
+    "feature_col": "logit_calib",
+    "feature_cols_X": [
+      "oct0_feat",
+      "oct1_feat",
+      "octa3_feat"
+    ],
+    "meta_model_path": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/meta_lr_model.pkl",
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "run_tags": {
+      "OCT0": "BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9",
+      "OCT1": "BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8",
+      "OCTA3": "BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6"
+    },
+    "best_folds": {
+      "OCT0": 2,
+      "OCT1": 4,
+      "OCTA3": 2
+    },
+    "test_eval_root": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/test_evaluation",
+    "note": "Independent test set -- never seen during base model training, validation, or meta-learner training. NO cross-model feature mixing (EffNetB0 only)."
+  },
+  "metrics": {
+    "n_total": 119,
+    "n_active": 21,
+    "n_inactive": 98,
+    "imbalance_ratio": 4.67,
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "auroc": 0.8537414965986394,
+    "auprc": 0.7044017416207309,
+    "balanced_accuracy": 0.7448979591836735,
+    "sensitivity": 0.7142857142857143,
+    "specificity": 0.7755102040816326,
+    "ppv": 0.40540540540540543,
+    "npv": 0.926829268292683,
+    "f1_active": 0.5172413793103449,
+    "f1_macro": 0.6808429118773947,
+    "accuracy": 0.7647058823529411,
+    "ece": 0.3262440681824447,
+    "brier_score": 0.20008958098904084,
+    "TP": 15,
+    "FP": 22,
+    "FN": 6,
+    "TN": 76
+  }
+}

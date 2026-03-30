@@ -3,7 +3,6 @@
 """
 EfficientNetB0 Base Model testing for mCNV binary classification.
 
-Adapted from VGG16_test_singlemode.py.
 Changes vs VGG16 version:
   - Imports from EffNetB0_model_factory (not VGG16_model_factory)
   - DROP_RATE = 0.2  (EfficientNetB0 default; VGG16 uses 0.5)

@@ -1,0 +1,61 @@
+[2026-03-30 04:46:24]   [unfreeze] blocks[4]
+[2026-03-30 04:46:24]   [unfreeze] blocks[5]
+[2026-03-30 04:46:24]   [unfreeze] blocks[6]
+[2026-03-30 04:46:24]   [unfreeze] conv_head
+[2026-03-30 04:46:24]   [unfreeze] bn2
+[2026-03-30 04:46:24]   [unfreeze] classifier
+[2026-03-30 04:46:24]   [PARTIAL_FINETUNE] trainable=3,700,169 / total=4,008,829 (92.3%)
+[2026-03-30 04:46:24] Start Fold 2 | MODEL=efficientnet_b0(efficientnet_b0) MODALITY=OCT1 BS=16 EP=100 LR=1e-05 WD=0.01 UNFREEZE_MODE=PARTIAL_FINETUNE DROP_RATE=0.2 FocalAlpha=[0.113, 0.887] FocalGamma=2.0
+[2026-03-30 04:46:26] [Epoch 1] lr_max=9.98502e-06 lr_min=9.98502e-07 train_focal=0.558048 train_bce=3.420610 train_acc=0.4316 val_bce=3.133465 val_acc=0.2941 val_auc=0.3907
+[2026-03-30 04:46:26] [NEW_BEST] epoch=1 val_bce=3.133465 val_acc=0.2941 val_auc=0.3907
+[2026-03-30 04:46:27] [Epoch 2] lr_max=9.9393e-06 lr_min=9.9393e-07 train_focal=0.525383 train_bce=3.366505 train_acc=0.4121 val_bce=2.931107 val_acc=0.3373 val_auc=0.4204
+[2026-03-30 04:46:28] [NEW_BEST] epoch=2 val_bce=2.931107 val_acc=0.3373 val_auc=0.4204
+[2026-03-30 04:46:29] [Epoch 3] lr_max=9.86314e-06 lr_min=9.86314e-07 train_focal=0.478687 train_bce=2.796826 train_acc=0.4760 val_bce=2.699155 val_acc=0.3647 val_auc=0.4276
+[2026-03-30 04:46:30] [NEW_BEST] epoch=3 val_bce=2.699155 val_acc=0.3647 val_auc=0.4276
+[2026-03-30 04:46:31] [Epoch 4] lr_max=9.75699e-06 lr_min=9.75699e-07 train_focal=0.465438 train_bce=2.624220 train_acc=0.4787 val_bce=2.319100 val_acc=0.4392 val_auc=0.4522
+[2026-03-30 04:46:31] [NEW_BEST] epoch=4 val_bce=2.319100 val_acc=0.4392 val_auc=0.4522
+[2026-03-30 04:46:32] [Epoch 5] lr_max=9.62151e-06 lr_min=9.62151e-07 train_focal=0.401754 train_bce=2.266344 train_acc=0.5302 val_bce=2.227778 val_acc=0.4353 val_auc=0.4685
+[2026-03-30 04:46:33] [NEW_BEST] epoch=5 val_bce=2.227778 val_acc=0.4353 val_auc=0.4685
+[2026-03-30 04:46:34] [Epoch 6] lr_max=9.45754e-06 lr_min=9.45754e-07 train_focal=0.439691 train_bce=2.369938 train_acc=0.5018 val_bce=2.259954 val_acc=0.4588 val_auc=0.4777
+[2026-03-30 04:46:36] [Epoch 7] lr_max=9.26609e-06 lr_min=9.26609e-07 train_focal=0.377416 train_bce=2.170142 train_acc=0.5337 val_bce=1.847572 val_acc=0.5294 val_auc=0.4916
+[2026-03-30 04:46:36] [NEW_BEST] epoch=7 val_bce=1.847572 val_acc=0.5294 val_auc=0.4916
+[2026-03-30 04:46:37] [Epoch 8] lr_max=9.04833e-06 lr_min=9.04833e-07 train_focal=0.380645 train_bce=1.881028 train_acc=0.5657 val_bce=1.693968 val_acc=0.5765 val_auc=0.5079
+[2026-03-30 04:46:38] [NEW_BEST] epoch=8 val_bce=1.693968 val_acc=0.5765 val_auc=0.5079
+[2026-03-30 04:46:39] [Epoch 9] lr_max=8.80562e-06 lr_min=8.80562e-07 train_focal=0.435284 train_bce=1.921534 train_acc=0.5648 val_bce=1.824099 val_acc=0.5255 val_auc=0.5020
+[2026-03-30 04:46:41] [Epoch 10] lr_max=8.53944e-06 lr_min=8.53944e-07 train_focal=0.368119 train_bce=1.764877 train_acc=0.5755 val_bce=1.640238 val_acc=0.5804 val_auc=0.5059
+[2026-03-30 04:46:41] [NEW_BEST] epoch=10 val_bce=1.640238 val_acc=0.5804 val_auc=0.5059
+[2026-03-30 04:46:42] [Epoch 11] lr_max=8.25144e-06 lr_min=8.25144e-07 train_focal=0.408230 train_bce=1.836345 train_acc=0.6048 val_bce=1.558277 val_acc=0.6157 val_auc=0.5203
+[2026-03-30 04:46:43] [NEW_BEST] epoch=11 val_bce=1.558277 val_acc=0.6157 val_auc=0.5203
+[2026-03-30 04:46:44] [Epoch 12] lr_max=7.9434e-06 lr_min=7.9434e-07 train_focal=0.388926 train_bce=1.664450 train_acc=0.6021 val_bce=1.548829 val_acc=0.6078 val_auc=0.5274
+[2026-03-30 04:46:45] [NEW_BEST] epoch=12 val_bce=1.548829 val_acc=0.6078 val_auc=0.5274
+[2026-03-30 04:46:46] [Epoch 13] lr_max=7.61721e-06 lr_min=7.61721e-07 train_focal=0.394711 train_bce=1.670382 train_acc=0.6021 val_bce=1.656394 val_acc=0.5882 val_auc=0.5288
+[2026-03-30 04:46:48] [Epoch 14] lr_max=7.27488e-06 lr_min=7.27488e-07 train_focal=0.322388 train_bce=1.681838 train_acc=0.6110 val_bce=1.585579 val_acc=0.5961 val_auc=0.5415
+[2026-03-30 04:46:49] [Epoch 15] lr_max=6.91853e-06 lr_min=6.91853e-07 train_focal=0.390613 train_bce=1.675724 train_acc=0.6234 val_bce=1.555472 val_acc=0.6196 val_auc=0.5431
+[2026-03-30 04:46:51] [Epoch 16] lr_max=6.55034e-06 lr_min=6.55034e-07 train_focal=0.358731 train_bce=1.521981 train_acc=0.6421 val_bce=1.807827 val_acc=0.5333 val_auc=0.5373
+[2026-03-30 04:46:52] [Epoch 17] lr_max=6.1726e-06 lr_min=6.1726e-07 train_focal=0.325757 train_bce=1.570701 train_acc=0.6234 val_bce=1.590390 val_acc=0.5804 val_auc=0.5382
+[2026-03-30 04:46:54] [Epoch 18] lr_max=5.78763e-06 lr_min=5.78763e-07 train_focal=0.285141 train_bce=1.384861 train_acc=0.6554 val_bce=1.921458 val_acc=0.5255 val_auc=0.5331
+[2026-03-30 04:46:55] [Epoch 19] lr_max=5.39781e-06 lr_min=5.39781e-07 train_focal=0.337502 train_bce=1.449006 train_acc=0.6465 val_bce=1.451198 val_acc=0.6510 val_auc=0.5461
+[2026-03-30 04:46:56] [NEW_BEST] epoch=19 val_bce=1.451198 val_acc=0.6510 val_auc=0.5461
+[2026-03-30 04:46:57] [Epoch 20] lr_max=5.00553e-06 lr_min=5.00553e-07 train_focal=0.293754 train_bce=1.378183 train_acc=0.6705 val_bce=1.560829 val_acc=0.6196 val_auc=0.5531
+[2026-03-30 04:46:59] [Epoch 21] lr_max=4.61322e-06 lr_min=4.61322e-07 train_focal=0.276146 train_bce=1.295212 train_acc=0.6812 val_bce=1.586498 val_acc=0.5961 val_auc=0.5501
+[2026-03-30 04:47:00] [Epoch 22] lr_max=4.22329e-06 lr_min=4.22329e-07 train_focal=0.312192 train_bce=1.376864 train_acc=0.6483 val_bce=1.476731 val_acc=0.6353 val_auc=0.5606
+[2026-03-30 04:47:02] [Epoch 23] lr_max=3.83815e-06 lr_min=3.83815e-07 train_focal=0.293266 train_bce=1.369416 train_acc=0.6634 val_bce=1.555260 val_acc=0.6157 val_auc=0.5511
+[2026-03-30 04:47:04] [Epoch 24] lr_max=3.46018e-06 lr_min=3.46018e-07 train_focal=0.336947 train_bce=1.556095 train_acc=0.6297 val_bce=1.418870 val_acc=0.6627 val_auc=0.5756
+[2026-03-30 04:47:04] [NEW_BEST] epoch=24 val_bce=1.418870 val_acc=0.6627 val_auc=0.5756
+[2026-03-30 04:47:05] [Epoch 25] lr_max=3.09169e-06 lr_min=3.09169e-07 train_focal=0.279046 train_bce=1.311688 train_acc=0.6599 val_bce=1.310557 val_acc=0.6902 val_auc=0.5727
+[2026-03-30 04:47:06] [NEW_BEST] epoch=25 val_bce=1.310557 val_acc=0.6902 val_auc=0.5727
+[2026-03-30 04:47:07] [Epoch 26] lr_max=2.73498e-06 lr_min=2.73498e-07 train_focal=0.310558 train_bce=1.353005 train_acc=0.6705 val_bce=1.411445 val_acc=0.6275 val_auc=0.5719
+[2026-03-30 04:47:09] [Epoch 27] lr_max=2.39222e-06 lr_min=2.39222e-07 train_focal=0.289539 train_bce=1.204885 train_acc=0.6856 val_bce=1.314275 val_acc=0.6667 val_auc=0.5880
+[2026-03-30 04:47:11] [Epoch 28] lr_max=2.06555e-06 lr_min=2.06555e-07 train_focal=0.295991 train_bce=1.248377 train_acc=0.6883 val_bce=1.333595 val_acc=0.6941 val_auc=0.5825
+[2026-03-30 04:47:12] [Epoch 29] lr_max=1.75697e-06 lr_min=1.75697e-07 train_focal=0.285772 train_bce=1.238213 train_acc=0.6874 val_bce=1.438089 val_acc=0.6588 val_auc=0.5747
+[2026-03-30 04:47:14] [Epoch 30] lr_max=1.46838e-06 lr_min=1.46838e-07 train_focal=0.286787 train_bce=1.243406 train_acc=0.6936 val_bce=1.461532 val_acc=0.6392 val_auc=0.5621
+[2026-03-30 04:47:15] [Epoch 31] lr_max=1.20156e-06 lr_min=1.20156e-07 train_focal=0.305266 train_bce=1.375850 train_acc=0.6607 val_bce=1.445084 val_acc=0.6510 val_auc=0.5714
+[2026-03-30 04:47:17] [Epoch 32] lr_max=9.58169e-07 lr_min=9.58169e-08 train_focal=0.319506 train_bce=1.400110 train_acc=0.6563 val_bce=1.431805 val_acc=0.6549 val_auc=0.5749
+[2026-03-30 04:47:19] [Epoch 33] lr_max=7.39692e-07 lr_min=7.39692e-08 train_focal=0.297688 train_bce=1.391479 train_acc=0.6554 val_bce=1.438437 val_acc=0.6510 val_auc=0.5880
+[2026-03-30 04:47:20] [Epoch 34] lr_max=5.47481e-07 lr_min=5.47481e-08 train_focal=0.258884 train_bce=1.157839 train_acc=0.6963 val_bce=1.453032 val_acc=0.6235 val_auc=0.5749
+[2026-03-30 04:47:21] [Epoch 35] lr_max=3.82722e-07 lr_min=3.82722e-08 train_focal=0.300340 train_bce=1.246988 train_acc=0.6794 val_bce=1.425307 val_acc=0.6275 val_auc=0.5832
+[2026-03-30 04:47:22] [early stop] Fold 2 at epoch 35
+[2026-03-30 04:47:22] [saved learning curves] /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B4_6/OCT1/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Kfold/fold2/learning_curves.png
+[2026-03-30 04:47:24] [TS] T*=6.395967 | NLL 1.310557246208191->0.6169846653938293
+[2026-03-30 04:47:24] [saved checkpoint] /data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B4_6/OCT1/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Kfold/fold2/model_best.pth
+[2026-03-30 04:47:24] [saved OOF] /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/efficientnet_b0/Partial_B4_6/OCT1/BS16_EP100_LR1e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Kfold/fold2/val_oof_predictions_fold2.csv

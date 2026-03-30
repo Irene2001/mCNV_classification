@@ -1,0 +1,67 @@
+[2026-03-30 08:11:02] ==================================================================
+[2026-03-30 08:11:02] GRAD-CAM  EfficientNetB0  SINGLE-MODALITY  mCNV CLASSIFICATION
+[2026-03-30 08:11:02] ==================================================================
+[2026-03-30 08:11:02] model        : efficientnet_b0  (timm efficientnet_b0)
+[2026-03-30 08:11:02] strategy     : Partial_B5_6
+[2026-03-30 08:11:02] modality     : OCT1
+[2026-03-30 08:11:02] run_tag      : BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8
+[2026-03-30 08:11:02] best_fold    : 4
+[2026-03-30 08:11:02] device       : cuda
+[2026-03-30 08:11:02] checkpoint   : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/model_best.pth
+[2026-03-30 08:11:02] preds_csv    : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/test_preds.csv
+[2026-03-30 08:11:02] out_dir      : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102
+[2026-03-30 08:11:02] target_layer : model.blocks[5]  (last MBConv body block, 7×7, 192ch)
+[2026-03-30 08:11:02] cam_threshold: 0.0  (zero pixels < threshold×max at 7×7)
+[2026-03-30 08:11:02] upsample     : bicubic 7×7 -> 224×224  (32×)
+[2026-03-30 08:11:02] drop_rate    : 0.2  (EfficientNetB0 default)
+[2026-03-30 08:11:02] frozen_blocks: [0, 1, 2, 3, 4]
+[2026-03-30 08:11:02] trainable_blocks: [5, 6]
+[2026-03-30 08:11:02] random_seed  : None  (None=time-based)
+[2026-03-30 08:11:02] reference    : Selvaraju et al. ICCV 2017 (Grad-CAM)
+[2026-03-30 08:11:02] reference    : Tan & Le ICML 2019 (EfficientNet)
+[2026-03-30 08:11:02] reference    : https://github.com/jacobgil/pytorch-grad-cam
+[2026-03-30 08:11:02] ------------------------------------------------------------------
+[2026-03-30 08:11:02] Step 1: Load test_preds.csv
+[2026-03-30 08:11:02] Loaded 256 samples  temperature T*=2.551968
+[2026-03-30 08:11:02] Using calibrated predictions (prob_calib, threshold=0.5)
+[2026-03-30 08:11:02] ------------------------------------------------------------------
+[2026-03-30 08:11:02] Step 2: Group by confusion-matrix quadrant
+[2026-03-30 08:11:02] TP=17  FP=32  FN=21  TN=186
+[2026-03-30 08:11:02]   TP: exam_key=1443067_OS_20160328  gt=1  pred=1  prob_calib=0.9664
+[2026-03-30 08:11:02]   FP: exam_key=2648007_OD_20210222  gt=0  pred=1  prob_calib=0.7602
+[2026-03-30 08:11:02]   FN: exam_key=5295083_OD_20161221  gt=1  pred=0  prob_calib=0.0370
+[2026-03-30 08:11:02]   TN: exam_key=1443067_OS_20230303  gt=0  pred=0  prob_calib=0.0997
+[2026-03-30 08:11:02] ------------------------------------------------------------------
+[2026-03-30 08:11:02] Step 3: Build EfficientNetB0 model and load checkpoint
+[2026-03-30 08:11:02] Checkpoint T*=2.551968  (using CSV T*=2.551968)
+[2026-03-30 08:11:02] Model: timm EfficientNetB0  classifier=Linear(1280,1)
+[2026-03-30 08:11:02]   blocks total: 7
+[2026-03-30 08:11:02]   target block: blocks[5]  -> [B, 192, 7, 7]
+[2026-03-30 08:11:02] Grad-CAM engine ready  target=model.blocks[5]
+[2026-03-30 08:11:02] ------------------------------------------------------------------
+[2026-03-30 08:11:02] Step 4: Generate Grad-CAM heatmaps
+[2026-03-30 08:11:03]   [TP] 1443067OS 20160328_OCT1.jpg  gt=active  pred=active  P(active)=0.9662  cam0_max=1.000  cam1_max=1.000
+[2026-03-30 08:11:03]     saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/TP_panel.png
+[2026-03-30 08:11:03]   [FP] 2648007OD 20210222_OCT1.jpg  gt=inactive  pred=active  P(active)=0.7595  cam0_max=1.000  cam1_max=1.000
+[2026-03-30 08:11:04]     saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/FP_panel.png
+[2026-03-30 08:11:04]   [FN] 5295083OD 20161221_OCT1.jpg  gt=active  pred=inactive  P(active)=0.0366  cam0_max=1.000  cam1_max=1.000
+[2026-03-30 08:11:04]     saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/FN_panel.png
+[2026-03-30 08:11:04]   [TN] 1443067OS 20230303_OCT1.jpg  gt=inactive  pred=inactive  P(active)=0.0992  cam0_max=1.000  cam1_max=1.000
+[2026-03-30 08:11:05]     saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/TN_panel.png
+[2026-03-30 08:11:05] ------------------------------------------------------------------
+[2026-03-30 08:11:05] Step 5: Save combined 4×3 panel
+[2026-03-30 08:11:06] Saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/GradCAM_4x3_panel.png
+[2026-03-30 08:11:06] ------------------------------------------------------------------
+[2026-03-30 08:11:06] Step 6: Save CSV record
+[2026-03-30 08:11:06] Saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102/gradcam_samples.csv
+[2026-03-30 08:11:06] ==================================================================
+[2026-03-30 08:11:06] GRAD-CAM EfficientNetB0 COMPLETE
+[2026-03-30 08:11:06]   Output: /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/efficientnet_b0/Partial_B5_6/OCT1/BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8/Best_fold4/gradcam_effnetb0/20260330_081102
+[2026-03-30 08:11:06]   Files : GradCAM_4x3_panel.png
+[2026-03-30 08:11:06]           TP_panel.png
+[2026-03-30 08:11:06]           FP_panel.png
+[2026-03-30 08:11:06]           FN_panel.png
+[2026-03-30 08:11:06]           TN_panel.png
+[2026-03-30 08:11:06]           gradcam_samples.csv
+[2026-03-30 08:11:06]           gradcam_log.txt
+[2026-03-30 08:11:06] ==================================================================

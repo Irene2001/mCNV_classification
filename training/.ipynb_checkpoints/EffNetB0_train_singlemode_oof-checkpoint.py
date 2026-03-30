@@ -67,9 +67,9 @@ EffNetB0_outputs/oof_predictions/
 
 Terminal
 --------
-python test_EffNetB0_train_singlemode_oof.py --modality OCT0
-python test_EffNetB0_train_singlemode_oof.py --modality OCT1
-python test_EffNetB0_train_singlemode_oof.py --modality OCTA3
+python EffNetB0_train_singlemode_oof.py --modality OCT0
+python EffNetB0_train_singlemode_oof.py --modality OCT1
+python EffNetB0_train_singlemode_oof.py --modality OCTA3
 """
 
 import os
@@ -133,7 +133,7 @@ PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
 # Add VGG16_outputs & Partial_B5 folder!
 EFFNET_BASE_DIR = os.path.join(PROJECT_ROOT_DIR, "EffNetB0_outputs")
-STRATEGY_NAME = "Partial_B5_6"
+STRATEGY_NAME = "Partial_B4_6"
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR,
@@ -160,7 +160,7 @@ BATCH_SIZE   = 16
 NUM_EPOCHS   = 100
 # LR 為 head 的學習率；解凍的 backbone blocks 使用 LR * BACKBONE_LR_MULT（慢速）
 # 對齊 VGG16 Partial_B5 設計：backbone 降速 10 倍，防止預訓練權重被高梯度沖毀
-LR           = 8e-6
+LR           = 1e-5
 WEIGHT_DECAY = 0.01
 GRAD_CLIP    = 1.0
 
@@ -171,7 +171,6 @@ DROP_PATH_RATE = None
 
 # ── unfreeze mode & 差分學習率 ────────────────────────────────────────────────
 # PARTIAL_FINETUNE: 凍結 stem + blocks[0..5]，解凍 blocks[6] + head
-# 對齊 VGG16 Partial_B5 策略：只開放最後一個 stage + head
 # BACKBONE_LR_MULT: 解凍的 blocks[6] 使用 LR*0.1（對應 VGG16 Block5 用 LR*0.1）
 # head (conv_head, bn2, classifier) 使用完整 LR
 UNFREEZE_MODE    = "PARTIAL_FINETUNE"
@@ -200,8 +199,8 @@ EARLY_STOP_MIN_DELTA     = 1e-4
 # blocks[0..5] → frozen  (stem + stage1-6，保留 ImageNet 低/中層特徵)
 # blocks[6]    → trained (stage7，最高層語意，對應 VGG16 Block5)
 # conv_head, bn2, classifier → trained（head，對應 VGG16 classifier）
-EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3, 4]   # 凍結
-EFFNET_TRAINABLE_BLOCK_INDICES = [5,6]             # 解凍（對應 VGG16 Block5）
+EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3]   # 凍結
+EFFNET_TRAINABLE_BLOCK_INDICES = [4, 5, 6]      # 解凍（對應 VGG16 Block5）
 
 
 # ===================== UTILS =====================

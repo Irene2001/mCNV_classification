@@ -1,0 +1,75 @@
+[2026-03-30 07:03:18] ==============================================================
+[2026-03-30 07:03:18] EfficientNetB0 STACKING META-LEARNER TEST EVALUATION
+[2026-03-30 07:03:18] ==============================================================
+[2026-03-30 07:03:18] model_name    : efficientnet_b0
+[2026-03-30 07:03:18] strategy_name : Partial_B5_6
+[2026-03-30 07:03:18] modalities    : ['OCT0', 'OCT1', 'OCTA3']
+[2026-03-30 07:03:18] feature_type  : logit  use_calib=True
+[2026-03-30 07:03:18] feature_col   : logit_calib
+[2026-03-30 07:03:18] threshold     : 0.5
+[2026-03-30 07:03:18] ece_n_bins    : 10
+[2026-03-30 07:03:18] meta_model    : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/meta_lr_model.pkl
+[2026-03-30 07:03:18] out_dir       : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/test_evaluation
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 1: Load trained meta-learner pipeline
+[2026-03-30 07:03:18] Pipeline loaded: Pipeline
+[2026-03-30 07:03:18] Feature cols (inferred): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-30 07:03:18] Feature cols (from config): ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-30 07:03:18]   effnet_base_unfreeze_mode: PARTIAL_FINETUNE
+[2026-03-30 07:03:18]   effnet_base_frozen_block_indices: [0, 1, 2, 3, 4]
+[2026-03-30 07:03:18]   effnet_base_trainable_block_indices: [5, 6]
+[2026-03-30 07:03:18]   effnet_base_drop_rate: 0.2
+[2026-03-30 07:03:18]   effnet_base_backbone_lr_mult: 0.1
+[2026-03-30 07:03:18] Best C (from training): 0.001000
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 2: Load EffNetB0 base model test predictions
+[2026-03-30 07:03:18]   feature_col='logit_calib' -> renamed to <modality>_feat
+[2026-03-30 07:03:18]   TEST_EVAL_ROOT: /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation
+[2026-03-30 07:03:18]   OCT0: 256 samples  active=38  inactive=218  logit_calib -> oct0_feat
+[2026-03-30 07:03:18]   OCT1: 256 samples  active=38  inactive=218  logit_calib -> oct1_feat
+[2026-03-30 07:03:18]   OCTA3: 119 samples  active=21  inactive=98  logit_calib -> octa3_feat
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 3: Build meta-test feature matrix (inner join)
+[2026-03-30 07:03:18] Meta-test (inner join): 119 exams  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-03-30 07:03:18] Feature columns: ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 4: Meta-learner inference
+[2026-03-30 07:03:18] Prediction : shape=(119,)  range=[0.3005, 0.7230]  mean=0.4621
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 5: Compute metrics (threshold=0.5)
+[2026-03-30 07:03:18] RESULTS:
+[2026-03-30 07:03:18]   AUROC            : 0.8537
+[2026-03-30 07:03:18]   AUPRC            : 0.7044
+[2026-03-30 07:03:18]   Balanced Accuracy: 0.7449
+[2026-03-30 07:03:18]   Sensitivity      : 0.7143
+[2026-03-30 07:03:18]   Specificity      : 0.7755
+[2026-03-30 07:03:18]   PPV              : 0.4054
+[2026-03-30 07:03:18]   NPV              : 0.9268
+[2026-03-30 07:03:18]   F1 (active)      : 0.5172
+[2026-03-30 07:03:18]   F1 (macro)       : 0.6808
+[2026-03-30 07:03:18]   Accuracy         : 0.7647
+[2026-03-30 07:03:18]   ECE              : 0.3262
+[2026-03-30 07:03:18]   Brier Score      : 0.2001
+[2026-03-30 07:03:18]   TP=15  FP=22  FN=6  TN=76
+[2026-03-30 07:03:18] --------------------------------------------------------------
+[2026-03-30 07:03:18] Step 6: Generate plots and save all outputs
+[2026-03-30 07:03:18] All outputs saved -> /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/test_evaluation
+[2026-03-30 07:03:18]   confusion_matrix.png
+[2026-03-30 07:03:18]   roc_curve.png
+[2026-03-30 07:03:18]   pr_curve.png
+[2026-03-30 07:03:18]   reliability_diagram.png
+[2026-03-30 07:03:18]   meta_lr_test_metrics.csv
+[2026-03-30 07:03:18]   meta_lr_test_predictions.csv
+[2026-03-30 07:03:18]   meta_lr_test_results.json
+[2026-03-30 07:03:18]   meta_lr_roc_curve.csv
+[2026-03-30 07:03:18]   meta_lr_pr_curve.csv
+[2026-03-30 07:03:18]   meta_lr_calibration_data.csv
+[2026-03-30 07:03:18]   meta_lr_test_report.txt
+[2026-03-30 07:03:18] ==============================================================
+[2026-03-30 07:03:18] EVALUATION COMPLETE
+[2026-03-30 07:03:18]   AUROC   : 0.8537
+[2026-03-30 07:03:18]   AUPRC   : 0.7044
+[2026-03-30 07:03:18]   NPV     : 0.9268
+[2026-03-30 07:03:18]   ECE     : 0.3262
+[2026-03-30 07:03:18]   Results : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibTrue/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/test_evaluation
+[2026-03-30 07:03:18] ==============================================================

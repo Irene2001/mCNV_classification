@@ -93,7 +93,7 @@ TEST_EVAL_DIR = (
 
 # 2. Checkpoint root (same as CHECKPOINT_ROOT in VGG16_train_singlemode_oof.py).
 #    Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
-CHECKPOINT_ROOT = ""
+CHECKPOINT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta/checkpoints"
 
 # 3. Model name.  Only "vgg16" is supported here.
 ACTIVE_MODEL = "vgg16"

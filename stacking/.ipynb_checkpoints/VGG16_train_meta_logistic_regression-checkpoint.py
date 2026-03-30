@@ -1,8 +1,7 @@
 # VGG16_train_meta_logistic_regression.py
 
 """
-Stacking Meta-Learner Training
-mCNV binary classification (active / inactive)
+VGG16 Stacking Meta-Learner Training.
 
 Upstream
 --------
