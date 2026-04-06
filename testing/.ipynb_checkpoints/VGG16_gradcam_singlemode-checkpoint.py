@@ -1,14 +1,6 @@
 # VGG16_gradcam_singlemode.py
 
 """
-VGG16 Grad-CAM visualisation for the mCNV single-modality base model.
-
-Mirrors the output format of gradcam_singlemode.py (Swin-Tiny version) exactly:
-  GradCAM_4x3_panel.png   4x3: original | Grad-CAM class-0 | Grad-CAM class-1
-  TP_panel.png  FP_panel.png  FN_panel.png  TN_panel.png
-  gradcam_samples.csv     per-sample record (quadrant, filename, GT, Pred, ...)
-  gradcam_log.txt
-
 Algorithm (Grad-CAM for VGG16, binary BCEWithLogits)
 -----------------------------------------------------
 VGG16 feature map structure (torchvision, 224x224 input):
@@ -25,11 +17,6 @@ Target layer: model.features[28]
   Captures the highest-level convolutional semantics available before
   spatial information is collapsed by avgpool.
   Upscaling ratio: 224/14 = 16x  (smoother than VGG4's 32x).
-
-  Reference for VGG16 Grad-CAM target layer choice:
-    Selvaraju et al. (2017). Grad-CAM. ICCV.
-    https://doi.org/10.1109/ICCV.2017.74
-    (Section 3: "the last convolutional layer before pooling")
 
 Grad-CAM formula (Selvaraju et al. 2017, Eq. 1-2):
   alpha_k  = (1/Z) sum_{i,j} dY^c / dA^k_{ij}   (global avg of gradients)
@@ -73,33 +60,22 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-# ==============================================================================
-# CONFIG  --  Edit only this section
-# ==============================================================================
-
-# 1. Directory that contains test_preds.csv (produced by test_singlemode.py).
-#    Structure: TEST_EVAL_ROOT/<model>/<modality>/<run_tag>/Best_fold{N}/
+# =============== CONFIG ===============
 TEST_EVAL_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation/"
     "vgg16/Partial_B5/OCT0/"
     "BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/"
     "Best_fold5"
 )
-
-
 # OCT0: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)
 # OCT1: BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.113_0.887_2_WSon_1_2.8 (Best_fold5)
 # OCTA3: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6 (Best_fold1)
 
-# 2. Checkpoint root (same as CHECKPOINT_ROOT in VGG16_train_singlemode_oof.py).
-#    Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
 CHECKPOINT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta/checkpoints"
 
-# 3. Model name.  Only "vgg16" is supported here.
 ACTIVE_MODEL = "vgg16"
 
-# 4. Visual settings
-IMG_SIZE      = 224      # must match training
+IMG_SIZE      = 224     
 OVERLAY_ALPHA = 0.50     # 0 = original only, 1 = heatmap only
 COLORMAP      = "jet"    # matplotlib colormap for heatmap
 CLASS_NAMES   = ["inactive", "active"]
@@ -107,40 +83,26 @@ CLASS_NAMES   = ["inactive", "active"]
 # CAM post-processing applied at 14x14 feature-map resolution (before upsample).
 # Pixels below CAM_THRESHOLD * max are zeroed out.
 # Suppresses low-contribution background noise (black borders, artefacts).
-# Set 0.0 to disable.
-# Note: VGG16 14x14 CAM has finer spatial detail than Swin 7x7;
-#       0.25-0.35 is a reasonable starting point.
+# Note: VGG16 14x14 CAM has finer spatial detail than Swin 7x7
 CAM_THRESHOLD = 0.0
 
-# 5. Random seed.
-#    None = time-based (different sample every run).
-#    Integer (e.g. 42) = fixed, reproducible selection.
+# Random seed (None = time-based, 42 = fixed)
 N_RANDOM_SEED = None
 
-# Dropout rate used during training (must match VGG16_train_singlemode_oof.py).
-# Used only to reconstruct the model architecture for checkpoint loading.
 DROP_RATE = 0.5
 
 # Output figure style
 _TITLE_SIZE      = 14
 _AXIS_LABEL_SIZE = 11
-_FIG_DPI         = 220
-
-# ==============================================================================
+_FIG_DPI         = 220   #300
 
 
-# VGG16 target layer index in model.features.
-# features[28] = last Conv2d in Block 5 (14x14 spatial, 512 channels).
-# This is the standard Grad-CAM target for VGG-family networks.
-# Ref: Selvaraju et al. 2017, Section 3: "last convolutional layer before pooling".
+# VGG16 target layer index is features[28] = last Conv2d in Block 5 (14x14 spatial, 512 channels).
 _VGG16_TARGET_FEAT_IDX = 28
 _VGG16_FEAT_MAP_SIZE   = 14   # spatial resolution at features[28]: 14x14
 
 
-# ------------------------------------------------------------------------------
-# Utilities
-# ------------------------------------------------------------------------------
-
+# =============== UTILS ===============
 def log_print(logf, msg: str) -> None:
     line = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}"
     print(line)
@@ -181,10 +143,10 @@ def parse_test_eval_dir(test_eval_dir: str) -> dict:
     best_fold = int(leaf.replace("Best_fold", ""))
 
     # Walk up: Best_fold{N} / run_tag / modality / [sub /] model / ...
-    run_tag  = p.parents[0].name   # run_tag
-    modality = p.parents[1].name   # OCT0 / OCT1 / OCTA3
+    run_tag  = p.parents[0].name   
+    modality = p.parents[1].name   
     strategy = p.parents[2].name   # Partial_B5
-    model_name = p.parents[3].name # vgg16
+    model_name = p.parents[3].name 
 
     # Search upward for the "outputs" anchor to find PROJECT_ROOT
     # and model_name (the dir right below test_evaluation/)
@@ -213,17 +175,10 @@ def parse_test_eval_dir(test_eval_dir: str) -> dict:
     }
 
 
-# ------------------------------------------------------------------------------
-# Model builder
-# ------------------------------------------------------------------------------
-
+# =============== Model builder ===============
 def _build_vgg16_for_inference(drop_rate: float = 0.5) -> nn.Module:
-    """
-    建立 VGG16 模型並禁用所有的 inplace 操作以支援 Grad-CAM。
-    """
     model = tv_models.vgg16(weights=None)
     
-    # 1. 替換分類頭 (與訓練時一致)
     in_features = model.classifier[6].in_features   
     model.classifier[6] = nn.Linear(in_features, 1)
     
@@ -231,10 +186,9 @@ def _build_vgg16_for_inference(drop_rate: float = 0.5) -> nn.Module:
         model.classifier[2] = nn.Dropout(p=drop_rate)
         model.classifier[5] = nn.Dropout(p=drop_rate)
         
-    # --- 核心修正點：禁用所有 ReLU 的 inplace 屬性 ---
     for m in model.modules():
         if isinstance(m, nn.ReLU):
-            m.inplace = False  # 改為 False，避免干擾梯度 Hook
+            m.inplace = False 
             
     return model
 
@@ -243,7 +197,7 @@ def load_checkpoint_and_temperature(
     model: nn.Module, ckpt_path: str, device: torch.device,
 ) -> Tuple[nn.Module, float]:
     """
-    Load model_best.pth saved by VGG16_train_singlemode_oof.py.
+    Load model_best.pth saved by base model training.
     Returns (model, temperature).  temperature defaults to 1.0 if not stored.
 
     Checkpoint dict keys (saved by VGG16_train_singlemode_oof.py):
@@ -263,10 +217,7 @@ def load_checkpoint_and_temperature(
     return model, temperature
 
 
-# ------------------------------------------------------------------------------
-# Grad-CAM for VGG16 (manual hook, no external library)
-# ------------------------------------------------------------------------------
-
+# =============== Grad-CAM for VGG16 ===============
 class VGG16GradCAM:
     """
     Grad-CAM for torchvision VGG16 binary (BCEWithLogits) model.
@@ -290,8 +241,6 @@ class VGG16GradCAM:
       4. Bicubic upsample 14->224 (16x, smoother than bilinear).
       5. Clip to [0,1].
 
-    Reference: Selvaraju et al. (2017). ICCV.
-    https://doi.org/10.1109/ICCV.2017.74
     """
 
     def __init__(self, model: nn.Module, device: torch.device):
@@ -347,7 +296,7 @@ class VGG16GradCAM:
         self._gradients   = None
 
         # Forward pass
-        logit       = self.model(img_tensor)                        # [1, 1]
+        logit       = self.model(img_tensor)                  
         logit_calib = logit / max(temperature, 1e-6)
         prob_active = float(torch.sigmoid(logit_calib[0, 0]).item())
 
@@ -373,16 +322,16 @@ class VGG16GradCAM:
         cam = (weights * A).sum(dim=1, keepdim=True)         # [1, 1, 14, 14]
         cam = F.relu(cam)
 
-        # Normalize to [0, 1] at 14x14 feature-map resolution
+        # ---------- Normalize to [0, 1] at 14x14 feature-map resolution ----------
         cam_min, cam_max = cam.min(), cam.max()
         if cam_max > cam_min:
             cam = (cam - cam_min) / (cam_max - cam_min + 1e-8)
+        
         # Threshold: zero out pixels below CAM_THRESHOLD * max.
-        # Applied at 14x14 to suppress low-contribution background regions.
         if CAM_THRESHOLD > 0.0:
             cam = cam * (cam >= CAM_THRESHOLD).float()
        
-        # Bicubic upsample 14x14 -> 224x224 (16x upscaling).
+        # ---------- Bicubic upsample 14x14 -> 224x224 (16x upscaling) ----------
         # Bicubic provides smoother transitions than bilinear.
         cam_up = F.interpolate(
             cam, size=(IMG_SIZE, IMG_SIZE),
@@ -393,10 +342,7 @@ class VGG16GradCAM:
         return cam_up, prob_active
 
 
-# ------------------------------------------------------------------------------
-# Image transform  (must match VGG16_train_singlemode_oof.py)
-# ------------------------------------------------------------------------------
-
+# =============== Image transform ===============
 def get_test_transform() -> transforms.Compose:
     """ImageNet eval transform -- identical to training validation transform."""
     return transforms.Compose([
@@ -407,10 +353,7 @@ def get_test_transform() -> transforms.Compose:
     ])
 
 
-# ------------------------------------------------------------------------------
-# Overlay
-# ------------------------------------------------------------------------------
-
+# =============== Overlay ===============
 def overlay_heatmap(
     orig_pil: Image.Image,
     cam: np.ndarray,
@@ -425,10 +368,7 @@ def overlay_heatmap(
     return np.clip((1.0 - alpha) * img_np + alpha * heatmap, 0.0, 1.0)
 
 
-# ------------------------------------------------------------------------------
-# CSV record  (mirrors gradcam_singlemode.py save_samples_csv exactly)
-# ------------------------------------------------------------------------------
-
+# =============== CSV record ===============
 def save_samples_csv(
     samples: Dict[str, Optional[dict]],
     out_path: str,
@@ -436,13 +376,7 @@ def save_samples_csv(
 ) -> None:
     """
     Save per-sample Grad-CAM record to CSV.
-
-    Columns: run_timestamp, model_name, modality, run_tag, best_fold,
-             temperature, target_layer,
-             quadrant, exam_key, filename, image_path,
-             gt_label, gt_class, pred_label, pred_class,
-             prob_active, prob_inactive, logit_uncal, logit_calib,
-             cam1_max, cam0_max, panel_file, note
+    
     """
     rows = []
     for quadrant, data in samples.items():
@@ -489,10 +423,7 @@ def save_samples_csv(
     pd.DataFrame(rows).to_csv(out_path, index=False, encoding="utf-8-sig")
 
 
-# ------------------------------------------------------------------------------
-# Plot helpers  (identical style to gradcam_singlemode.py)
-# ------------------------------------------------------------------------------
-
+# =============== Plot ===============
 def _set_style() -> None:
     plt.rcParams.update({
         "font.size":         10,
@@ -587,12 +518,8 @@ def save_4x3_panel(
     plt.close(fig)
 
 
-# ------------------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------------------
-
+# =============== Main ===============
 def main() -> None:
-    # Seed: None = time-based (different sample every run)
     if N_RANDOM_SEED is None:
         random.seed(int(time.time() * 1000) % (2 ** 31))
     else:
@@ -602,7 +529,7 @@ def main() -> None:
 
     # Step 0: Parse paths
     parsed       = parse_test_eval_dir(TEST_EVAL_DIR)
-    model_name   = ACTIVE_MODEL          # "vgg16"
+    model_name   = ACTIVE_MODEL          
     strategy     = parsed["strategy"]    # "Partial_B5"
     modality     = parsed["modality"]
     run_tag      = parsed["run_tag"]

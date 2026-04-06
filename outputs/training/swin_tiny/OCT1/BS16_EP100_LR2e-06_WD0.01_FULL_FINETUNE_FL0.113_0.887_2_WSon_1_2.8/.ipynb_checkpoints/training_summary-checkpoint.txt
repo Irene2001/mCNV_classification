@@ -1,0 +1,38 @@
+================================================================================
+K-FOLD SINGLE-MODE OOF TRAINING SUMMARY
+================================================================================
+
+CONFIGURATION
+----------------------------------------
+Model: swin_tiny (swin_tiny_patch4_window7_224)
+Modality: OCT1
+Num folds: 5
+Batch size: 16
+Epochs: 100
+LR: 2e-06
+Weight decay: 0.01
+Weighted sampler: True
+Temperature scaling: True
+Unfreeze mode: FULL_FINETUNE
+Backbone LR mult: 0.1
+LLRD decay: 0.85
+Focal alpha: [0.113, 0.887]
+Focal gamma: 2.0
+Run tag: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
+
+FOLD RESULTS
+----------------------------------------
+Fold 1: best_val_bce=0.230263, best_val_auc=0.8276, best_epoch=89, T=0.8943
+Fold 2: best_val_bce=0.426342, best_val_auc=0.8207, best_epoch=30, T=0.5416
+Fold 3: best_val_bce=0.341410, best_val_auc=0.8633, best_epoch=68, T=1.0367
+Fold 4: best_val_bce=0.552659, best_val_auc=0.8019, best_epoch=30, T=0.8060
+Fold 5: best_val_bce=0.492498, best_val_auc=0.9075, best_epoch=28, T=0.7023
+
+AVERAGE PERFORMANCE
+----------------------------------------
+val_bce: 0.408635 (±0.113512)
+val_auc: 0.8442 (±0.0374)
+
+Best fold: 1
+All folds OOF CSV: /data/Irene/SwinTransformer/Swin_Meta/outputs/oof_predictions/swin_tiny/OCT1/BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/all_folds_oof.csv
+Total training time (min): 64.94

@@ -3,22 +3,10 @@
 """
 Stacking Meta-Learner (Logistic Regression) 
 
-Data flow (strictly no leakage)
---------------------------------
-  Base model test_preds.csv (split_set="test", from test_singlemode.py):
-    exam_key | y_true | logit_uncal | prob_uncal | temperature | logit_calib | prob_calib
-
-  Feature extraction (must match build_meta_dataset.py FEATURE_TYPE + USE_CALIB):
-    e.g. logit_calib -> renamed to oct0_feat / oct1_feat / octa3_feat
-
-  Inner join on exam_key -> X_test  (N x 3, same columns as training)
-  Pipeline.predict_proba(X_test)[:, 1]  ->  P(active)
-
 Feature naming contract (mirrors build_meta_dataset.py exactly)
 ----------------------------------------------------------------
   build_meta_dataset.py renames: feature_col -> "oct0_feat" / "oct1_feat" / "octa3_feat"
   train_meta_logistic_regression.py trains on those columns.
-  This script MUST rename the same feature_col identically.
 
 Input paths
 -----------
@@ -61,14 +49,9 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-# ==============================================================================
-# * CONFIG  --  Edit only this section
-# ==============================================================================
-
+# =============== CONFIG ===============
 PROJECT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta"
 VGG16_BASE_DIR = os.path.join(PROJECT_ROOT, "VGG16_outputs")
-
-# * Model backbone name
 MODEL_NAME = "vgg16"
 STRATEGY_NAME = "Partial_B5"
 

@@ -49,18 +49,21 @@ RUN_TAGS = {
     "OCTA3": "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6",
 }
 
+
+# Switch TS: Change"USE_CALIB" & "OOF_SOURCE"!!
+
 # Feature to use as meta-input:
 #   FEATURE_TYPE = "logit"  +  USE_CALIB = True   →  logit_calib   (recommended)
 #   FEATURE_TYPE = "logit"  +  USE_CALIB = False  →  logit_uncal
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = True   →  prob_calib
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = False  →  prob_uncal
 FEATURE_TYPE = "logit"
-USE_CALIB    = True
+USE_CALIB    = False           # True / False
 
 # OOF file to read:
 #   "calibrated" → all_folds_oof_calibrated.csv  (produced by calibrate_oof_predictions.py)
 #   "raw"        → all_folds_oof.csv             (produced by train_singlemode_oof.py)
-OOF_SOURCE = "calibrated"
+OOF_SOURCE = "calibrated"     # calibrated / raw 
 
 # Modality pairing strategy:
 #   "inner"  → keep only exams present in ALL three modalities (strictest, no missing)

@@ -1,0 +1,75 @@
+{
+  "configuration": {
+    "model_name": "swin_tiny",
+    "backbone_name": "swin_tiny_patch4_window7_224",
+    "modality": "OCT1",
+    "num_folds": 5,
+    "batch_size": 16,
+    "num_epochs": 100,
+    "lr": 2e-06,
+    "weight_decay": 0.01,
+    "weighted_sampler": true,
+    "temperature_scaling": true,
+    "unfreeze_mode": "FULL_FINETUNE",
+    "backbone_lr_mult": 0.1,
+    "llrd_decay": 0.85,
+    "focal_alpha": [
+      0.113,
+      0.887
+    ],
+    "focal_gamma": 2.0,
+    "run_tag": "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8",
+    "execute_single_fold": false,
+    "single_fold_index": null
+  },
+  "fold_results": [
+    {
+      "fold": 1,
+      "best_val_key": 0.23026319286402533,
+      "best_val_auc": 0.8276438041549222,
+      "best_epoch": 89,
+      "temperature": 0.8943462238409546,
+      "nll_before": 0.23026318848133087,
+      "nll_after": 0.2282499521970749
+    },
+    {
+      "fold": 2,
+      "best_val_key": 0.4263422601363238,
+      "best_val_auc": 0.8207085253456221,
+      "best_epoch": 30,
+      "temperature": 0.5415892510403147,
+      "nll_before": 0.42634227871894836,
+      "nll_after": 0.38379284739494324
+    },
+    {
+      "fold": 3,
+      "best_val_key": 0.34140972788649726,
+      "best_val_auc": 0.8633004926108374,
+      "best_epoch": 68,
+      "temperature": 1.0366566376570423,
+      "nll_before": 0.34140974283218384,
+      "nll_after": 0.34120267629623413
+    },
+    {
+      "fold": 4,
+      "best_val_key": 0.5526590541126283,
+      "best_val_auc": 0.8018518518518518,
+      "best_epoch": 30,
+      "temperature": 0.8059740604815573,
+      "nll_before": 0.5526590347290039,
+      "nll_after": 0.5486586093902588
+    },
+    {
+      "fold": 5,
+      "best_val_key": 0.49249839865212625,
+      "best_val_auc": 0.9075091575091575,
+      "best_epoch": 28,
+      "temperature": 0.7023373504358199,
+      "nll_before": 0.4924984574317932,
+      "nll_after": 0.4786209762096405
+    }
+  ],
+  "best_fold_num": 1,
+  "all_folds_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/outputs/oof_predictions/swin_tiny/OCT1/BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/all_folds_oof.csv",
+  "training_time_minutes": 64.94103459517162
+}

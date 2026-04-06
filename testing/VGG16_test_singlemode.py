@@ -1,9 +1,5 @@
 # VGG16_test_singlemode.py
 
-"""
-Base Model tseting for mCNV binary classification.
-"""
-
 import gc
 import json
 import os
@@ -45,7 +41,6 @@ from sklearn.metrics import (
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# Add VGG16_model_factory.py!!
 PROJECT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta"
 
 if PROJECT_ROOT not in sys.path:
@@ -57,30 +52,23 @@ from training.VGG16_model_factory import (
     get_backbone_name,
 )
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ★ CONFIG  —  Edit only these entries
-# ══════════════════════════════════════════════════════════════════════════════
-
-# ★ 1. Point to the Best_fold{N} directory produced by train_singlemode_oof.py.
+# =============== CONFIG ===============
+# Point to the Best_fold{N} directory produced by train_singlemode_oof.py.
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/training/"
     "vgg16/Partial_B5/OCT0/"
     "BS16_EP99_LR3e-05_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9/"
     "Best_fold5"
 )
-
 # OCT0: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)
 # OCT1: BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.113_0.887_2_WSon_1_2.8 (Best_fold5)
 # OCTA3: BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6 (Best_fold1)
 
-# ★ 2. master_manifest.csv — same file used by train_singlemode_oof.py.
+# master_manifest.csv (same file used by training)
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT, "outputs", "manifests", "master_split", "master_manifest.csv"
 )
 
-# ★ 3. CHECKPOINT_ROOT — where train_singlemode_oof.py saved model weights.
-#      Must match CHECKPOINT_ROOT in the training script.
-#      Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
 CHECKPOINT_ROOT = os.path.join(PROJECT_ROOT, "checkpoints")
 
 # ================= Output root==================
@@ -93,39 +81,30 @@ BATCH_SIZE   = 16
 NUM_WORKERS  = 4
 IMG_SIZE     = 224
 RANDOM_SEED  = 42
-DROP_RATE    = 0.5         # VGG16 torchvision default dropout
+DROP_RATE    = 0.5   # VGG16 torchvision default dropout
 
 CLASS_NAMES = ["inactive", "active"]
 
-# Backbone registry: model_name (from path) → timm model string
-# Add entries here when supporting VGG16 / EfficientNet
 TIMM_MODEL_MAP: Dict[str, str] = {
     "swin_tiny": "swin_tiny_patch4_window7_224",
     "vgg16": "vgg16",
     "efficientnet_b0": "efficientnet_b0",
 }
 
-# Image path column in master_manifest.csv per modality
 MODALITY_IMG_COL: Dict[str, str] = {
     "OCT0":  "oct0_image_path",
     "OCT1":  "oct1_image_path",
     "OCTA3": "octa3_image_path",
 }
 
-# has_* column name per modality
 MODALITY_HAS_COL: Dict[str, str] = {
     "OCT0":  "has_oct0",
     "OCT1":  "has_oct1",
     "OCTA3": "has_octa3",
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Utilities
-# ─────────────────────────────────────────────────────────────────────────────
-
+#  =============== UTILS ===============
 def ensure_dir(p: str) -> None:
     os.makedirs(p, exist_ok=True)
 
@@ -148,10 +127,7 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     return _stable_sigmoid(x).astype(np.float32)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Parse INPUT_DIR → derive all path components
-# ─────────────────────────────────────────────────────────────────────────────
-
+# =============== Parse INPUT_DIR (derive all path components) ===============
 def parse_input_dir(input_dir: str) -> dict:
     """
     Parse model_name, modality, run_tag, best_fold, project_root from INPUT_DIR.
@@ -186,20 +162,19 @@ def parse_input_dir(input_dir: str) -> dict:
             "Expected e.g. 'Best_fold5'."
         )
 
-    # 索引調整說明：
     # p.parents[0] = <run_tag>
     # p.parents[1] = <modality>
-    # p.parents[2] = Partial_B5 (新增的 Strategy 層)
-    # p.parents[3] = vgg16      (Model Name)
+    # p.parents[2] = Partial_B5 (Strategy)
+    # p.parents[3] = vgg16
     # p.parents[4] = training
     # p.parents[5] = VGG16_outputs
-    # p.parents[6] = Swin_Meta  (真正的 PROJECT_ROOT，跨過 VGG16_outputs/outputs/training)
+    # p.parents[6] = Swin_Meta  (PROJECT_ROOT)
     
     run_tag      = p.parents[0].name   # e.g. "BS16_EP100_..."
-    modality     = p.parents[1].name   # e.g. "OCT0"
-    strategy     = p.parents[2].name  # 新增：抓取 Partial_B5
-    model_name   = p.parents[3].name   # e.g. "vgg16"
-    project_root = p.parents[6]        # e.g. /data/Irene/SwinTransformer/Swin_Meta
+    modality     = p.parents[1].name   
+    strategy     = p.parents[2].name   # Add：extract "Partial_B5"
+    model_name   = p.parents[3].name   
+    project_root = p.parents[6]       
 
     if modality not in MODALITY_IMG_COL:
         raise ValueError(
@@ -217,11 +192,6 @@ def parse_input_dir(input_dir: str) -> dict:
         "best_fold":    best_fold,
         "project_root": project_root,
     }
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Resolve optional paths (auto-detect when left "")
-# ─────────────────────────────────────────────────────────────────────────────
 
 def resolve_manifest_csv(cfg_value: str, project_root: Path) -> str:
     """
@@ -277,13 +247,13 @@ def resolve_test_eval_root(cfg_value: str, project_root: Path) -> str:
 def resolve_checkpoint_path(
     checkpoint_root: str,
     model_name: str,
-    strategy: str,  # 新增此參數
+    strategy: str,  # Add: strategy (Partial_B5)
     modality: str,
     run_tag: str,
     best_fold: int,
 ) -> str:
     """
-    依據正確層級尋找權重：
+    find checkpoint：
     checkpoints / vgg16 / Partial_B5 / OCT0 / <run_tag> / Best_fold2 / model_best.pth
     """
     base     = os.path.join(checkpoint_root, model_name, strategy, modality, run_tag)
@@ -304,10 +274,7 @@ def resolve_checkpoint_path(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Load fold_summary.json
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ---------- Load fold_summary.json ----------
 def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     """
     Read fold_summary.json from INPUT_DIR (Best_fold{N}/).
@@ -335,7 +302,7 @@ def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     with open(summary_path, encoding="utf-8") as fh:
         summary = json.load(fh)
 
-    # Cross-check path vs JSON metadata (catches copy-paste mistakes)
+    # ---------- Cross-check path vs JSON metadata ----------
     errs = []
     if int(summary["fold"]) != parsed["best_fold"]:
         errs.append(
@@ -361,11 +328,7 @@ def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     temperature = float(summary["temperature"])
     return temperature, summary
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Data loading  (mirrors load_master_manifest in train_singlemode_oof.py)
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Data loading =================
 def normalize_manifest_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     """
     Apply same dtype normalization as train_singlemode_oof.py
@@ -469,28 +432,23 @@ def load_test_dataframe(
 
     return df
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Model factory
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Model factory =================
 def build_model(model_name: str) -> nn.Module:
     """
-    捨棄舊的 TIMM_MODEL_MAP，統一由 VGG16_model_factory 建立。
+    discard old TIMM_MODEL_MAP，established by VGG16_model_factory.py
     """
     return create_model(
             model_name=model_name,
             num_classes=1,
-            pretrained=False, # 測試不需要 ImageNet 權重
+            pretrained=False,     # ImageNet weights are not required for testing
             drop_rate=DROP_RATE
         )
-
 
 def load_checkpoint(
     model: nn.Module, ckpt_path: str, device: torch.device,
 ) -> nn.Module:
     """
-    Load model_best.pth saved by train_singlemode_oof.py.
+    Load model_best.pth saved by training.
 
     Train checkpoint wrapper (after TS overwrite):
       {"model_state_dict": state_dict, "epoch", "best_epoch",
@@ -515,10 +473,7 @@ def load_checkpoint(
     return model
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Dataset
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Dataset =================
 class SingleModalityDataset(Dataset):
     """Test-set dataset. Returns (img_tensor, label, exam_key).
     Any unreadable image raises RuntimeError immediately — no silent fallback."""
@@ -565,10 +520,7 @@ def get_test_transform() -> transforms.Compose:
     ])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Inference
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Inference =================
 @torch.no_grad()
 def run_inference(
     model: nn.Module,
@@ -606,10 +558,7 @@ def run_inference(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Temperature Scaling
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Temperature Scaling =================
 def apply_temperature_scaling(
     logits: np.ndarray, temperature: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -624,10 +573,7 @@ def apply_temperature_scaling(
     return lc, sigmoid(lc).astype(np.float32)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ECE
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= ECE =================
 def compute_ece(
     y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10,
 ) -> Tuple[float, List[dict]]:
@@ -654,10 +600,7 @@ def compute_ece(
     return float(ece), bins_data
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Metrics
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Metrics =================
 def _cls_metrics(
     y_true: np.ndarray, y_pred: np.ndarray,
     y_prob: np.ndarray, prefix: str,
@@ -736,13 +679,11 @@ def compute_all_metrics(
     }, bins_uncal, bins_calib
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Plots
-# ─────────────────────────────────────────────────────────────────────────────
-_TITLE_SIZE      = 15        # figure title font size
+# ================= Plots =================
+_TITLE_SIZE      = 15        
 _AXIS_LABEL_SIZE = 14        # x/y axis label font size
 _TICK_SIZE       = 12        # axis tick label font size  (< title)
-_LEGEND_SIZE     = 8.5        # legend font size
+_LEGEND_SIZE     = 8.5       # legend font size
 _ANNOT_SIZE      = 11        # annotation / small text font size
 _FIG_DPI         = 150       # output resolution
 
@@ -907,10 +848,7 @@ def plot_reliability_diagram(
     plt.close()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Save output files
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Save output files =================
 # Ordered list of (display_label, calib_key, uncal_key) for test_metrics.csv
 _METRICS_TABLE = [
     # ── Discriminative ────────────────────────────────────────────────────────
@@ -933,40 +871,6 @@ _METRICS_TABLE = [
 
 
 def save_metrics_csv(metrics: dict, out_path: str) -> None:
-    """
-    Tall-format CSV: one row per metric, columns = metric / calibrated / uncalibrated.
-
-    Layout (23 rows × 3 cols):
-
-      metric               | calibrated (post-TS) | uncalibrated
-      ---------------------+----------------------+-------------
-      AUROC                | 0.9100               | 0.9000
-      AUPRC                | 0.7200               | 0.7100
-      Balanced_Accuracy    | ...                  | ...
-      Sensitivity          | ...                  | ...
-      Specificity          | ...                  | ...
-      PPV                  | ...                  | ...
-      NPV                  | ...                  | ...
-      F1_active            | ...                  | ...
-      F1_macro             | ...                  | ...
-      Accuracy             | ...                  | ...
-      ECE                  | ...                  | ...
-      Brier_Score          | ...                  | ...
-      ── context (shared) ──
-      temperature          | T*                   | T*
-      threshold            | 0.5                  | 0.5
-      TP                   | calib_TP             | uncal_TP
-      FP                   | calib_FP             | uncal_FP
-      FN                   | calib_FN             | uncal_FN
-      TN                   | calib_TN             | uncal_TN
-      n_total              | N                    | N
-      n_active             | N_pos                | N_pos
-      n_inactive           | N_neg                | N_neg
-      imbalance_ratio      | ratio                | ratio
-
-    Easy to read in Excel / Origin: metric names in column A,
-    calibrated values in column B, uncalibrated in column C.
-    """
     rows = []
 
     # ── 12 performance metrics ─────────────────────────────────────────────
@@ -1114,7 +1018,7 @@ def save_test_summary_json(
 
     with open(out_path, "w", encoding="utf-8") as fh:
         json.dump(summary, fh, indent=2, ensure_ascii=False, default=str)
-
+        
 
 def save_curve_csv(
     col1: np.ndarray, col2: np.ndarray, col3: np.ndarray,
@@ -1167,10 +1071,7 @@ def save_test_preds_csv(
     }).to_csv(out_path, index=False, encoding="utf-8-sig", float_format="%.6f")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Report & summary logger
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Report & summary logger =================
 def log_summary_table(logf, metrics: dict, modality: str, model_name: str) -> None:
     SEP = "─" * 68
     log(logf, SEP)
@@ -1297,14 +1198,6 @@ def write_report(metrics: dict, run_cfg: dict, out_path: str) -> None:
             f.write(f"  {lbl:<22}  {metrics[key]:>10.4f}\n")
         f.write(f"{sep2}\n")
 
-        f.write("\n[REFERENCES]\n")
-        f.write("  AUROC/AUPRC : Saito & Rehmsmeier, PLOS ONE 2015\n")
-        f.write("    https://doi.org/10.1371/journal.pone.0118432\n")
-        f.write("  ECE / TS    : Guo et al., ICML 2017\n")
-        f.write("    https://proceedings.mlr.press/v70/guo17a.html\n")
-        f.write("  NPV Clinical: STARD-AI, Nature Medicine 2020\n")
-        f.write("    https://doi.org/10.1038/s41591-020-0941-1\n")
-
         f.write("\n[OUTPUT FILES]\n")
         for fname in [
             "confusion_matrix.png", "roc_curve.png", "pr_curve.png",
@@ -1322,10 +1215,7 @@ def write_report(metrics: dict, run_cfg: dict, out_path: str) -> None:
         f.write("  (Stacking LR reads prob_calib from OCT0 / OCT1 / OCTA3)\n")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# MAIN
-# ══════════════════════════════════════════════════════════════════════════════
-
+# ================= MAIN =================
 def main() -> None:
     torch.manual_seed(RANDOM_SEED)
     np.random.seed(RANDOM_SEED)
@@ -1413,10 +1303,10 @@ def main() -> None:
     log(logf, "─" * 66)
     log(logf, "Step 2: Build model and load checkpoint")
 
-    model = build_model(model_name)   # build_model 內部應已改用 VGG16_model_factory
+    model = build_model(model_name)  
     model = load_checkpoint(model, ckpt_path, device)
 
-    # 修正：直接呼叫 get_backbone_name，不要再查閱 TIMM_MODEL_MAP
+    # Revise：directly call get_backbone_name, don't look up to TIMM_MODEL_MAP
     backbone_name = get_backbone_name(model_name)
     log(logf, f"Model ready: {backbone_name} | num_classes=1 | output=[B,1]")
 

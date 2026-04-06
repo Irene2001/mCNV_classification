@@ -1,19 +1,5 @@
 # EffNetB0_test_singlemode.py
 
-"""
-EfficientNetB0 Base Model testing for mCNV binary classification.
-
-Changes vs VGG16 version:
-  - Imports from EffNetB0_model_factory (not VGG16_model_factory)
-  - DROP_RATE = 0.2  (EfficientNetB0 default; VGG16 uses 0.5)
-  - build_model(): uses EffNetB0_model_factory.create_model()
-  - parse_input_dir(): path depth matches EffNetB0_outputs/training/
-      <EffNetB0_outputs>/training/<model_name>/<strategy>/<modality>/<run_tag>/Best_fold{N}
-  - resolve_checkpoint_path(): resolves under EFFNET_CHECKPOINT_ROOT
-  - TEST_EVAL_ROOT → EffNetB0_outputs/test_evaluation
-  - All other logic (metrics, plots, CSV, JSON, report) UNCHANGED from VGG16 version
-"""
-
 import gc
 import json
 import os
@@ -55,7 +41,7 @@ from sklearn.metrics import (
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
-# ── EffNetB0_model_factory import ────────────────────────────────────────────
+# ========== EffNetB0_model_factory import ===============
 PROJECT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta"
 
 if PROJECT_ROOT not in sys.path:
@@ -81,14 +67,7 @@ except ImportError:
             get_backbone_name,
         )
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ★ CONFIG  —  Edit only these entries
-# ══════════════════════════════════════════════════════════════════════════════
-
-# ★ 1. Point to the Best_fold{N} directory produced by
-#       EffNetB0_train_singlemode_oof.py.
-#       Structure:
-#         <EffNetB0_outputs>/training/<model_name>/<strategy>/<modality>/<run_tag>/Best_fold{N}
+# =============== CONFIG ===============
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/training/"
     "efficientnet_b0/Partial_B5_6/OCTA3/"
@@ -100,19 +79,16 @@ INPUT_DIR = (
 # OCTA3: BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6 (Best_fold2)
 
 
-# ★ 2. master_manifest.csv — same file used by training script.
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT, "outputs", "manifests", "master_split", "master_manifest.csv"
 )
 
-# ★ 3. CHECKPOINT_ROOT — where training script saved model weights.
-#      Leave "" to auto-detect as EffNetB0_outputs/checkpoints.
 CHECKPOINT_ROOT = os.path.join(PROJECT_ROOT, "checkpoints")
 
 # ================= Output root ==================
 TEST_EVAL_ROOT = os.path.join(PROJECT_ROOT, "EffNetB0_outputs", "test_evaluation")
 
-# ============ Evaluation settings (do not change) ============
+# ============ Evaluation settings (no need to change) ============
 THRESHOLD    = 0.5
 ECE_N_BINS   = 10
 BATCH_SIZE   = 16
@@ -123,7 +99,6 @@ DROP_RATE    = 0.2
 
 CLASS_NAMES = ["inactive", "active"]
 
-# Backbone registry (for cross-check and logging)
 TIMM_MODEL_MAP: Dict[str, str] = {
     "swin_tiny":       "swin_tiny_patch4_window7_224",
     "vgg16":           "vgg16",
@@ -142,13 +117,8 @@ MODALITY_HAS_COL: Dict[str, str] = {
     "OCTA3": "has_octa3",
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Utilities
-# ─────────────────────────────────────────────────────────────────────────────
-
+#  =============== UTILS ===============
 def ensure_dir(p: str) -> None:
     os.makedirs(p, exist_ok=True)
 
@@ -169,26 +139,8 @@ def sigmoid(x: np.ndarray) -> np.ndarray:
     return _stable_sigmoid(x).astype(np.float32)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Parse INPUT_DIR → derive all path components
-# ─────────────────────────────────────────────────────────────────────────────
-
+# =============== Parse INPUT_DIR (derive all path components) ===============
 def parse_input_dir(input_dir: str) -> dict:
-    """
-    Parse model_name, strategy, modality, run_tag, best_fold from INPUT_DIR.
-
-    Required structure (EffNetB0):
-      <EffNetB0_outputs>/training/<model_name>/<strategy>/<modality>/<run_tag>/Best_fold{N}
-
-    Path index from leaf (Best_fold{N}):
-      parents[0] = <run_tag>
-      parents[1] = <modality>
-      parents[2] = <strategy>      e.g. Partial_B6
-      parents[3] = <model_name>    e.g. efficientnet_b0
-      parents[4] = training
-      parents[5] = EffNetB0_outputs
-      parents[6] = Swin_Meta       (PROJECT_ROOT)
-    """
     p = Path(input_dir).resolve()
 
     if not p.is_dir():
@@ -212,9 +164,9 @@ def parse_input_dir(input_dir: str) -> dict:
         )
 
     run_tag      = p.parents[0].name   # e.g. "BS16_EP100_..."
-    modality     = p.parents[1].name   # e.g. "OCT0"
+    modality     = p.parents[1].name   # e.g. 
     strategy     = p.parents[2].name   # e.g. "Partial_B5_6"
-    model_name   = p.parents[3].name   # e.g. "efficientnet_b0"
+    model_name   = p.parents[3].name   # e.g.
     project_root = p.parents[6]        # e.g. /data/Irene/SwinTransformer/Swin_Meta
 
     if modality not in MODALITY_IMG_COL:
@@ -233,10 +185,6 @@ def parse_input_dir(input_dir: str) -> dict:
         "project_root": project_root,
     }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Resolve optional paths
-# ─────────────────────────────────────────────────────────────────────────────
 
 def resolve_manifest_csv(cfg_value: str, project_root: Path) -> str:
     if cfg_value.strip():
@@ -313,10 +261,7 @@ def resolve_checkpoint_path(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Load fold_summary.json
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ---------- Load fold_summary.json ----------
 def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     """
     Read fold_summary.json from INPUT_DIR (Best_fold{N}/).
@@ -331,6 +276,7 @@ def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     with open(summary_path, encoding="utf-8") as fh:
         summary = json.load(fh)
 
+    # ---------- Cross-check path vs JSON metadata ----------
     errs = []
     if int(summary["fold"]) != parsed["best_fold"]:
         errs.append(
@@ -357,10 +303,7 @@ def load_fold_summary(input_dir: str, parsed: dict) -> Tuple[float, dict]:
     return temperature, summary
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Data loading
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Data loading =================
 def normalize_manifest_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     for col in ["exam_key", "patient_id", "eye", "exam_date", "split_set"]:
@@ -445,14 +388,11 @@ def load_test_dataframe(
     return df
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Model factory
-# ─────────────────────────────────────────────────────────────────────────────
-
+# =============== Model factory ===============
 def build_model(model_name: str) -> nn.Module:
     """
     Build EfficientNetB0 via EffNetB0_model_factory.
-    drop_rate=0.2 must match EffNetB0_train_singlemode_oof.py.
+    drop_rate=0.2 must match base model training setting.
     pretrained=False: test does not need ImageNet weights.
     """
     return create_model(
@@ -488,10 +428,7 @@ def load_checkpoint(
     return model
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Dataset
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Dataset =================
 class SingleModalityDataset(Dataset):
     """Test-set dataset. Returns (img_tensor, label, exam_key)."""
 
@@ -537,10 +474,7 @@ def get_test_transform() -> transforms.Compose:
     ])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Inference
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Inference =================
 @torch.no_grad()
 def run_inference(
     model: nn.Module,
@@ -575,10 +509,7 @@ def run_inference(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Temperature Scaling
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Temperature Scaling =================
 def apply_temperature_scaling(
     logits: np.ndarray, temperature: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -592,10 +523,7 @@ def apply_temperature_scaling(
     return lc, sigmoid(lc).astype(np.float32)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ECE
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= ECE =================
 def compute_ece(
     y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10,
 ) -> Tuple[float, List[dict]]:
@@ -622,10 +550,7 @@ def compute_ece(
     return float(ece), bins_data
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Metrics
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Metrics =================
 def _cls_metrics(
     y_true: np.ndarray, y_pred: np.ndarray,
     y_prob: np.ndarray, prefix: str,
@@ -698,9 +623,7 @@ def compute_all_metrics(
     }, bins_uncal, bins_calib
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Plots  (UNCHANGED from VGG16_test_singlemode.py)
-# ─────────────────────────────────────────────────────────────────────────────
+# ================= Plots =================
 _TITLE_SIZE      = 15
 _AXIS_LABEL_SIZE = 14
 _TICK_SIZE       = 12
@@ -1066,10 +989,7 @@ def save_test_preds_csv(
     }).to_csv(out_path, index=False, encoding="utf-8-sig", float_format="%.6f")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Report & summary logger  (UNCHANGED from VGG16_test_singlemode.py)
-# ─────────────────────────────────────────────────────────────────────────────
-
+# ================= Report & summary logger =================
 def log_summary_table(logf, metrics: dict, modality: str, model_name: str) -> None:
     SEP = "─" * 68
     log(logf, SEP)
@@ -1221,10 +1141,7 @@ def write_report(metrics: dict, run_cfg: dict, out_path: str) -> None:
         f.write("  (Stacking LR reads prob_calib from OCT0 / OCT1 / OCTA3)\n")
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# MAIN
-# ══════════════════════════════════════════════════════════════════════════════
-
+# ================= MAIN =================
 def main() -> None:
     torch.manual_seed(RANDOM_SEED)
     np.random.seed(RANDOM_SEED)

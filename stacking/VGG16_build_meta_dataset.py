@@ -23,22 +23,15 @@ import re
 import json
 import pandas as pd
 
-
-# ── Project paths ─────────────────────────────────────────────────────────────
+# =============== CONFIG ===============
 PROJECT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta"
-
-# Add: VGG16_outputs & Partial_B5 folder!
 VGG16_BASE_DIR = "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs"
+MODEL_NAME = "vgg16"
+STRATEGY_NAME = "Partial_B5"
 
 OOF_ROOT     = os.path.join(VGG16_BASE_DIR, "oof_predictions")
 META_ROOT    = os.path.join(VGG16_BASE_DIR, "meta_dataset")
 
-
-# ── Experiment config ─────────────────────────────────────────────────────────
-MODEL_NAME = "vgg16"
-STRATEGY_NAME = "Partial_B5"  # Add: Unfreezing layer folder
-
-# Each modality may have a different run_tag (and therefore a different LR).
 # LR is automatically extracted from the run_tag string.
 RUN_TAGS = {
     "OCT0" : "BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9",
@@ -54,17 +47,16 @@ RUN_TAGS = {
 FEATURE_TYPE = "logit"
 USE_CALIB    = True
 
-# OOF file to read:
-# 關鍵修正：從"calibrated"改為 "raw"，讓程式去讀取 all_folds_oof.csv
-# 因為 USE_CALIB=True，它進去檔案後還是會抓取校準後的 logit_calib
-OOF_SOURCE = "raw"   # Revise: 讀取訓練腳本直接產出的 all_folds_oof.csv!! (org:　calibrated)
+# Revise: change from "calibrated" to "raw" ( ectract all_folds_oof.csv)
+# Because of USE_CALIB=True，it will extract the logit_calib
+OOF_SOURCE = "raw"  
 
 # Modality pairing strategy:
-#   "inner"  → keep only exams present in ALL three modalities (strictest, no missing)
+# "inner" → keep only exams present in ALL three modalities (strictest, no missing)
 PAIRING_STRATEGY = "inner"
 
 
-# ── Utilities ─────────────────────────────────────────────────────────────────
+#  =============== UTILS  ===============
 def ensure_dir(p: str) -> None:
     os.makedirs(p, exist_ok=True)
 
@@ -162,15 +154,15 @@ def load_oof(modality: str, feature_col: str):
     return df, path
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# =============== MAIN ===============
 def main() -> None:
 
-    # ── Resolve feature column
+    # ---------- Resolve feature column ----------
     feature_col = resolve_feature_col()
     print(f"Feature column : {feature_col}")
     print(f"OOF source     : {OOF_SOURCE}")
 
-    # ── Load OOF per modality
+    # ---------- Load OOF per modality ----------
     df_oct0,  path0 = load_oof("OCT0",  feature_col)
     df_oct1,  path1 = load_oof("OCT1",  feature_col)
     df_octa3, path3 = load_oof("OCTA3", feature_col)
@@ -179,12 +171,12 @@ def main() -> None:
     print(f"OCT1  OOF samples : {len(df_oct1)}")
     print(f"OCTA3 OOF samples : {len(df_octa3)}")
 
-    # ── Rename feature column to modality-prefixed name
+    # ---------- Rename feature column to modality-prefixed name ----------
     df_oct0  = df_oct0.rename( columns={feature_col: "oct0_feat"})
     df_oct1  = df_oct1.rename( columns={feature_col: "oct1_feat"})
     df_octa3 = df_octa3.rename(columns={feature_col: "octa3_feat"})
 
-    # ── Build pairing log (union of all exam keys)
+    # ---------- Build pairing log (union of all exam keys) ----------
     set_oct0  = set(df_oct0["exam_key"])
     set_oct1  = set(df_oct1["exam_key"])
     set_octa3 = set(df_octa3["exam_key"])
@@ -209,19 +201,19 @@ def main() -> None:
     print(f"\nPairing ({PAIRING_STRATEGY}): "
           f"paired={n_paired}  unpaired={n_unpaired}")
 
-    # ── Filter to paired exams only
+    # ---------- Filter to paired exams only ----------
     paired_keys = pairing_df.loc[pairing_df["paired"] == 1, "exam_key"]
 
     df_oct0  = df_oct0[df_oct0["exam_key"].isin(paired_keys)]
     df_oct1  = df_oct1[df_oct1["exam_key"].isin(paired_keys)]
     df_octa3 = df_octa3[df_octa3["exam_key"].isin(paired_keys)]
 
-    # ── Keep only columns needed for meta-train
+    # ---------- Keep only columns needed for meta-train ----------
     df_oct0  = df_oct0[["exam_key", "patient_id", "fold_id", "y_true", "oct0_feat"]]
     df_oct1  = df_oct1[["exam_key", "oct1_feat"]]
     df_octa3 = df_octa3[["exam_key", "octa3_feat"]]
 
-    # ── Inner join on exam_key
+    # ---------- Inner join on exam_key ----------
     df_meta = df_oct0.merge(df_oct1,  on="exam_key", how="inner")
     df_meta = df_meta.merge(df_octa3, on="exam_key", how="inner")
     df_meta = df_meta.sort_values("exam_key").reset_index(drop=True)
@@ -234,7 +226,7 @@ def main() -> None:
           f"inactive={ni} ({ni/n_meta*100:.1f}%)  "
           f"ratio={ni/na:.2f}:1")
 
-    # ── Build output paths
+    # ---------- Build output paths ----------
     meta_tag  = f"{MODEL_NAME}__{FEATURE_TYPE}__calib{USE_CALIB}"
     lr_folder = build_lr_folder(RUN_TAGS)
     out_dir   = os.path.join(META_ROOT, meta_tag, STRATEGY_NAME, lr_folder)
@@ -244,7 +236,7 @@ def main() -> None:
     print(f"lr_folder : {lr_folder}")
     print(f"out_dir   : {out_dir}")
 
-    # ── Save outputs
+    # ---------- Save outputs----------
     meta_csv    = os.path.join(out_dir, "meta_train_oof.csv")
     pairing_csv = os.path.join(out_dir, "pairing_log.csv")
     info_json   = os.path.join(out_dir, "meta_dataset_info.json")

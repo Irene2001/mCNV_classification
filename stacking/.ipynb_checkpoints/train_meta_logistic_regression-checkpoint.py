@@ -73,13 +73,15 @@ PROJECT_ROOT      = "/data/Irene/SwinTransformer/Swin_Meta"
 META_DATASET_ROOT = os.path.join(PROJECT_ROOT, "outputs", "meta_dataset")
 META_OUTPUT_ROOT  = os.path.join(PROJECT_ROOT, "outputs", "meta_training")
 
+# Switch TS: Change" META_DATASET_ROOT"!!
+
 # ── Input path — ONLY THIS LINE needs to be changed per experiment run ────────
 # Format: META_DATASET_ROOT/<meta_tag>/<lr_tag>/
 #   meta_tag : "{model_name}__{feature_type}__calib{True|False}"
 #   lr_tag   : per-modality learning rate identifiers from build_meta_dataset.py
 META_DATASET_DIR  = os.path.join(
     META_DATASET_ROOT,
-    "swin_tiny__logit__calibTrue",              # ← change meta_tag if needed
+    "swin_tiny__logit__calibFalse",              # swin_tiny__logit__calibTrue / swin_tiny__logit__calibFalse
     "OCT0_LR2e-06_OCT1_LR4e-06_OCTA3_LR3e-06", # ← change lr_tag if needed
 )
 

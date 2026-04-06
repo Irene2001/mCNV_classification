@@ -1,4 +1,4 @@
-# model_factory.py
+# Swin_model_factory.py
 
 """
 Factory functions for building image classification backbones.

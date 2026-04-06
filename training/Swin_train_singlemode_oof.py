@@ -1,4 +1,4 @@
-# train_singlemode_oof.py
+# Swin_train_singlemode_oof.py
 
 """
 Swin_Tiny base model training (OOF val output) for mCNV binary classification.
@@ -69,7 +69,7 @@ try:
         get_backbone_name,
     )
 except Exception:
-    from model_factory import (
+    from Swin_model_factory import (
         create_model,
         normalize_model_name,
         get_backbone_name,

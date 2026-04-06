@@ -67,18 +67,16 @@ except ImportError:
     def get_backbone_name(n: str)    -> str: return n.lower().strip()
 
 
-# ── Config ────────────────────────────────────────────────────────────────────
-PROJECT_ROOT      = "/data/Irene/SwinTransformer/Swin_Meta"
-
-# Add VGG16_outputs & Partial_B5 folder!
-VGG16_BASE_DIR = "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs"
+# =============== CONFIG ===============
+PROJECT_ROOT   = "/data/Irene/SwinTransformer/Swin_Meta"
+VGG16_BASE_DIR = os.path.join(PROJECT_ROOT, "VGG16_outputs")
 MODEL_NAME = "vgg16" 
 STRATEGY_NAME = "Partial_B5"
 
 META_DATASET_ROOT = os.path.join(VGG16_BASE_DIR, "meta_dataset")
 META_OUTPUT_ROOT  = os.path.join(VGG16_BASE_DIR, "meta_training")
 
-# ── Input path — ONLY THIS LINE needs to be changed per experiment run ────────
+# ----------Input path (ONLY THIS LINE needs to be changed ----------
 # Format: META_DATASET_ROOT/<meta_tag>/<lr_tag>/
 #   meta_tag : "{model_name}__{feature_type}__calib{True|False}"
 #   lr_tag   : per-modality learning rate identifiers from build_meta_dataset.py
@@ -100,7 +98,7 @@ MAX_ITER    = 2000
 RANDOM_SEED = 42
 
 
-# ── Utilities ─────────────────────────────────────────────────────────────────
+# =============== UTILS  ===============
 def ensure_dir(p: str) -> None:
     os.makedirs(p, exist_ok=True)
 
@@ -117,8 +115,7 @@ def log(logf, msg: str) -> None:
         logf.write(line + "\n")
         logf.flush()
 
-
-# ── Load meta-train dataset ───────────────────────────────────────────────────
+# =============== Load meta-train dataset ===============
 def load_meta_train(meta_dataset_dir: str, logf) -> Tuple[pd.DataFrame, List[str]]:
     """
     Load meta_train_oof.csv from build_meta_dataset.py.
@@ -161,7 +158,7 @@ def load_meta_train(meta_dataset_dir: str, logf) -> Tuple[pd.DataFrame, List[str
     return df, FEAT_COLS
 
 
-# ── Training ──────────────────────────────────────────────────────────────────
+# =============== Training ===============
 def train_meta_lr(
     X: np.ndarray,
     y: np.ndarray,
@@ -216,12 +213,12 @@ def train_meta_lr(
     mean_cv    = cv_scores.mean(axis=0)
     std_cv     = cv_scores.std(axis=0)
 
-    # ── Scaler statistics (for traceability)
+    # ---------- Scaler statistics (for traceability)----------
     scaler     = pipe.named_steps["scaler"]
     scaler_mean  = scaler.mean_.tolist()
     scaler_scale = scaler.scale_.tolist()
 
-    # ── In-sample metrics — pre-computed once, used in log + results dict
+    # ---------- In-sample metrics — pre-computed once, used in log + results dict ----------
     # Note: these are TRAINING metrics (informational / overfitting detection)
     # True performance → evaluate_meta_on_test.py
     y_prob   = pipe.predict_proba(X)[:, 1]
@@ -238,7 +235,7 @@ def train_meta_lr(
     # Brier Score = (1/N) Σ (p̂ᵢ − yᵢ)²  — in-sample baseline for TS comparison
     brier    = float(brier_score_loss(y, y_prob))
 
-    # ── Log
+    # ---------- Log ----------
     log(logf, f"Done in {elapsed:.2f}s  |  best C={best_C}  λ=1/C={1/best_C:.4f}")
     log(logf, "C Grid CV AUC (mean ± std):  ← C selection only, NOT performance eval")
     for c, m, s in zip(C_GRID, mean_cv, std_cv):
@@ -259,7 +256,7 @@ def train_meta_lr(
     log(logf, "  [!] True performance → evaluate_meta_on_test.py (independent test set)")
 
     return pipe, {
-        # ── Model parameters
+        # ---------- Model parameters ----------
         "best_C":              best_C,
         "lambda":              1.0 / best_C,
         "C_grid":              C_GRID,
@@ -270,15 +267,15 @@ def train_meta_lr(
         "feature_cols":        feat_cols,
         "weights":             {f: float(w) for f, w in zip(feat_cols, coef)},
         "intercept":           intercept,
-        # ── Scaler (for traceability)
+        # ---------- Scaler (for traceability) ----------
         "scaler_mean":         {f: float(m) for f, m in zip(feat_cols, scaler_mean)},
         "scaler_scale":        {f: float(s) for f, s in zip(feat_cols, scaler_scale)},
-        # ── CV AUC per C (C selection record)
+        # ---------- CV AUC per C (C selection record) ----------
         "cv_mean_auc_per_C":   {str(c): float(m) for c, m in zip(C_GRID, mean_cv)},
         "cv_std_auc_per_C":    {str(c): float(s) for c, s in zip(C_GRID, std_cv)},
         "cv_scores_all_folds": {str(c): cv_scores[:, i].tolist()
                                 for i, c in enumerate(C_GRID)},
-        # ── In-sample metrics (training data, informational only)
+        # ---------- In-sample metrics (training data, informational only) ----------
         "insample_note":       "Training data only — overfitting reference, NOT for reporting",
         "insample_auc":        auc_val,
         "insample_f1_macro":   f1_mac,
@@ -294,7 +291,7 @@ def train_meta_lr(
     }
 
 
-# ── Plots ─────────────────────────────────────────────────────────────────────
+# =============== Plots ===============
 def plot_validation_curve(results: dict, out_dir: str) -> str:
     """
     Validation Curve: log(C) vs mean_AUC ± std.
@@ -314,7 +311,7 @@ def plot_validation_curve(results: dict, out_dir: str) -> str:
                     [m + s for m, s in zip(means, stds)],
                     alpha=0.2, color="#2563EB", label="±1 std")
 
-    # Mark best C
+    # ---------- Mark best C ----------
     best_idx = cs.index(best_C)
     ax.axvline(x=log_cs[best_idx], color="#DC2626", linestyle="--",
                linewidth=1.5, label=f"Best C={best_C}  (λ={1/best_C:.4f})")
@@ -377,7 +374,7 @@ def plot_modality_importance(results: dict, out_dir: str) -> str:
     return path
 
 
-# ── Save Artefacts ────────────────────────────────────────────────────────────
+# =============== Save Artefacts ===============
 def save_artefacts(
     pipe: Pipeline,
     meta_df: pd.DataFrame,
@@ -540,7 +537,7 @@ def save_artefacts(
         log(logf, f"  {fname}")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# =============== Main ===============
 def main() -> None:
     model_name       = normalize_model_name(MODEL_NAME)
     meta_dataset_dir = os.path.abspath(META_DATASET_DIR)

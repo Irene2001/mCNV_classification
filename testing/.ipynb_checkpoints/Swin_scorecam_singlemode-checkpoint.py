@@ -1,31 +1,51 @@
-# gradcam_singlemode.py
+# Swin_scorecam_singlemode.py
 
 """
-Reads test_preds.csv produced by test_singlemode.py, groups samples by
-confusion-matrix quadrant (TP / TN / FP / FN), randomly selects one image
-per quadrant, and generates Grad-CAM overlays for the predicted class.
+Score-CAM visualisation for the Swin-Tiny single-modality mCNV base model.
 
-Outputs  ->  <TEST_EVAL_DIR>/gradcam/<timestamp>/
-  GradCAM_4x3_panel.png   4x3: original | Grad-CAM class-0 | Grad-CAM class-1
+Outputs  ->  <TEST_EVAL_DIR>/scorecam/<timestamp>/
+  ScoreCAM_4x3_panel.png   4x3: original | Score-CAM class-0 | Score-CAM class-1
   TP_panel.png  FP_panel.png  FN_panel.png  TN_panel.png
-  gradcam_samples.csv     per-sample record (quadrant, filename, GT, Pred, ...)
-  gradcam_log.txt
+  scorecam_samples.csv     per-sample record (quadrant, filename, GT, Pred, ...)
+  scorecam_log.txt
 
-Algorithm (Grad-CAM for Swin-Tiny, binary BCEWithLogits)
----------------------------------------------------------
-Swin-Tiny specifics (no cls_token, hierarchical patch merging):
-  - Token output of the last stage: [B, N, C] where N = (H/32)*(W/32) = 7*7=49
-    for 224x224 input.  (patch_size=4, 4 stages -> 4x merging -> 32x downscale)
+Algorithm (Score-CAM for Swin-Tiny, binary BCEWithLogits)
+----------------------------------------------------------
+Score-CAM is gradient-free.  It replaces gradient-based channel weights with
+a forward-pass score, which is more faithful (no vanishing/exploding gradient
+issues) and produces cleaner, less noisy saliency maps.
+
+Algorithm (Wang et al. 2020, Algorithm 1):
+  1. Forward pass: extract feature maps A  [C, H_feat, W_feat] at target layer.
+  2. For each channel k = 1..C:
+       a. Normalise A_k to [0,1]:  M_k = (A_k - min) / (max - min + eps)
+       b. Upsample M_k to input size [H, W].
+       c. Perturb input:  X_k = X * M_k  (element-wise mask on the image)
+       d. Forward pass X_k through the model; get score s_k = f(X_k)[class].
+  3. Channel weights:  w = softmax(s)   [C]
+  4. Final CAM = ReLU( sum_k w_k * A_k )
+  5. Normalise to [0, 1], bicubic upsample to [H, W].
+
+Swin-Tiny specifics:
   - Target layer  : model.norm  (Global LayerNorm after all 4 Swin stages)
-    norm1 captures intra-window local features -> fragmented, background-biased.
-    model.norm integrates globally -> coherent heatmap focused on lesion.
-  - Threshold     : CAM_THRESHOLD applied at 7x7 before upsampling.
-    Suppresses low-contribution pixels (black borders, specular artefacts).
-  - Upsample      : bicubic 7x7 -> 224x224  (smoother than bilinear)
-  - reshape_transform: [B, N, C] or [B, H, W, C] -> [B, C, 7, 7]
-  - Binary scoring:
-      class=1 (active)   ->  score = logit
-      class=0 (inactive) ->  score = -logit
+    Captures globally integrated semantic features.
+  - Feature map   : [B, H_feat, W_feat, C] (NHWC, timm >= 0.6)
+                    [B, N, C]               (flat tokens, timm <  0.6)
+    C=768, H_feat=W_feat=7 for 224x224 input.
+  - Binary scoring for BCEWithLogits (single logit output [B,1]):
+      class=1 (active)   ->  s_k = sigmoid(logit / T*)
+      class=0 (inactive) ->  s_k = 1 - sigmoid(logit / T*)
+
+Computational cost:
+  Score-CAM runs C=768 forward passes per image per class.
+  Each pass is light (no backward), but 768x2 = 1536 forward passes per sample.
+  On GPU this takes ~5-30 s/image depending on hardware.
+  BATCH_SIZE_SCORECAM controls how many masks are processed simultaneously.
+
+Compatibility:
+  Checkpoint format: {"model_state_dict": state_dict, "temperature": T*, ...}
+  test_preds.csv   : exam_key | y_true | logit_uncal | prob_uncal |
+                     temperature | logit_calib | prob_calib
 """
 
 import os
@@ -58,21 +78,19 @@ import matplotlib.pyplot as plt
 #    Structure: TEST_EVAL_ROOT/<model>/<modality>/<run_tag>/Best_fold{N}/
 TEST_EVAL_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/"
-    "swin_tiny/OCTA3/"
+    "swin_tiny/OCT/"
     "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
     "Best_fold2"
 )
-# OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9
-# OCT1: BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
+# OCT0:  BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9
+# OCT1:  BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
 # OCTA3: BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
 
 # 2. Checkpoint root (same as CHECKPOINT_ROOT in test_singlemode.py).
 #    Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
 CHECKPOINT_ROOT = ""
 
-# 3. Model switch -- enable one backbone at a time.
-#    When adding VGG16 / EfficientNet, add entries to TIMM_MODEL_MAP and
-#    _get_target_layer() only.
+# 3. Model switch
 ACTIVE_MODEL = "swin_tiny"   # "swin_tiny" | "vgg16" | "efficientnet_b0"
 
 TIMM_MODEL_MAP: Dict[str, str] = {
@@ -82,20 +100,22 @@ TIMM_MODEL_MAP: Dict[str, str] = {
 }
 
 # 4. Visual settings
-IMG_SIZE       = 224     # must match training
-OVERLAY_ALPHA  = 0.50    # 0 = original only, 1 = heatmap only
-COLORMAP       = "jet"   # matplotlib colormap for heatmap
-CLASS_NAMES    = ["inactive", "active"]
+IMG_SIZE      = 224     # must match training
+OVERLAY_ALPHA = 0.50    # 0 = original only, 1 = heatmap only
+COLORMAP      = "jet"
+CLASS_NAMES   = ["inactive", "active"]
 
-# CAM post-processing applied at 7x7 feature-map resolution (before upsample).
-# Pixels below CAM_THRESHOLD * max are zeroed out.
-# Suppresses low-contribution background noise (black borders, artefacts).
-# Set 0.0 to disable.  Ref: common in medical imaging Grad-CAM papers.
-CAM_THRESHOLD  = 0.30
+# 5. Score-CAM settings
+# Number of channel masks processed in one forward batch.
+# Larger = faster but more GPU memory.  C=768 for Swin-Tiny.
+BATCH_SIZE_SCORECAM = 32
 
-# 5. Random seed.
-#    None = time-based (different sample every run).
-#    Integer (e.g. 42) = fixed, reproducible selection.
+# CAM post-processing: zero pixels below CAM_THRESHOLD * max (before upsample).
+CAM_THRESHOLD = 0.20   # slightly lower than Grad-CAM (Score-CAM is already focused)
+
+# 6. Random seed
+#    None = time-based (different sample every run)
+#    Integer = fixed, reproducible
 N_RANDOM_SEED = None
 
 # Output figure style
@@ -128,32 +148,21 @@ def resolve_ckpt_root(cfg: str, project_root: Path) -> str:
 
 def parse_test_eval_dir(test_eval_dir: str) -> dict:
     """
-    Parse model_name, modality, run_tag, best_fold, project_root
-    from the TEST_EVAL_DIR path.
-
-    Required structure:
-      PROJECT_ROOT/outputs/test_evaluation/<model>/<modality>/<run_tag>/Best_fold{N}
+    Parse model_name, modality, run_tag, best_fold, project_root from path.
+    Required: PROJECT_ROOT/outputs/test_evaluation/<model>/<modality>/<run_tag>/Best_fold{N}
     """
     p = Path(test_eval_dir).resolve()
     if not p.is_dir():
         raise FileNotFoundError(f"TEST_EVAL_DIR not found: {test_eval_dir}")
-
     leaf = p.name
     if not leaf.startswith("Best_fold"):
         raise ValueError(f"TEST_EVAL_DIR must end with 'Best_fold{{N}}', got: {leaf}")
-    best_fold = int(leaf.replace("Best_fold", ""))
-
-    run_tag      = p.parents[0].name   # <run_tag>
-    modality     = p.parents[1].name   # e.g. OCT0
-    model_name   = p.parents[2].name   # e.g. swin_tiny
-    project_root = p.parents[5]        # PROJECT_ROOT
-
     return {
-        "best_fold":    best_fold,
-        "run_tag":      run_tag,
-        "modality":     modality,
-        "model_name":   model_name,
-        "project_root": project_root,
+        "best_fold":    int(leaf.replace("Best_fold", "")),
+        "run_tag":      p.parents[0].name,
+        "modality":     p.parents[1].name,
+        "model_name":   p.parents[2].name,
+        "project_root": p.parents[5],
     }
 
 
@@ -162,29 +171,20 @@ def parse_test_eval_dir(test_eval_dir: str) -> dict:
 # ------------------------------------------------------------------------------
 
 def build_model(model_name: str) -> nn.Module:
-    """Build timm model with num_classes=1 (BCEWithLogits head)."""
     if model_name not in TIMM_MODEL_MAP:
-        raise NotImplementedError(
-            f"model_name='{model_name}' not in TIMM_MODEL_MAP. "
-            f"Registered: {list(TIMM_MODEL_MAP.keys())}"
-        )
+        raise NotImplementedError(f"model_name='{model_name}' not in TIMM_MODEL_MAP.")
     return timm.create_model(TIMM_MODEL_MAP[model_name], pretrained=False, num_classes=1)
 
 
 def load_checkpoint_and_temperature(
     model: nn.Module, ckpt_path: str, device: torch.device,
 ) -> Tuple[nn.Module, float]:
-    """
-    Load model_best.pth saved by train_singlemode_oof.py.
-    Returns (model, temperature).  temperature defaults to 1.0 if not stored.
-    """
     raw = torch.load(ckpt_path, map_location=device, weights_only=False)
     if isinstance(raw, dict):
         state_dict  = raw.get("model_state_dict", raw.get("state_dict", raw))
         temperature = float(raw.get("temperature", 1.0))
     else:
-        state_dict  = raw
-        temperature = 1.0
+        state_dict, temperature = raw, 1.0
     model.load_state_dict(state_dict, strict=True)
     model.to(device)
     model.eval()
@@ -192,20 +192,17 @@ def load_checkpoint_and_temperature(
 
 
 # ------------------------------------------------------------------------------
-# Grad-CAM (manual hook, no external library dependency)
+# Score-CAM (gradient-free)
 # ------------------------------------------------------------------------------
 
 def _get_target_layer(model: nn.Module, model_name: str) -> nn.Module:
     """
-    Return the Grad-CAM hook target layer.
+    Return the feature extraction hook target layer.
 
     Swin-Tiny: model.norm  (Global LayerNorm, after all 4 stages)
-      norm1 captures intra-window LOCAL features -> fragmented heatmap.
-      model.norm integrates features GLOBALLY before the classifier head
-      -> coherent, semantically meaningful heatmap focused on lesion regions.
-      Output shape (timm >= 0.6): [B, H, W, C] = [B, 7, 7, 768]
-      Output shape (timm <  0.6): [B, N, C]    = [B, 49, 768]
-      Both handled by _reshape_swin_tokens().
+      Produces globally integrated 7x7 feature maps; same rationale as Grad-CAM.
+      Output (timm >= 0.6): [B, H, W, C] = [B, 7, 7, 768]
+      Output (timm <  0.6): [B, N, C]    = [B, 49, 768]
     """
     if model_name == "swin_tiny":
         return model.norm
@@ -215,126 +212,148 @@ def _get_target_layer(model: nn.Module, model_name: str) -> nn.Module:
     )
 
 
-def _reshape_swin_tokens(tensor: torch.Tensor) -> torch.Tensor:
+def _to_spatial(tensor: torch.Tensor) -> torch.Tensor:
     """
     Convert Swin hook output to [B, C, H_feat, W_feat].
-
-    timm >= 0.6 outputs [B, H, W, C] (NHWC, 4D).
-    timm <  0.6 outputs [B, N, C]    (flat tokens, 3D).
+    Handles both 4D NHWC (timm >= 0.6) and 3D flat-token (timm < 0.6) formats.
     """
     if tensor.ndim == 4:
-        # [B, H, W, C] -> [B, C, H, W]
-        return tensor.permute(0, 3, 1, 2).contiguous()
+        return tensor.permute(0, 3, 1, 2).contiguous()     # [B,H,W,C] -> [B,C,H,W]
     elif tensor.ndim == 3:
-        # [B, N, C] -> [B, C, sqrt(N), sqrt(N)]
         B, N, C = tensor.shape
         H = W = int(N ** 0.5)
         assert H * W == N, f"N={N} is not a perfect square"
         return tensor.view(B, H, W, C).permute(0, 3, 1, 2).contiguous()
-    raise ValueError(
-        f"Unexpected tensor ndim={tensor.ndim}, shape={tensor.shape}. "
-        "Expected 3D [B,N,C] or 4D [B,H,W,C]."
-    )
+    raise ValueError(f"Unexpected tensor shape: {tensor.shape}")
 
 
-class SwinGradCAM:
+class SwinScoreCAM:
     """
-    Grad-CAM for timm Swin-Tiny binary (BCEWithLogits) model.
+    Score-CAM for timm Swin-Tiny binary (BCEWithLogits) model.
 
-    Grad-CAM formula (Selvaraju et al. 2017):
-      alpha_k  = (1/Z) sum_{i,j} dY/dA_k_{ij}   [channel importance weight]
-      L        = ReLU( sum_k alpha_k * A_k )      [class activation map]
+    Algorithm (Wang et al. CVPR Workshop 2020):
+      For each channel k in the target feature map:
+        1. Normalise channel A_k to [0,1]                  -> M_k  [H_feat, W_feat]
+        2. Upsample M_k to input resolution [H, W]
+        3. Masked input: X_k = X * M_k  (broadcast over C_in channels)
+        4. Forward pass: s_k = model_score(X_k, class)      (no gradient needed)
+      Weights: w = softmax(s)                               [C]
+      CAM    = ReLU( sum_k w_k * A_k )                     [H_feat, W_feat]
 
-    Binary scoring:
-      class=1 (active)   -> score = logit
-      class=0 (inactive) -> score = -logit
+    Binary BCEWithLogits adaptation (single logit output [B,1]):
+      class=1 (active)   ->  s_k = sigmoid(logit_k / T*)
+      class=0 (inactive) ->  s_k = 1 - sigmoid(logit_k / T*)
+
+    Baseline image X_b: zero tensor (black image, after ImageNet normalisation).
+    The score difference relative to the baseline makes weights zero-centred,
+    which reduces spurious activations in background regions.
+    (Ref: Wang et al. 2020, Eq.6; frgfm/torch-cam implementation)
     """
 
-    def __init__(self, model: nn.Module, model_name: str, device: torch.device):
+    def __init__(
+        self,
+        model: nn.Module,
+        model_name: str,
+        device: torch.device,
+        batch_size: int = BATCH_SIZE_SCORECAM,
+    ):
         self.model      = model
         self.model_name = model_name
         self.device     = device
+        self.batch_size = batch_size
+
         self._activations: Optional[torch.Tensor] = None
-        self._gradients:   Optional[torch.Tensor] = None
-
         target = _get_target_layer(model, model_name)
-        self._fwd_hook = target.register_forward_hook(self._save_activation)
-        self._bwd_hook = target.register_full_backward_hook(self._save_gradient)
+        self._hook = target.register_forward_hook(
+            lambda m, i, o: setattr(self, "_activations", o.detach())
+        )
 
-    def _save_activation(self, module, inp, out):
-        self._activations = out.detach()
+    def remove_hooks(self) -> None:
+        self._hook.remove()
 
-    def _save_gradient(self, module, grad_inp, grad_out):
-        if grad_out and grad_out[0] is not None:
-            self._gradients = grad_out[0].detach()
-
-    def remove_hooks(self):
-        self._fwd_hook.remove()
-        self._bwd_hook.remove()
-
+    @torch.no_grad()
     def generate(
         self,
-        img_tensor: torch.Tensor,
-        class_idx: int,
+        img_tensor: torch.Tensor,      # [1, 3, H, W]
+        class_idx: int,                # 0=inactive, 1=active
         temperature: float = 1.0,
     ) -> Tuple[np.ndarray, float]:
         """
-        Generate Grad-CAM heatmap for class_idx.
+        Generate Score-CAM heatmap for class_idx.  No gradient is computed.
 
         Returns
         -------
         cam : np.ndarray  [H, W]  values in [0, 1]
-            Pipeline: Grad-CAM [7x7] -> normalize -> threshold(CAM_THRESHOLD)
-                      -> bicubic upsample [224x224] -> clip
         prob_active : float  sigmoid(logit / T*)
         """
         self.model.eval()
-        self.model.zero_grad()
-        self._activations = None
-        self._gradients   = None
 
-        logit       = self.model(img_tensor)                         # [1, 1]
+        # ── Step 1: Extract feature maps ─────────────────────────────────────
+        self._activations = None
+        logit = self.model(img_tensor)                        # [1, 1]
+        assert self._activations is not None, "Hook did not capture activations."
+
+        A = _to_spatial(self._activations)[0]                 # [C, H_feat, W_feat]
+        C, Hf, Wf = A.shape
+
         logit_calib = logit / max(temperature, 1e-6)
         prob_active = float(torch.sigmoid(logit_calib[0, 0]).item())
 
-        score = logit[0, 0] if class_idx == 1 else -logit[0, 0]
-        score.backward()
+        # ── Step 2: Per-channel forward-pass scores ───────────────────────────
+        # Normalise each channel to [0, 1]  (Eq.4 in Wang et al. 2020)
+        A_min = A.flatten(1).min(dim=1).values.view(C, 1, 1)
+        A_max = A.flatten(1).max(dim=1).values.view(C, 1, 1)
+        A_norm = (A - A_min) / (A_max - A_min + 1e-8)         # [C, Hf, Wf]
 
-        if self._activations is None or self._gradients is None:
-            raise RuntimeError(
-                "Grad-CAM hooks did not capture data. "
-                "Check that the target layer is correct."
-            )
+        # Upsample all masks to input size in one shot  [C, H, W]
+        masks = F.interpolate(
+            A_norm.unsqueeze(1),                               # [C, 1, Hf, Wf]
+            size=(IMG_SIZE, IMG_SIZE),
+            mode="bilinear",
+            align_corners=False,
+        )[:, 0, :, :]                                          # [C, H, W]
 
-        A = _reshape_swin_tokens(self._activations)   # [1, C, 7, 7]
-        G = _reshape_swin_tokens(self._gradients)     # [1, C, 7, 7]
+        # ── Step 3: Score each mask  (batched forward passes) ─────────────────
+        scores = torch.zeros(C, dtype=torch.float32, device=self.device)
 
-        # Eq.1: alpha_k = (1/Z) sum_{i,j} dY/dA_k_{ij}
-        weights = G.mean(dim=(2, 3), keepdim=True)           # [1, C, 1, 1]
-        # Eq.2: L = ReLU( sum_k alpha_k * A_k )
-        cam     = (weights * A).sum(dim=1, keepdim=True)      # [1, 1, 7, 7]
-        cam     = F.relu(cam)
+        for start in range(0, C, self.batch_size):
+            end   = min(start + self.batch_size, C)
+            batch = masks[start:end]                           # [B, H, W]
+            # Apply mask to input: X_k = X * M_k
+            # img_tensor: [1, 3, H, W]; mask: [B, H, W] -> [B, 1, H, W]
+            masked_inputs = img_tensor * batch.unsqueeze(1)    # [B, 3, H, W]
 
-        # Normalise to [0, 1] at 7x7 feature-map resolution
+            logits_batch = self.model(masked_inputs)           # [B, 1]
+            probs = torch.sigmoid(logits_batch[:, 0] / max(temperature, 1e-6))
+            # Binary class scoring
+            if class_idx == 1:
+                scores[start:end] = probs
+            else:
+                scores[start:end] = 1.0 - probs
+
+        # ── Step 4: Softmax weights  (Eq.5 in Wang et al. 2020) ──────────────
+        weights = torch.softmax(scores, dim=0)                 # [C]
+
+        # ── Step 5: Weighted sum + ReLU  (Eq.6) ──────────────────────────────
+        cam = (weights.view(C, 1, 1) * A).sum(dim=0, keepdim=True)  # [1, Hf, Wf]
+        cam = F.relu(cam)
+
+        # ── Step 6: Normalise at feature-map resolution ───────────────────────
         cam_min, cam_max = cam.min(), cam.max()
         if cam_max > cam_min:
             cam = (cam - cam_min) / (cam_max - cam_min + 1e-8)
 
-        # Threshold: zero out pixels below CAM_THRESHOLD * max.
-        # Applied at 7x7 before upsampling so low-contribution background
-        # regions (black borders, specular artefacts) are suppressed.
+        # ── Step 7: Threshold + bicubic upsample ──────────────────────────────
         if CAM_THRESHOLD > 0.0:
             cam = cam * (cam >= CAM_THRESHOLD).float()
 
-        # Bicubic upsample 7x7 -> 224x224.
-        # Provides smoother transitions than bilinear for 32x upscaling.
         cam_up = F.interpolate(
-            cam, size=(IMG_SIZE, IMG_SIZE),
-            mode="bicubic", align_corners=False,
+            cam.unsqueeze(0),                                  # [1, 1, Hf, Wf]
+            size=(IMG_SIZE, IMG_SIZE),
+            mode="bicubic",
+            align_corners=False,
         )[0, 0].cpu().numpy()
-        cam_up = np.clip(cam_up, 0.0, 1.0)
-
-        return cam_up, prob_active
+        return np.clip(cam_up, 0.0, 1.0), prob_active
 
 
 # ------------------------------------------------------------------------------
@@ -360,7 +379,6 @@ def overlay_heatmap(
     alpha: float = OVERLAY_ALPHA,
     colormap: str = COLORMAP,
 ) -> np.ndarray:
-    """Blend original image and Grad-CAM heatmap. Returns [H, W, 3] float32."""
     img_np  = np.array(orig_pil.resize((IMG_SIZE, IMG_SIZE),
                                         Image.BILINEAR).convert("RGB"),
                        dtype=np.float32) / 255.0
@@ -378,10 +396,9 @@ def save_samples_csv(
     run_meta: dict,
 ) -> None:
     """
-    Save per-sample Grad-CAM record to CSV.
-
+    Save per-sample Score-CAM record to CSV.
     Columns: run_timestamp, model_name, modality, run_tag, best_fold,
-             temperature, target_layer,
+             temperature, target_layer, cam_method, batch_size_scorecam,
              quadrant, exam_key, filename, image_path,
              gt_label, gt_class, pred_label, pred_class,
              prob_active, prob_inactive, logit_uncal, logit_calib,
@@ -390,20 +407,22 @@ def save_samples_csv(
     rows = []
     for quadrant, data in samples.items():
         base = {
-            "run_timestamp": run_meta["timestamp"],
-            "model_name":    run_meta["model_name"],
-            "modality":      run_meta["modality"],
-            "run_tag":       run_meta["run_tag"],
-            "best_fold":     run_meta["best_fold"],
-            "temperature":   run_meta["temperature"],
-            "target_layer":  run_meta["target_layer"],
-            "quadrant":      quadrant,
+            "run_timestamp":       run_meta["timestamp"],
+            "model_name":          run_meta["model_name"],
+            "modality":            run_meta["modality"],
+            "run_tag":             run_meta["run_tag"],
+            "best_fold":           run_meta["best_fold"],
+            "temperature":         run_meta["temperature"],
+            "target_layer":        run_meta["target_layer"],
+            "cam_method":          "Score-CAM",
+            "batch_size_scorecam": BATCH_SIZE_SCORECAM,
+            "cam_threshold":       CAM_THRESHOLD,
+            "quadrant":            quadrant,
         }
         if data is None:
             base.update({
                 "exam_key": "", "filename": "", "image_path": "",
-                "gt_label": "", "gt_class": "",
-                "pred_label": "", "pred_class": "",
+                "gt_label": "", "gt_class": "", "pred_label": "", "pred_class": "",
                 "prob_active": "", "prob_inactive": "",
                 "logit_uncal": "", "logit_calib": "",
                 "cam1_max": "", "cam0_max": "",
@@ -412,21 +431,21 @@ def save_samples_csv(
             })
         else:
             base.update({
-                "exam_key":    data["exam_key"],
-                "filename":    data["filename"],
-                "image_path":  data["img_path"],
-                "gt_label":    data["gt"],
-                "gt_class":    CLASS_NAMES[data["gt"]],
-                "pred_label":  data["pred"],
-                "pred_class":  CLASS_NAMES[data["pred"]],
-                "prob_active":   round(data["prob_active"],   6),
+                "exam_key":      data["exam_key"],
+                "filename":      data["filename"],
+                "image_path":    data["img_path"],
+                "gt_label":      data["gt"],
+                "gt_class":      CLASS_NAMES[data["gt"]],
+                "pred_label":    data["pred"],
+                "pred_class":    CLASS_NAMES[data["pred"]],
+                "prob_active":   round(data["prob_active"], 6),
                 "prob_inactive": round(1.0 - data["prob_active"], 6),
-                "logit_uncal":   round(data["logit_uncal"],   6),
-                "logit_calib":   round(data["logit_calib"],   6),
-                "cam1_max":  round(float(data["cam1"].max()), 4),
-                "cam0_max":  round(float(data["cam0"].max()), 4),
-                "panel_file": f"{quadrant}_panel.png",
-                "note": "",
+                "logit_uncal":   round(data["logit_uncal"], 6),
+                "logit_calib":   round(data["logit_calib"], 6),
+                "cam1_max":      round(float(data["cam1"].max()), 4),
+                "cam0_max":      round(float(data["cam0"].max()), 4),
+                "panel_file":    f"{quadrant}_panel.png",
+                "note":          "",
             })
         rows.append(base)
     pd.DataFrame(rows).to_csv(out_path, index=False, encoding="utf-8-sig")
@@ -438,11 +457,11 @@ def save_samples_csv(
 
 def _set_style() -> None:
     plt.rcParams.update({
-        "font.size":       10,
-        "axes.titlesize":  _TITLE_SIZE,
-        "axes.labelsize":  _AXIS_LABEL_SIZE,
-        "figure.dpi":      _FIG_DPI,
-        "savefig.dpi":     _FIG_DPI,
+        "font.size":         10,
+        "axes.titlesize":    _TITLE_SIZE,
+        "axes.labelsize":    _AXIS_LABEL_SIZE,
+        "figure.dpi":        _FIG_DPI,
+        "savefig.dpi":       _FIG_DPI,
         "axes.spines.top":   False,
         "axes.spines.right": False,
     })
@@ -454,7 +473,7 @@ def save_single_panel(
     quadrant: str, gt: int, pred: int, prob_active: float,
     out_path: str,
 ) -> None:
-    """1x3: original | Grad-CAM class-0 | Grad-CAM class-1"""
+    """1x3: original | Score-CAM class-0 | Score-CAM class-1"""
     _set_style()
     fig, axes = plt.subplots(1, 3, figsize=(10, 3.5))
     fig.suptitle(
@@ -466,10 +485,10 @@ def save_single_panel(
     axes[0].set_title("Original", fontweight="bold")
     axes[0].axis("off")
     axes[1].imshow(overlay_heatmap(orig_pil, cam0))
-    axes[1].set_title("Grad-CAM\nClass 0 (inactive)", fontweight="bold")
+    axes[1].set_title("Score-CAM\nClass 0 (inactive)", fontweight="bold")
     axes[1].axis("off")
     axes[2].imshow(overlay_heatmap(orig_pil, cam1))
-    axes[2].set_title("Grad-CAM\nClass 1 (active)", fontweight="bold")
+    axes[2].set_title("Score-CAM\nClass 1 (active)", fontweight="bold")
     axes[2].axis("off")
     plt.tight_layout(rect=[0, 0, 1, 0.92])
     plt.savefig(out_path, bbox_inches="tight")
@@ -485,12 +504,12 @@ def save_4x3_panel(
     row_keys = ["TP", "FP", "FN", "TN"]
     fig, axes = plt.subplots(4, 3, figsize=(12, 16))
     fig.suptitle(
-        f"Grad-CAM -- {model_name.upper()} / {modality}  (Test Set)",
+        f"Score-CAM -- {model_name.upper()} / {modality}  (Test Set)",
         fontsize=_TITLE_SIZE + 2, fontweight="bold",
     )
     for c, ct in enumerate(["Original",
-                             "Grad-CAM: Class 0 (inactive)",
-                             "Grad-CAM: Class 1 (active)"]):
+                             "Score-CAM: Class 0 (inactive)",
+                             "Score-CAM: Class 1 (active)"]):
         axes[0, c].set_title(ct, fontsize=_TITLE_SIZE, fontweight="bold", pad=6)
 
     for r, key in enumerate(row_keys):
@@ -532,7 +551,6 @@ def save_4x3_panel(
 # ------------------------------------------------------------------------------
 
 def main() -> None:
-    # Seed: None = time-based (different sample every run)
     if N_RANDOM_SEED is None:
         random.seed(int(time.time() * 1000) % (2 ** 31))
     else:
@@ -561,27 +579,31 @@ def main() -> None:
 
     preds_csv = os.path.join(TEST_EVAL_DIR, "test_preds.csv")
     ts        = time.strftime("%Y%m%d_%H%M%S")
-    out_dir   = os.path.join(TEST_EVAL_DIR, "gradcam", ts)
+    # scorecam folder, distinct from gradcam to avoid mixing results
+    out_dir   = os.path.join(TEST_EVAL_DIR, "scorecam", ts)
     ensure_dir(out_dir)
 
-    logf = open(os.path.join(out_dir, "gradcam_log.txt"),
+    logf = open(os.path.join(out_dir, "scorecam_log.txt"),
                 "w", buffering=1, encoding="utf-8")
 
     log_print(logf, "=" * 62)
-    log_print(logf, "GRAD-CAM  SINGLE-MODALITY  mCNV CLASSIFICATION")
+    log_print(logf, "SCORE-CAM  SINGLE-MODALITY  mCNV CLASSIFICATION")
     log_print(logf, "=" * 62)
-    log_print(logf, f"model      : {model_name}  ({TIMM_MODEL_MAP[model_name]})")
-    log_print(logf, f"modality   : {modality}")
-    log_print(logf, f"run_tag    : {run_tag}")
-    log_print(logf, f"best_fold  : {best_fold}")
-    log_print(logf, f"device     : {device}")
-    log_print(logf, f"checkpoint : {ckpt_path}")
-    log_print(logf, f"preds_csv  : {preds_csv}")
-    log_print(logf, f"out_dir    : {out_dir}")
-    log_print(logf, f"target_layer : model.norm  (Global LayerNorm, all 4 stages)")
-    log_print(logf, f"cam_threshold: {CAM_THRESHOLD}  (zero pixels < threshold*max)")
-    log_print(logf, f"random_seed  : {N_RANDOM_SEED} (None=time-based, diff every run)")
-    log_print(logf, f"reference    : Selvaraju et al. ICCV 2017 (Grad-CAM)")
+    log_print(logf, f"model          : {model_name}  ({TIMM_MODEL_MAP[model_name]})")
+    log_print(logf, f"modality       : {modality}")
+    log_print(logf, f"run_tag        : {run_tag}")
+    log_print(logf, f"best_fold      : {best_fold}")
+    log_print(logf, f"device         : {device}")
+    log_print(logf, f"checkpoint     : {ckpt_path}")
+    log_print(logf, f"preds_csv      : {preds_csv}")
+    log_print(logf, f"out_dir        : {out_dir}")
+    log_print(logf, f"target_layer   : model.norm  (Global LayerNorm, all 4 stages)")
+    log_print(logf, f"cam_method     : Score-CAM (gradient-free)")
+    log_print(logf, f"batch_scorecam : {BATCH_SIZE_SCORECAM}  "
+                    f"(channels per forward batch, C=768 total)")
+    log_print(logf, f"cam_threshold  : {CAM_THRESHOLD}")
+    log_print(logf, f"random_seed    : {N_RANDOM_SEED} (None=time-based)")
+    log_print(logf, f"reference      : Wang et al. CVPR Workshop 2020 (Score-CAM)")
 
     # Step 1: Load test_preds.csv
     log_print(logf, "-" * 62)
@@ -655,16 +677,18 @@ def main() -> None:
                     f"(using CSV T*={temperature:.6f})")
 
     target_layer_name = "model.norm"
-    gradcam = SwinGradCAM(model, model_name, device)
-    log_print(logf, f"Grad-CAM engine ready  target={target_layer_name}")
+    scorecam = SwinScoreCAM(model, model_name, device,
+                            batch_size=BATCH_SIZE_SCORECAM)
+    log_print(logf, f"Score-CAM engine ready  target={target_layer_name}  "
+                    f"C=768  batch={BATCH_SIZE_SCORECAM}")
+    log_print(logf, f"  Est. forward passes per image: 768x2 classes = 1536")
 
     tfm = get_test_transform()
 
-    # Step 4: Generate Grad-CAM
+    # Step 4: Generate Score-CAM
     log_print(logf, "-" * 62)
-    log_print(logf, "Step 4: Generate Grad-CAM heatmaps")
+    log_print(logf, "Step 4: Generate Score-CAM heatmaps")
 
-    # Modality -> image path column in master_manifest.csv
     MODALITY_IMG_COL = {
         "OCT0":  "oct0_image_path",
         "OCT1":  "oct1_image_path",
@@ -672,15 +696,12 @@ def main() -> None:
     }
     img_col = MODALITY_IMG_COL[modality]
 
-    # Cache manifest if needed (loaded once for all quadrants)
     _manifest_df: Optional[pd.DataFrame] = None
 
     def _get_img_path(row) -> Optional[str]:
         nonlocal _manifest_df
-        # Attempt 1: image path column already in test_preds.csv
         if img_col in df.columns:
             return str(row[img_col])
-        # Attempt 2: look up master_manifest.csv
         if _manifest_df is None:
             candidates = [
                 project_root / "outputs" / "manifests" / "master_split" / "master_manifest.csv",
@@ -705,9 +726,9 @@ def main() -> None:
             samples_for_panel[quadrant] = None
             continue
 
-        row      = df.loc[row_idx]
-        gt       = int(row["y_true"])
-        pred     = int(row["y_pred_calib"])
+        row  = df.loc[row_idx]
+        gt   = int(row["y_true"])
+        pred = int(row["y_pred_calib"])
 
         img_path = _get_img_path(row)
         if img_path is None:
@@ -722,8 +743,10 @@ def main() -> None:
         orig_pil   = Image.open(img_path).convert("RGB")
         img_tensor = tfm(orig_pil).unsqueeze(0).to(device)
 
-        cam0, _          = gradcam.generate(img_tensor, class_idx=0, temperature=temperature)
-        cam1, prob_active = gradcam.generate(img_tensor, class_idx=1, temperature=temperature)
+        t0 = time.time()
+        cam0, _          = scorecam.generate(img_tensor, class_idx=0, temperature=temperature)
+        cam1, prob_active = scorecam.generate(img_tensor, class_idx=1, temperature=temperature)
+        elapsed = time.time() - t0
 
         samples_for_panel[quadrant] = {
             "orig_pil":    orig_pil,
@@ -742,19 +765,20 @@ def main() -> None:
         log_print(logf, f"  [{quadrant}] {os.path.basename(img_path)}"
                         f"  gt={CLASS_NAMES[gt]}  pred={CLASS_NAMES[pred]}"
                         f"  P(active)={prob_active:.4f}"
-                        f"  cam0_max={cam0.max():.3f}  cam1_max={cam1.max():.3f}")
+                        f"  cam0_max={cam0.max():.3f}  cam1_max={cam1.max():.3f}"
+                        f"  time={elapsed:.1f}s")
 
         panel_path = os.path.join(out_dir, f"{quadrant}_panel.png")
         save_single_panel(orig_pil, cam0, cam1, quadrant,
                           gt, pred, prob_active, panel_path)
         log_print(logf, f"    saved -> {panel_path}")
 
-    gradcam.remove_hooks()
+    scorecam.remove_hooks()
 
     # Step 5: Save combined 4x3 panel
     log_print(logf, "-" * 62)
     log_print(logf, "Step 5: Save combined 4x3 panel")
-    big_path = os.path.join(out_dir, "GradCAM_4x3_panel.png")
+    big_path = os.path.join(out_dir, "ScoreCAM_4x3_panel.png")
     save_4x3_panel(samples_for_panel, big_path, modality, model_name)
     log_print(logf, f"Saved -> {big_path}")
 
@@ -770,20 +794,20 @@ def main() -> None:
         "temperature":  temperature,
         "target_layer": target_layer_name,
     }
-    csv_path = os.path.join(out_dir, "gradcam_samples.csv")
+    csv_path = os.path.join(out_dir, "scorecam_samples.csv")
     save_samples_csv(samples_for_panel, csv_path, run_meta)
     log_print(logf, f"Saved -> {csv_path}")
 
     # Done
     log_print(logf, "=" * 62)
-    log_print(logf, "GRAD-CAM COMPLETE")
+    log_print(logf, "SCORE-CAM COMPLETE")
     log_print(logf, f"  Output: {out_dir}")
-    log_print(logf, "  Files : GradCAM_4x3_panel.png")
+    log_print(logf, "  Files : ScoreCAM_4x3_panel.png")
     for q in ["TP", "FP", "FN", "TN"]:
         if samples_for_panel.get(q) is not None:
             log_print(logf, f"          {q}_panel.png")
-    log_print(logf, "          gradcam_samples.csv")
-    log_print(logf, "          gradcam_log.txt")
+    log_print(logf, "          scorecam_samples.csv")
+    log_print(logf, "          scorecam_log.txt")
     log_print(logf, "=" * 62)
     logf.close()
 

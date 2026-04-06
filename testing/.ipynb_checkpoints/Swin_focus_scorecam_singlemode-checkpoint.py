@@ -1,4 +1,4 @@
-# test_scorecam_singlemode.py
+# Swin_test_scorecam_singlemode.py
 
 """
 Score-CAM visualisation for the Swin-Tiny single-modality mCNV base model.

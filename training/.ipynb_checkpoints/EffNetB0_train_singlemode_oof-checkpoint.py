@@ -1,8 +1,8 @@
 # EffNetB0_train_singlemode_oof.py
 
-# Revise: build_optimizer 補上差分學習率(原本只分 weight_decay 組，所有可訓練參數用同一個 LR)
+# Revise: build_optimizer use difference LR
 """
-EfficientNetB0 base model training (OOF val output) for mCNV binary classification.
+EfficientNetB0 base model training (OOF val output).
 
 Architecture note
 -----------------
@@ -19,51 +19,12 @@ EfficientNetB0 (timm) comprises:
   conv_head + bn2    → 1×1 projection conv (stage 8)
   classifier         → head (linear)
 
-Unfreeze strategy for small medical datasets (PARTIAL_FINETUNE)
----------------------------------------------------------------
-Medical OCT/OCTA images differ substantially from ImageNet; small dataset
-sizes raise serious over-fitting risk when the full backbone is updated.
-Evidence from:
-  • Davila et al. 2024 (arXiv 2406.10050, Image & Vision Computing)
-    "LP-FT (linear probe then full fine-tune) is effective for ResNet/DenseNet;
-     purely unfreezing all layers without progressive strategy often hurts on
-     small medical datasets."
-  • Keras EfficientNet fine-tuning guide (keras.io):
-    "First train only the top, then unfreeze the top N layers with a very low LR."
-  • PMC 11805419 (PLOS ONE 2025, SE-EfficientNetB0 for retinal OCT):
-    Frozen backbone + custom head first, then gradual partial unfreeze of last
-    blocks gives best OCT classification results.
-
 Chosen mode → PARTIAL_FINETUNE:
   Frozen : conv_stem, bn1, blocks[0..3]   (low/mid-level ImageNet features)
   Trained : blocks[4], blocks[5], blocks[6], conv_head, bn2, classifier
   This preserves texture/edge priors while adapting high-level semantic
   representations to mCNV pathology features.
   drop_rate=0.2 is applied at the classifier (default for EffNetB0).
-
-All outputs go to EffNetB0_outputs/ to stay isolated from SwinTiny / VGG16 runs.
-
-Outputs
--------
-EffNetB0_outputs/checkpoints/
-    <model_name>/<modality>/<RunTag>/Kfold/foldx/
-        model_best.pth
-        checkpoint_last.pth
-    <model_name>/<modality>/<RunTag>/Best_foldx/
-
-EffNetB0_outputs/training/
-    <model_name>/<modality>/<RunTag>/Kfold/foldx/
-        training.log
-        metrics.csv
-        learning_curves.png
-        fold_summary.json
-    <model_name>/<modality>/<RunTag>/Best_foldx/
-    <model_name>/<modality>/<RunTag>/RUN_CONFIG.txt
-    <model_name>/<modality>/<RunTag>/run_config.json
-    <model_name>/<modality>/<RunTag>/summary.json
-
-EffNetB0_outputs/oof_predictions/
-    <model_name>/<modality>/<RunTag>/all_folds_oof.csv
 
 Terminal
 --------
@@ -122,18 +83,17 @@ except ImportError:
             get_backbone_name,
         )
 
-
 # deterministic
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 
-# ===================== DEFAULT CONFIG =====================
+# =============== CONFIG ===============
 PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
-# Add VGG16_outputs & Partial_B5 folder!
+# Add: EFFNEToutputs & Partial_B5_6 folder!
 EFFNET_BASE_DIR = os.path.join(PROJECT_ROOT_DIR, "EffNetB0_outputs")
-STRATEGY_NAME = "Partial_B4_6"
+STRATEGY_NAME = "Partial_B5_6"
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR,
@@ -158,25 +118,22 @@ SINGLE_FOLD_INDEX   = 1
 # train hyperparameters 
 BATCH_SIZE   = 16
 NUM_EPOCHS   = 100
-# LR 為 head 的學習率；解凍的 backbone blocks 使用 LR * BACKBONE_LR_MULT（慢速）
-# 對齊 VGG16 Partial_B5 設計：backbone 降速 10 倍，防止預訓練權重被高梯度沖毀
 LR           = 1e-5
 WEIGHT_DECAY = 0.01
 GRAD_CLIP    = 1.0
-
-# EfficientNetB0 原始論文 drop_rate=0.2（classifier head dropout）
-DROP_RATE      = 0.2
-# drop_path_rate: MBConv blocks 內的 stochastic depth（None = timm 預設 0.2）
+DROP_RATE      = 0.2   # default dropout
+# drop_path_rate: MBConv blocks 內的 stochastic depth
 DROP_PATH_RATE = None
 
-# ── unfreeze mode & 差分學習率 ────────────────────────────────────────────────
-# PARTIAL_FINETUNE: 凍結 stem + blocks[0..5]，解凍 blocks[6] + head
-# BACKBONE_LR_MULT: 解凍的 blocks[6] 使用 LR*0.1（對應 VGG16 Block5 用 LR*0.1）
-# head (conv_head, bn2, classifier) 使用完整 LR
+# =============== Unfreeze: Block5_6 + classifier only ===============
+# PARTIAL_FINETUNE: freeze stem + blocks[0..4], unfreeze blocks[5, 6] + head
+EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3, 4]   # freeze
+EFFNET_TRAINABLE_BLOCK_INDICES = [5, 6]      # unfreeze
 UNFREEZE_MODE    = "PARTIAL_FINETUNE"
-BACKBONE_LR_MULT = 0.1   # ← 核心修正：backbone 降速 10 倍，與 VGG16 一致
+BACKBONE_LR_MULT = 0.1   
 LLRD_DECAY       = 0.85
 
+# ---------- Focal BCE ----------
 FOCAL_LOSS_ALPHA = {
     "OCT0":  [0.110, 0.890],
     "OCT1":  [0.113, 0.887],
@@ -184,6 +141,7 @@ FOCAL_LOSS_ALPHA = {
 }
 FOCAL_LOSS_GAMMA = 2.0
 
+# ---------- Weighted sampler ----------
 USE_WEIGHTED_SAMPLER = True
 MANUAL_SAMPLE_WEIGHTS = {
     "OCT0":  [1.0, 2.9],
@@ -191,16 +149,12 @@ MANUAL_SAMPLE_WEIGHTS = {
     "OCTA3": [1.0, 2.6],
 }
 
+# ---------- Temperature Scaling ---------- 
 USE_TEMPERATURE_SCALING  = True
+
+# ---------- Early Stop ----------
 EARLY_STOPPING_PATIENCE  = 10
 EARLY_STOP_MIN_DELTA     = 1e-4
-
-# ── EfficientNetB0 block structure：對齊 VGG16 Partial_B5 策略 ────────────────
-# blocks[0..5] → frozen  (stem + stage1-6，保留 ImageNet 低/中層特徵)
-# blocks[6]    → trained (stage7，最高層語意，對應 VGG16 Block5)
-# conv_head, bn2, classifier → trained（head，對應 VGG16 classifier）
-EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3]   # 凍結
-EFFNET_TRAINABLE_BLOCK_INDICES = [4, 5, 6]      # 解凍（對應 VGG16 Block5）
 
 
 # ===================== UTILS =====================
@@ -303,7 +257,7 @@ def normalize_manifest_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-# ===================== DATASET =====================
+# =============== DATASET ===============
 class ManifestImageDataset(Dataset):
     """One row = one exam unit from master_manifest.csv."""
 
@@ -332,7 +286,7 @@ class ManifestImageDataset(Dataset):
         return img, y
 
 
-# ===================== LOSSES =====================
+# =============== LOSSES ===============
 class FocalBCELoss(nn.Module):
     def __init__(self, alpha=None, gamma=2.0, eps=1e-7):
         super().__init__()
@@ -356,46 +310,20 @@ class FocalBCELoss(nn.Module):
         return (alpha * focal * bce).mean()
 
 
-# ===================== MODEL / OPTIMIZER =====================
+# =============== MODEL / OPTIMIZER ===============
 def set_requires_grad(model: nn.Module, requires_grad: bool):
     for p in model.parameters():
         p.requires_grad = requires_grad
 
 
 def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
-    """
-    EfficientNetB0 專用解凍策略。
-
-    PARTIAL_FINETUNE (推薦醫療小資料集)
-    ------------------------------------
-    凍結：conv_stem, bn1, blocks[0..3]
-    解凍：blocks[4..6], conv_head, bn2, classifier
-
-    設計依據
-    --------
-    * EfficientNetB0 共 7 個 MBConv stage (blocks[0..6])。
-    * blocks[0..3] 學習通用低/中層特徵（邊緣、紋理），與 ImageNet 高度重疊，
-      保持凍結可防止 OCT/OCTA 小資料集過擬合，並保留預訓練先驗。
-    * blocks[4..6] 及投影 head 學習高層語意特徵，對 mCNV 病理辨識最關鍵，
-      需要根據醫學影像進行領域適應。
-    * 參考 Keras EfficientNet 官方 fine-tune 指南及 Davila et al. (2024)
-      LP-FT 策略。
-
-    FULL_FINETUNE
-    -------------
-    解凍所有層（適合大型醫療資料集或初步消融實驗）。
-
-    FIXED_BACKBONE
-    --------------
-    僅解凍 classifier head（特徵提取模式）。
-    """
     mode = str(mode).upper()
 
     if mode == "PARTIAL_FINETUNE":
-        # 先全部凍結
+        # Freezing all blocks firstly.
         set_requires_grad(model, False)
 
-        # 解凍 blocks[4], blocks[5], blocks[6]
+        # Unfreezing blocks[5], blocks[6]
         if hasattr(model, "blocks"):
             total_blocks = len(model.blocks)
             for idx in EFFNET_TRAINABLE_BLOCK_INDICES:
@@ -408,7 +336,7 @@ def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
             if logf:
                 log(logf, "  [WARNING] model.blocks not found; skipping block-level unfreeze")
 
-        # 解凍 conv_head, bn2, classifier
+        # Unfreeze conv_head, bn2, classifier
         for attr in ["conv_head", "bn2", "classifier", "head", "fc"]:
             if hasattr(model, attr):
                 module = getattr(model, attr)
@@ -418,7 +346,6 @@ def apply_unfreeze_mode_effnet(model: nn.Module, mode: str, logf=None):
                     if logf:
                         log(logf, f"  [unfreeze] {attr}")
 
-        # 統計可訓練參數
         trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
         total     = sum(p.numel() for p in model.parameters())
         if logf:
@@ -472,22 +399,6 @@ def build_optimizer(
     lr: float,
     weight_decay: float,
 ):
-    """
-    EfficientNetB0 差分學習率 optimizer（核心修正）。
-
-    對齊 VGG16 Partial_B5 設計：
-      - 解凍的 backbone blocks（blocks[6]）→ LR * BACKBONE_LR_MULT（慢速，0.1x）
-      - head（conv_head, bn2, classifier）  → LR（全速）
-
-    設計理由
-    --------
-    EfficientNetB0 含有 SE 模組與大量 BN，對梯度更新極為敏感。
-    WeightedSampler × Focal alpha 雙重補償會在訓練初期產生大梯度，
-    若 backbone 以全速 LR 更新，預訓練特徵會被瞬間破壞（Val Loss spike）。
-    與 VGG16 Block5 使用 LR*0.1 的設計一致，可有效抑制此問題。
-
-    同時維持 bias/norm no_weight_decay 的正確分組。
-    """
     backbone_decay    = []
     backbone_no_decay = []
     head_decay        = []
@@ -514,41 +425,24 @@ def build_optimizer(
                 backbone_decay.append(p)
 
     param_groups = [
-        # backbone（解凍的 blocks）：慢速，防止預訓練特徵被沖毀
         {"params": backbone_decay,    "lr": lr * BACKBONE_LR_MULT, "weight_decay": weight_decay},
         {"params": backbone_no_decay, "lr": lr * BACKBONE_LR_MULT, "weight_decay": 0.0},
-        # head（conv_head, bn2, classifier）：全速，從頭學習分類邊界
         {"params": head_decay,        "lr": lr,                    "weight_decay": weight_decay},
         {"params": head_no_decay,     "lr": lr,                    "weight_decay": 0.0},
     ]
-    # 過濾空的參數組，避免 AdamW 警告
     param_groups = [g for g in param_groups if len(g["params"]) > 0]
     return optim.AdamW(param_groups)
 
 
 def set_frozen_bn_to_eval(model: nn.Module):
-    """
-    將所有凍結層（parameters.requires_grad=False）的 BatchNorm 強制設為 eval mode。
-
-    必要性
-    ------
-    EfficientNetB0 每個 MBConv block 內都有 BN。當 blocks[0..5] 被凍結但仍在
-    model.train() 模式下，其 BN 的 running_mean/running_var 會持續被
-    WeightedSampler 的偏斜批次分布更新，污染凍結層的統計量。
-    Val 時（model.eval()）用被污染的統計量做 normalization，導致 Val Loss spike。
-
-    VGG16 沒有此問題（無 BN），EfficientNetB0 必須在每個 epoch 的
-    model.train() 之後立即調用此函數。
-    """
     for module in model.modules():
         if isinstance(module, (nn.BatchNorm1d, nn.BatchNorm2d, nn.SyncBatchNorm)):
             params = list(module.parameters())
-            # 若此 BN 的所有參數都被凍結，強制設為 eval
             if len(params) > 0 and not any(p.requires_grad for p in params):
                 module.eval()
 
 
-# ===================== TEMPERATURE SCALING =====================
+# =============== TEMPERATURE SCALING ===============
 def calibrate_temperature(val_loader, model, device):
     model.eval()
     nll = nn.BCEWithLogitsLoss()
@@ -602,7 +496,7 @@ def calibrate_temperature(val_loader, model, device):
     return best_t, before, best_nll
 
 
-# ===================== PLOTS =====================
+# =============== PLOTS ===============
 def plot_learning_curves(history: dict, save_path: str):
     if len(history["train_focal_loss"]) == 0:
         return
@@ -632,7 +526,7 @@ def plot_learning_curves(history: dict, save_path: str):
     plt.close()
 
 
-# ===================== DATA PREP =====================
+# =============== DATA PREPARATION ===============
 def load_master_manifest(master_csv: str, modality: str) -> pd.DataFrame:
     if not os.path.isfile(master_csv):
         raise FileNotFoundError(master_csv)
@@ -692,7 +586,7 @@ def build_fold_dfs(df: pd.DataFrame, fold_id: int):
     return train_df, val_df, test_df
 
 
-# ===================== TRAIN ONE FOLD =====================
+# =============== TRAIN ONE FOLD ===============
 def train_one_fold(
     fold_num: int,
     train_df: pd.DataFrame,
@@ -719,7 +613,7 @@ def train_one_fold(
 
     init_metrics_csv(metrics_csv_path)
 
-    # ── transforms ────────────────────────────────────────────────────────────
+    # ---------- transforms ----------
     tf_val = transforms.Compose([
         transforms.Resize((IMG_SIZE, IMG_SIZE)),
         transforms.ToTensor(),
@@ -764,7 +658,7 @@ def train_one_fold(
         for k in val_df["exam_key"].astype(str).tolist():
             f.write(k + "\n")
 
-    # ── data loader ───────────────────────────────────────────────────────────
+    # ---------- data loader ----------
     if USE_WEIGHTED_SAMPLER:
         train_targets = train_df["y_true"].astype(int).to_numpy()
         cls_w         = torch.as_tensor(MANUAL_SAMPLE_WEIGHTS[modality], dtype=torch.double)
@@ -790,10 +684,9 @@ def train_one_fold(
         persistent_workers=NUM_WORKERS > 0
     )
 
-    # ── model ────────────────────────────────────────────────────────────────
+    # ---------- model ----------
     # drop_rate      : classifier head dropout (0.2, EfficientNetB0 default)
     # drop_path_rate : stochastic depth within MBConv blocks (None = timm default)
-    #                  passed through EffNetB0_model_factory.create_model()
     model = create_model(
         model_name=model_name,
         num_classes=1,
@@ -832,9 +725,9 @@ def train_one_fold(
 
     try:
         for ep in range(NUM_EPOCHS):
-            # ── train ────────────────────────────────────────────────────────
+            # ---------- train ----------
             model.train()
-            set_frozen_bn_to_eval(model)   # ← 凍結層 BN 保持 eval，防止統計量被污染
+            set_frozen_bn_to_eval(model)   # The frozen layer BN maintains eval to prevent statistics from being contaminated.
             train_focal_sum = 0.0
             train_bce_sum   = 0.0
             train_corr      = 0
@@ -1002,7 +895,7 @@ def train_one_fold(
                     log(logf, f"[early stop] Fold {fold_num} at epoch {ep+1}")
                     break
 
-        # ── post-training ─────────────────────────────────────────────────────
+        # ---------- post-training ----------
         plot_learning_curves(history, learning_curves_png)
         log(logf, f"[saved learning curves] {learning_curves_png}")
 
@@ -1018,7 +911,6 @@ def train_one_fold(
         if USE_TEMPERATURE_SCALING:
             t_star, nll_before, nll_after = calibrate_temperature(val_loader, model, device)
 
-        # 覆寫最佳 checkpoint，加入 TS 元資料
         torch.save(
             {
                 "epoch":                cp["epoch"],
@@ -1043,7 +935,7 @@ def train_one_fold(
         log(logf, f"[TS] T*={t_star:.6f} | NLL {nll_before}->{nll_after}")
         log(logf, f"[saved checkpoint] {model_best_path}")
 
-        # ── save OOF CSV ──────────────────────────────────────────────────────
+        # ---------- save OOF CSV ----------
         if best_val_oof_df is not None:
             best_val_oof_df["temperature"]  = float(t_star)
             best_val_oof_df["logit_calib"]  = best_val_oof_df["logit_uncal"] / float(t_star)
@@ -1080,7 +972,7 @@ def train_one_fold(
             fold_oof_csv_training = ""
             fold_oof_csv_merge    = ""
 
-        # ── fold summary ──────────────────────────────────────────────────────
+        # ---------- fold summary ----------
         fold_summary = {
             "fold":           fold_num,
             "model_name":     model_name,
@@ -1131,7 +1023,7 @@ def train_one_fold(
             torch.cuda.empty_cache()
 
 
-# ===================== RUN SUMMARY =====================
+# =============== RUN SUMMARY ===============
 def merge_all_fold_oof(per_fold_oof_dir: str, final_oof_csv: str) -> str:
     csvs = []
     if not os.path.isdir(per_fold_oof_dir):
@@ -1205,7 +1097,7 @@ def save_training_summary(summary: dict, train_run_dir: str):
     save_json(json_path, summary)
 
 
-# ===================== MAIN =====================
+# =============== MAIN ===============
 def build_argparser():
     parser = argparse.ArgumentParser(
         description="EfficientNetB0 single-modality OOF training for mCNV classification"
@@ -1345,7 +1237,7 @@ def main():
 
         fold_results.append(res)
 
-    # ── best fold ──────────────────────────────────────────────────────────────
+    # =============== best fold ===============
     best_fold_num = None
     if len(fold_results) > 0:
         best         = min(fold_results, key=lambda r: r["best_val_key"])

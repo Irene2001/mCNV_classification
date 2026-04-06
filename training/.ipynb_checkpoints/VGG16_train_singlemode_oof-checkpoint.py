@@ -1,28 +1,18 @@
 # VGG16_train_singlemode_oof.py
 """
 VGG16 base model training (5-fold OOF) for mCNV binary classification.
-Partial unfreeze: Block5 (features[24..30]) + classifier — blocks 1-4 frozen.
 
-Differences from train_singlemode_oof.py (Swin-Tiny):
-  - Imports from VGG16_model_factory (not model_factory)
+Partial unfreeze: Block5 (features[24..30]) + classifier — blocks 1-4 frozen.
   - UNFREEZE_MODE = "FIXED_BACKBONE"  (partial unfreeze, VGG16-specific logic)
   - apply_unfreeze_mode(): VGG16 branch unfreeze features[24:] + all classifier params
-  - build_optimizer(): VGG16 uses two param groups (block5 lr*0.1, classifier lr)
-  - LLRD_FULL fallback: not applicable to VGG16; falls back to standard AdamW
-  - LR = 1e-5  (VGG16 recommended; Swin uses 2e-6)
-  - DROP_RATE = 0.5  (VGG16 torchvision default; Swin uses 0.0)
-  - All outputs use model_name="vgg16" -> separate checkpoint/output paths
+  - build_optimizer(): VGG16 uses two param groups (block5: lr*0.1, classifier: lr)
+  - LR = 1e-5  (VGG16 recommended)
+  - DROP_RATE = 0.5  (VGG16 torchvision default)
 
-Unchanged from train_singlemode_oof.py:
-  - FocalBCELoss, WeightedRandomSampler, Temperature Scaling
-  - ManifestImageDataset, 5-fold CV, early stopping
-  - All CSV / JSON / figure outputs
-  - Test-split strict isolation (split_set == "test" is never loaded)
-
-Outputs (same tree as train_singlemode_oof.py):
+Outputs:
   checkpoints/vgg16/<modality>/<run_tag>/Kfold/fold{k}/model_best.pth
-  outputs/training/vgg16/<modality>/<run_tag>/Kfold/fold{k}/
-  outputs/oof_predictions/vgg16/<modality>/<run_tag>/all_folds_oof.csv
+  VGG16_outputs/training/vgg16/<modality>/<run_tag>/Kfold/fold{k}/
+  VGG16_outputs/oof_predictions/vgg16/<modality>/<run_tag>/all_folds_oof.csv
 
 Usage:
   python VGG16_train_singlemode_oof.py --modality OCT0
@@ -78,12 +68,26 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark     = False
 
 
-# ===================== CONFIG =====================
+# =============== CONFIG ===============
 PROJECT_ROOT_DIR = "/data/Irene/SwinTransformer/Swin_Meta"
 
-# Add VGG16_outputs & Partial_B5 folder!
+# Add: VGG16_outputs & Partial_B5 folder
 VGG16_BASE_DIR = "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs"
 STRATEGY_NAME = "Partial_B5"
+
+# =============== Unfreeze: Block5 + classifier only ===============
+# VGG16 features index map:
+#   Block 1 (64ch)  : features[0..4]
+#   Block 2 (128ch) : features[5..9]
+#   Block 3 (256ch) : features[10..16]
+#   Block 4 (512ch) : features[17..23]  <- frozen (prevent overfit to OCT noise)
+#   Block 5 (512ch) : features[24..30]  <- trainable
+#   classifier      : [Lin, ReLU, Drop, Lin, ReLU, Drop, Lin(4096,1)]  <- trainable
+
+VGG16_BLOCK5_START_IDX = 24    # features[24] is the first Conv in Block 5
+UNFREEZE_MODE          = "FIXED_BACKBONE"   
+BACKBONE_LR_MULT       = 0.1   # Block5 gets LR * 0.1 (lower lr than classifier head)
+LLRD_DECAY             = 0.85  # only used if LLRD_FULL ever enabled (not applicable here)
 
 MASTER_MANIFEST_CSV = os.path.join(
     PROJECT_ROOT_DIR, "outputs", "manifests", "master_split", "master_manifest.csv"
@@ -103,28 +107,13 @@ NUM_FOLDS    = 5
 EXECUTE_SINGLE_FOLD = False
 SINGLE_FOLD_INDEX   = 1
 
-# ---------- VGG16-specific training hyper-parameters ----------
+# =============== VGG16 training hyper-parameters ===============
 BATCH_SIZE    = 16
 NUM_EPOCHS    = 100
 LR            = 3e-5        
 WEIGHT_DECAY  = 0.01
 GRAD_CLIP     = 1.0
-DROP_RATE     = 0.5         # VGG16 torchvision default dropout
-
-# ---------- Unfreeze: FIXED_BACKBONE -> Block5 + classifier only ----------
-# VGG16 features index map (ref: torchvision vgg.py):
-#   Block 1 (64ch)  : features[0..4]
-#   Block 2 (128ch) : features[5..9]
-#   Block 3 (256ch) : features[10..16]
-#   Block 4 (512ch) : features[17..23]  <- frozen (prevent overfit to OCT noise)
-#   Block 5 (512ch) : features[24..30]  <- trainable
-#   classifier      : [Lin, ReLU, Drop, Lin, ReLU, Drop, Lin(4096,1)]  <- all trainable
-
-# 凍結前 4 個 Blocks（17 層卷積）
-VGG16_BLOCK5_START_IDX = 24   # features[24] is the first Conv in Block 5
-UNFREEZE_MODE          = "FIXED_BACKBONE"
-BACKBONE_LR_MULT       = 0.1   # Block5 gets LR * 0.1 (lower lr than classifier head)
-LLRD_DECAY             = 0.85  # only used if LLRD_FULL ever enabled (not applicable here)
+DROP_RATE     = 0.5   # default dropout
 
 # ---------- Focal BCE ----------
 FOCAL_LOSS_ALPHA = {
@@ -142,13 +131,15 @@ MANUAL_SAMPLE_WEIGHTS = {
     "OCTA3": [1.0, 2.6],
 }
 
-# ---------- Temperature Scaling / Early Stop ----------
+# ---------- Temperature Scaling ---------- 
 USE_TEMPERATURE_SCALING  = True
-EARLY_STOPPING_PATIENCE  = 20
+
+# ---------- Early Stop ----------
+EARLY_STOPPING_PATIENCE  = 20   # 10
 EARLY_STOP_MIN_DELTA     = 1e-4
 
 
-# ===================== UTILS =====================
+#  =============== UTILS  ===============
 def ensure_dir(path: str):
     os.makedirs(path, exist_ok=True)
 
@@ -244,7 +235,7 @@ def normalize_manifest_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-# ===================== DATASET =====================
+#  =============== DATASET  ===============
 class ManifestImageDataset(Dataset):
     def __init__(self, df: pd.DataFrame, modality: str, transform=None):
         self.df        = df.reset_index(drop=True).copy()
@@ -271,7 +262,7 @@ class ManifestImageDataset(Dataset):
         return img, y
 
 
-# ===================== FOCAL BCE LOSS =====================
+#  =============== FOCAL BCE LOSS  ===============
 class FocalBCELoss(nn.Module):
     def __init__(self, alpha=None, gamma=2.0, eps=1e-7):
         super().__init__()
@@ -295,7 +286,7 @@ class FocalBCELoss(nn.Module):
         return (alpha * focal * bce).mean()
 
 
-# ===================== UNFREEZE & OPTIMIZER =====================
+#  =============== UNFREEZE & OPTIMIZER  ===============
 def set_requires_grad(model: nn.Module, requires_grad: bool):
     for p in model.parameters():
         p.requires_grad = requires_grad
@@ -305,16 +296,12 @@ def apply_unfreeze_mode(model: nn.Module, mode: str, model_name: str = ""):
     """
     Freeze / unfreeze model parameters according to UNFREEZE_MODE.
 
-    VGG16  + FIXED_BACKBONE:
+    VGG16 + FIXED_BACKBONE:
       - Freeze all first, then unfreeze Block5 (features[24:]) + all classifier.
       - Rationale: blocks 1-4 capture general texture / edge features transferable
         from ImageNet; Block5 captures high-level semantics that need task-specific
         adaptation for OCT retinal images. Keeping blocks 1-4 frozen also prevents
         overfitting to OCT background noise, consistent with Score-CAM findings.
-      - Ref: Simonyan & Zisserman (2014); flyyufelix.github.io fine-tuning guide.
-
-    Swin-Tiny + FULL_FINETUNE / LLRD_FULL:
-      - Unfreeze all parameters (same as original train_singlemode_oof.py).
     """
     mode = str(mode).upper()
 
@@ -396,11 +383,6 @@ def build_optimizer(
         - classifier            : lr                    (full)
       Rationale: Block5 adapts slowly from general ImageNet features to OCT-specific
       semantics; classifier head learns the binary boundary from scratch.
-
-    Swin-Tiny:
-      FULL_FINETUNE  -> single AdamW on all parameters.
-      LLRD_FULL      -> per-layer LR decay (unchanged from original script).
-      FIXED_BACKBONE -> single AdamW on requires_grad params.
     """
     mode = str(unfreeze_mode).upper()
 
@@ -453,7 +435,7 @@ def build_optimizer(
     raise ValueError(f"Unknown UNFREEZE_MODE={mode}")
 
 
-# ===================== TEMPERATURE SCALING =====================
+#  =============== TEMPERATURE SCALING  ===============
 def calibrate_temperature(val_loader, model, device):
     model.eval()
     nll = nn.BCEWithLogitsLoss()
@@ -504,7 +486,7 @@ def calibrate_temperature(val_loader, model, device):
     return best_t, before, best_nll
 
 
-# ===================== LEARNING CURVES PLOT =====================
+#  =============== LEARNING CURVES PLOT  ===============
 def plot_learning_curves(history: dict, save_path: str):
     if len(history["train_focal_loss"]) == 0:
         return
@@ -528,7 +510,7 @@ def plot_learning_curves(history: dict, save_path: str):
     plt.close()
 
 
-# ===================== DATA PREP =====================
+# =============== DATA PREPARATION ===============
 def load_master_manifest(master_csv: str, modality: str) -> pd.DataFrame:
     if not os.path.isfile(master_csv):
         raise FileNotFoundError(master_csv)
@@ -583,7 +565,7 @@ def build_fold_dfs(df: pd.DataFrame, fold_id: int):
     return train_df, val_df, test_df
 
 
-# ===================== TRAIN ONE FOLD =====================
+# ===============TRAIN ONE FOLD ===============
 def train_one_fold(
     fold_num: int,
     train_df: pd.DataFrame,
@@ -690,7 +672,7 @@ def train_one_fold(
     )
     scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=40, T_mult=2)
 
-    # ---------- Trainable param count ----------
+    # ---------- Trainable parameters count ----------
     n_trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
     n_total     = sum(p.numel() for p in model.parameters())
     log(logf, (
@@ -711,7 +693,7 @@ def train_one_fold(
 
     try:
         for ep in range(NUM_EPOCHS):
-            # ---- Train ----
+            # ----- Train -----
             model.train()
             train_focal_sum = train_bce_sum = train_corr = train_tot = 0
             num_batches = max(1, len(train_loader))
@@ -749,7 +731,7 @@ def train_one_fold(
             train_bce_  = train_bce_sum   / max(1, train_tot)
             train_acc   = train_corr      / max(1, train_tot)
 
-            # ---- Validate ----
+            # ----- Validate -----
             model.eval()
             val_bce_sum = val_corr = val_tot = 0
             probs, labels, logits_list = [], [], []
@@ -840,14 +822,14 @@ def train_one_fold(
                     log(logf, f"[early stop] Fold {fold_num} at epoch {ep+1}")
                     break
 
-        # ---- Post-training: learning curves ----
+        # ----- Post-training: learning curves -----
         plot_learning_curves(history, lc_png_path)
         log(logf, f"[saved learning curves] {lc_png_path}")
 
         if not os.path.exists(model_best_path):
             raise RuntimeError(f"No best checkpoint saved for fold {fold_num}: {model_best_path}")
 
-        # ---- Temperature Scaling ----
+        # ----- Temperature Scaling -----
         cp = torch.load(model_best_path, map_location=device, weights_only=False)
         model.load_state_dict(cp["model_state_dict"])
 
@@ -870,7 +852,7 @@ def train_one_fold(
         }, model_best_path)
         log(logf, f"[TS] T*={t_star:.6f} | NLL {nll_before} -> {nll_after}")
 
-        # ---- Save per-fold OOF CSV ----
+        # ----- Save per-fold OOF CSV -----
         fold_oof_csv_training = ""
         fold_oof_csv_merge    = ""
         if best_val_oof_df is not None:
@@ -895,7 +877,7 @@ def train_one_fold(
             best_val_oof_df[keep_cols].to_csv(fold_oof_csv_merge,    index=False, encoding="utf-8-sig")
             log(logf, f"[saved OOF] {fold_oof_csv_training}")
 
-        # ---- Fold summary JSON ----
+        # ----- Fold summary JSON -----
         fold_summary = {
             "fold": fold_num,
             "model_name": model_name, "backbone_name": get_backbone_name(model_name),
@@ -934,7 +916,7 @@ def train_one_fold(
             torch.cuda.empty_cache()
 
 
-# ===================== SUMMARY =====================
+# =============== SUMMARY ===============
 def merge_all_fold_oof(per_fold_oof_dir: str, final_oof_csv: str) -> str:
     if not os.path.isdir(per_fold_oof_dir):
         return ""
@@ -987,7 +969,7 @@ def save_training_summary(summary: dict, train_run_dir: str):
     save_json(json_path, summary)
 
 
-# ===================== MAIN =====================
+# =============== MAIN ===============
 def build_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument(

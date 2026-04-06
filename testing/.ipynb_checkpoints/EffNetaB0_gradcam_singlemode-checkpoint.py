@@ -3,12 +3,6 @@
 """
 EfficientNetB0 Grad-CAM visualisation for the mCNV single-modality base model.
 
-Mirrors the output format of VGG16_gradcam_singlemode.py exactly:
-  GradCAM_4x3_panel.png   4×3: original | Grad-CAM class-0 | Grad-CAM class-1
-  TP_panel.png  FP_panel.png  FN_panel.png  TN_panel.png
-  gradcam_samples.csv     per-sample record (quadrant, filename, GT, Pred, ...)
-  gradcam_log.txt
-
 Algorithm (Grad-CAM for EfficientNetB0, binary BCEWithLogits)
 --------------------------------------------------------------
 EfficientNetB0 feature map structure (timm, 224×224 input):
@@ -31,15 +25,6 @@ Target layer for Grad-CAM: model.blocks[5]
   before the classification head. It outputs [B, 192, 7, 7], the highest-level
   spatial feature map before global pooling collapses spatial information.
 
-  Alternative: model.conv_head  → [B, 1280, 7, 7]  (projection layer)
-  Both are standard choices for EfficientNet Grad-CAM.
-  We use blocks[5] (last MBConv body block) to capture richer semantic activation.
-
-  Note on timm EfficientNetB0 block indexing:
-    blocks is nn.Sequential of 7 MBConv stages (indices 0..6).
-    The Grad-CAM hook targets the LAST Sub-module of blocks[5] to capture
-    the output feature map at 7×7 resolution.
-
 Grad-CAM formula (Selvaraju et al. 2017, Eq. 1-2):
   alpha_k  = (1/Z) Σ_{i,j} dY^c / dA^k_{ij}   (global avg of gradients)
   L^c      = ReLU( Σ_k alpha_k × A^k )          (weighted activation map)
@@ -53,12 +38,6 @@ CAM post-processing (applied at 7×7 before upsample):
   2. Zero pixels below CAM_THRESHOLD × max  (suppress background noise).
   3. Bicubic upsample 7×7 -> 224×224 (32× upscaling).
   4. Clip to [0, 1].
-
-EfficientNetB0 model loading:
-  Checkpoint saved by correct_EffNetB0_train_singlemode_oof.py:
-    {model_state_dict: ..., temperature: T*, unfreeze_mode: ..., drop_rate: ..., ...}
-  Model built via EffNetB0_model_factory.create_model():
-    timm.create_model("efficientnet_b0", num_classes=1, drop_rate=0.2)
 
 Unfreeze strategy (mirrors correct_EffNetB0_train_singlemode_oof.py):
   EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3, 4]
@@ -113,32 +92,21 @@ except ImportError:
         )
 
 
-# ==============================================================================
-# CONFIG  --  Edit only this section
-# ==============================================================================
-
-# 1. Directory that contains test_preds.csv (produced by EffNetB0_test_singlemode.py).
-#    Structure: TEST_EVAL_ROOT/<model>/<strategy>/<modality>/<run_tag>/Best_fold{N}/
+# =============== CONFIG ===============
 TEST_EVAL_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/test_evaluation/"
     "efficientnet_b0/Partial_B5_6/OCTA3/"
     "BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6/"
     "Best_fold2"
 )
-
 # OCT0: BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)
 # OCT1: BS16_EP100_LR2e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.113_0.887_2_WSon_1_2.8 (Best_fold4)
 # OCTA3: BS16_EP100_LR3e-05_WD0.01_PARTIAL_FINETUNE_DR0.2_FL0.13_0.87_2_WSon_1_2.6 (Best_fold2)
 
-# 2. Checkpoint root (same as CHECKPOINT_ROOT in correct_EffNetB0_train_singlemode_oof.py).
-#    Leave "" to auto-detect as PROJECT_ROOT/checkpoints (shared) OR
-#    EffNetB0_outputs/checkpoints (recommended, isolated).
 CHECKPOINT_ROOT = "/data/Irene/SwinTransformer/Swin_Meta/checkpoints"
 
-# 3. Model name (fixed for this script).
 ACTIVE_MODEL = "efficientnet_b0"
 
-# 4. Visual settings
 IMG_SIZE      = 224
 OVERLAY_ALPHA = 0.50
 COLORMAP      = "jet"
@@ -146,43 +114,31 @@ CLASS_NAMES   = ["inactive", "active"]
 
 # CAM post-processing threshold applied at 7×7 feature-map resolution (before upsample).
 # Pixels below CAM_THRESHOLD × max are zeroed to suppress low-contribution background.
-# Set 0.0 to disable.  0.20-0.30 is a reasonable starting point for EffNetB0.
 CAM_THRESHOLD = 0.0
 
-# 5. Random seed.
-#    None = time-based (different sample every run).
-#    Integer = fixed, reproducible.
+# Random seed (None = time-based, 42 = fixed)
 N_RANDOM_SEED = None
 
-# drop_rate used during training (must match correct_EffNetB0_train_singlemode_oof.py).
 DROP_RATE = 0.2
 
 # Output figure style
 _TITLE_SIZE      = 14
 _AXIS_LABEL_SIZE = 11
-_FIG_DPI         = 220
-
-# ==============================================================================
+_FIG_DPI         = 220   #300
 
 
 # EfficientNetB0 Grad-CAM target: blocks[5] last sub-module.
 # blocks[5] = MBConv6 5×5 ×4, outputs [B, 192, 7, 7].
-# This is the deepest body block in the trainable range (EFFNET_TRAINABLE_BLOCK_INDICES=[4,5,6])
-# that has spatial resolution > 1×1. Captures highest-level semantic features
-# before global average pooling collapses spatial structure.
 _EFFNET_TARGET_BLOCK_IDX = 5     # model.blocks[5]
 _EFFNET_FEAT_MAP_SIZE    = 7     # spatial resolution at blocks[5]: 7×7
 _EFFNET_FEAT_CHANNELS    = 192   # output channels of blocks[5]
 
-# Frozen / trainable blocks matching correct_EffNetB0_train_singlemode_oof.py
+# Note: Frozen / trainable blocks matching traing seeting!!
 _EFFNET_FROZEN_BLOCK_INDICES    = [0, 1, 2, 3, 4]
 _EFFNET_TRAINABLE_BLOCK_INDICES = [5, 6]
 
 
-# ------------------------------------------------------------------------------
-# Utilities  (UNCHANGED from VGG16 version)
-# ------------------------------------------------------------------------------
-
+# =============== UTILS ===============
 def log_print(logf, msg: str) -> None:
     line = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}"
     print(line)
@@ -263,18 +219,8 @@ def parse_test_eval_dir(test_eval_dir: str) -> dict:
     }
 
 
-# ------------------------------------------------------------------------------
-# Model builder for EfficientNetB0
-# ------------------------------------------------------------------------------
-
+# =============== Model builder ===============
 def _build_effnetb0_for_inference(drop_rate: float = 0.2) -> nn.Module:
-    """
-    Build EfficientNetB0 via EffNetB0_model_factory with inplace=False on all
-    activations to support Grad-CAM backward hooks.
-
-    Architecture matches correct_EffNetB0_train_singlemode_oof.py:
-      timm.create_model("efficientnet_b0", num_classes=1, drop_rate=0.2)
-    """
     model = create_model(
         model_name="efficientnet_b0",
         num_classes=1,
@@ -283,7 +229,6 @@ def _build_effnetb0_for_inference(drop_rate: float = 0.2) -> nn.Module:
     )
 
     # Disable all inplace operations to prevent Grad-CAM hook conflicts
-    # (same fix applied in VGG16_gradcam_singlemode.py)
     for m in model.modules():
         if hasattr(m, "inplace"):
             m.inplace = False
@@ -297,11 +242,7 @@ def load_checkpoint_and_temperature(
     """
     Load model_best.pth saved by correct_EffNetB0_train_singlemode_oof.py.
     Returns (model, temperature).
-
-    Checkpoint dict keys:
-      model_state_dict | temperature | val_nll_uncal | val_acc | val_auc
-      nll_beforeTS | nll_afterTS | fold | model_name | modality
-      unfreeze_mode | drop_rate
+    
     """
     raw = torch.load(ckpt_path, map_location=device, weights_only=False)
     if isinstance(raw, dict):
@@ -316,10 +257,7 @@ def load_checkpoint_and_temperature(
     return model, temperature
 
 
-# ------------------------------------------------------------------------------
-# Grad-CAM for EfficientNetB0 (timm, manual hook)
-# ------------------------------------------------------------------------------
-
+# =============== Grad-CAM for EfficientNetB0 ===============
 class EffNetB0GradCAM:
     """
     Grad-CAM for timm EfficientNetB0 binary (BCEWithLogits) model.
@@ -344,16 +282,10 @@ class EffNetB0GradCAM:
     CAM pipeline:
       1. Grad-CAM at 7×7  (blocks[5] output resolution).
       2. Normalize to [0, 1].
-      3. Threshold: zero pixels < CAM_THRESHOLD × max.
+      3. Threshold: zero pixels < CAM_THRESHOLD * max.
       4. Bicubic upsample 7 -> 224  (32× upscaling).
       5. Clip to [0, 1].
-
-    Reference: Selvaraju et al. (2017). ICCV.
-      https://doi.org/10.1109/ICCV.2017.74
-
-    EfficientNetB0 GitHub reference (Grad-CAM on blocks):
-      https://github.com/jacobgil/pytorch-grad-cam
-      (recommends last feature block before global pooling as target layer)
+      
     """
 
     def __init__(self, model: nn.Module, device: torch.device):
@@ -436,7 +368,7 @@ class EffNetB0GradCAM:
         cam = (weights * A).sum(dim=1, keepdim=True)   # [1, 1, 7, 7]
         cam = F.relu(cam)
 
-        # Normalize to [0, 1] at 7×7
+        # ---------- Normalize to [0, 1] at 7×7 feature-map resolution ----------
         cam_min, cam_max = cam.min(), cam.max()
         if cam_max > cam_min:
             cam = (cam - cam_min) / (cam_max - cam_min + 1e-8)
@@ -445,7 +377,7 @@ class EffNetB0GradCAM:
         if CAM_THRESHOLD > 0.0:
             cam = cam * (cam >= CAM_THRESHOLD).float()
 
-        # Bicubic upsample 7×7 -> 224×224 (32× upscaling)
+        # ---------- Bicubic upsample 7×7 -> 224×224 (32× upscaling)
         cam_up = F.interpolate(
             cam, size=(IMG_SIZE, IMG_SIZE),
             mode="bicubic", align_corners=False,
@@ -455,10 +387,7 @@ class EffNetB0GradCAM:
         return cam_up, prob_active
 
 
-# ------------------------------------------------------------------------------
-# Image transform  (UNCHANGED — must match training)
-# ------------------------------------------------------------------------------
-
+# =============== Image transform ===============
 def get_test_transform() -> transforms.Compose:
     """ImageNet eval transform — identical to training validation transform."""
     return transforms.Compose([
@@ -469,10 +398,7 @@ def get_test_transform() -> transforms.Compose:
     ])
 
 
-# ------------------------------------------------------------------------------
-# Overlay  (UNCHANGED)
-# ------------------------------------------------------------------------------
-
+# =============== Overlay ===============
 def overlay_heatmap(
     orig_pil: Image.Image,
     cam: np.ndarray,
@@ -487,10 +413,7 @@ def overlay_heatmap(
     return np.clip((1.0 - alpha) * img_np + alpha * heatmap, 0.0, 1.0)
 
 
-# ------------------------------------------------------------------------------
-# CSV record  (UNCHANGED from VGG16 version)
-# ------------------------------------------------------------------------------
-
+# =============== CSV record ===============
 def save_samples_csv(
     samples: Dict[str, Optional[dict]],
     out_path: str,
@@ -542,10 +465,7 @@ def save_samples_csv(
     pd.DataFrame(rows).to_csv(out_path, index=False, encoding="utf-8-sig")
 
 
-# ------------------------------------------------------------------------------
-# Plot helpers  (UNCHANGED from VGG16 version)
-# ------------------------------------------------------------------------------
-
+# =============== Plot ===============
 def _set_style() -> None:
     plt.rcParams.update({
         "font.size":         10,
@@ -640,10 +560,7 @@ def save_4x3_panel(
     plt.close(fig)
 
 
-# ------------------------------------------------------------------------------
-# Main
-# ------------------------------------------------------------------------------
-
+# =============== Main ===============
 def main() -> None:
     if N_RANDOM_SEED is None:
         random.seed(int(time.time() * 1000) % (2 ** 31))
