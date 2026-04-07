@@ -64,12 +64,12 @@ MODALITIES = ["OCT0", "OCT1", "OCTA3"]
 #   ("prob",  True)  -> prob_calib
 #   ("prob",  False) -> prob_uncal
 FEATURE_TYPE = "logit"
-USE_CALIB    = True
+USE_CALIB    = False     # True / False
 
 # * Path to trained meta-learner pipeline (.pkl)
 META_MODEL_PATH = (
     "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/"
-    "vgg16__logit__calibTrue/"
+    "vgg16__logit__calibFalse/"     # vgg16__logit__calibFalse/
     "Partial_B5/"
     "OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/"
     "meta_lr_model.pkl"

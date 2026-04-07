@@ -1,0 +1,63 @@
+[2026-04-07 11:21:27] ============================================================
+[2026-04-07 11:21:27] EfficientNetB0 STACKING META-LEARNER TRAINING
+[2026-04-07 11:21:27] ============================================================
+[2026-04-07 11:21:27] model           : efficientnet_b0 (efficientnet_b0)
+[2026-04-07 11:21:27] strategy        : Partial_B5_6
+[2026-04-07 11:21:27] meta_dataset_dir: /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_dataset/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+[2026-04-07 11:21:27] meta_tag        : efficientnet_b0__logit__calibFalse
+[2026-04-07 11:21:27] lr_tag          : OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+[2026-04-07 11:21:27] feat_cols       : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-04-07 11:21:27] C_GRID          : [0.001, 0.01, 0.1, 1.0, 10.0]   cv_folds=5
+[2026-04-07 11:21:27] solver          : lbfgs   class_weight=balanced   max_iter=2000
+[2026-04-07 11:21:27] out_dir         : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+[2026-04-07 11:21:27] [EffNetB0 base] unfreeze=PARTIAL_FINETUNE  frozen=[0, 1, 2, 3, 4]  trainable=[5, 6]  drop_rate=0.2  backbone_lr_mult=0.1
+[2026-04-07 11:21:27] ────────────────────────────────────────────────────────────
+[2026-04-07 11:21:27] Step 1: Load meta-train dataset (from build_meta_dataset.py)
+[2026-04-07 11:21:27] Loaded   : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_dataset/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/meta_train_oof.csv
+[2026-04-07 11:21:27] Samples  : total=873  active=113 (12.9%)  inactive=760 (87.1%)  ratio=6.73:1
+[2026-04-07 11:21:27] Features : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+[2026-04-07 11:21:27] Alpha    : α_j = N/(2×N_j)  α_active=3.8628  α_inactive=0.5743  ratio=6.73x  (active upweighted)
+[2026-04-07 11:21:27] ────────────────────────────────────────────────────────────
+[2026-04-07 11:21:27] Step 2: Train Pipeline(StandardScaler, LogisticRegressionCV)
+[2026-04-07 11:21:27] Pipeline: StandardScaler → LogisticRegressionCV(solver=lbfgs)
+[2026-04-07 11:21:27]   Cs=[0.001, 0.01, 0.1, 1.0, 10.0]  cv=5(StratifiedKFold)  scoring=roc_auc  class_weight=balanced  max_iter=2000
+[2026-04-07 11:21:28] Done in 1.55s  |  best C=0.001  λ=1/C=1000.0000
+[2026-04-07 11:21:28] C Grid CV AUC (mean ± std):  ← C selection only, NOT performance eval
+[2026-04-07 11:21:28]   C=0.001     0.8097 ± 0.0708 ← BEST
+[2026-04-07 11:21:28]   C=0.01      0.8079 ± 0.0662
+[2026-04-07 11:21:28]   C=0.1       0.8076 ± 0.0640
+[2026-04-07 11:21:28]   C=1.0       0.8071 ± 0.0638
+[2026-04-07 11:21:28]   C=10.0      0.8072 ± 0.0638
+[2026-04-07 11:21:28] Modality weights w (post-scaling, sorted by |w|):
+[2026-04-07 11:21:28]   oct0_feat            w=+0.172686  |w|=0.172686
+[2026-04-07 11:21:28]   octa3_feat           w=+0.108255  |w|=0.108255
+[2026-04-07 11:21:28]   oct1_feat            w=+0.092400  |w|=0.092400
+[2026-04-07 11:21:28] Intercept b = -0.116187
+[2026-04-07 11:21:28] Decision: P(active) = σ(w·z + b)  where z = StandardScaler(features)
+[2026-04-07 11:21:28] In-sample metrics (training data — informational only):
+[2026-04-07 11:21:28]   AUC-ROC=0.8120  Brier=0.2162  BalAcc=0.7336
+[2026-04-07 11:21:28]   F1-macro=0.6339  F1-active=0.4255  Acc=0.7526
+[2026-04-07 11:21:28]   Sens=0.7080  Spec=0.7592
+[2026-04-07 11:21:28]   TP=80  FP=183  FN=33  TN=577
+[2026-04-07 11:21:28]   [!] True performance → evaluate_meta_on_test.py (independent test set)
+[2026-04-07 11:21:28] ────────────────────────────────────────────────────────────
+[2026-04-07 11:21:28] Step 3: Save artefacts
+[2026-04-07 11:21:29] Artefacts → /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+[2026-04-07 11:21:29]   meta_lr_model.pkl
+[2026-04-07 11:21:29]   meta_lr_config.json
+[2026-04-07 11:21:29]   meta_lr_results.json
+[2026-04-07 11:21:29]   meta_lr_cv_results.csv
+[2026-04-07 11:21:29]   meta_lr_coef.csv
+[2026-04-07 11:21:29]   meta_lr_training_report.txt
+[2026-04-07 11:21:29]   validation_curve.png
+[2026-04-07 11:21:29]   modality_importance.png
+[2026-04-07 11:21:29] ============================================================
+[2026-04-07 11:21:29] TRAINING COMPLETE
+[2026-04-07 11:21:29]   Best C         : 0.001  (λ=1000.0000)
+[2026-04-07 11:21:29]   Weights        : oct0_feat=+0.1727  oct1_feat=+0.0924  octa3_feat=+0.1083
+[2026-04-07 11:21:29]   Intercept b    : -0.1162
+[2026-04-07 11:21:29]   In-sample AUC  : 0.8120  (training data only)
+[2026-04-07 11:21:29]   In-sample Brier: 0.2162
+[2026-04-07 11:21:29]   model saved    : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/meta_lr_model.pkl
+[2026-04-07 11:21:29]   → evaluate_meta_on_test.py for test-set evaluation
+[2026-04-07 11:21:29] ============================================================

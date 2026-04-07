@@ -82,7 +82,7 @@ META_OUTPUT_ROOT  = os.path.join(VGG16_BASE_DIR, "meta_training")
 #   lr_tag   : per-modality learning rate identifiers from build_meta_dataset.py
 META_DATASET_DIR  = os.path.join(
     META_DATASET_ROOT,
-    "vgg16__logit__calibTrue",             
+    "vgg16__logit__calibFalse",              # vgg16__logit__calibTrue / vgg16__logit__calibFalse
     "Partial_B5",
     "OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06",
 )

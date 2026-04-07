@@ -84,7 +84,7 @@ EFFNET_BASE_DIR = "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs"
 MODEL_NAME      = "efficientnet_b0"
 STRATEGY_NAME   = "Partial_B5_6"
 
-# EffNetB0 解凍設定（用於 config / report 記錄，與 base model 訓練腳本一致）
+# EffNetB0 unfreezing strategy
 EFFNET_UNFREEZE_MODE          = "PARTIAL_FINETUNE"
 EFFNET_FROZEN_BLOCK_INDICES   = [0, 1, 2, 3, 4]
 EFFNET_TRAINABLE_BLOCK_INDICES = [5, 6]
@@ -101,7 +101,7 @@ META_OUTPUT_ROOT  = os.path.join(EFFNET_BASE_DIR, "meta_training")
 #   lr_tag   : per-modality learning rate identifiers from build_meta_dataset.py
 META_DATASET_DIR = os.path.join(
     META_DATASET_ROOT,
-    "efficientnet_b0__logit__calibTrue",
+    "efficientnet_b0__logit__calibFalse",       # efficientnet_b0__logit__calibTrue / efficientnet_b0__logit__calibFalse
     STRATEGY_NAME,
     "OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05",
 )

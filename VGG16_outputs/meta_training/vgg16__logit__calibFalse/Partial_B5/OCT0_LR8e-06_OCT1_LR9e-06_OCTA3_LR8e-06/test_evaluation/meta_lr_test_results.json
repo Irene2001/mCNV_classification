@@ -1,0 +1,58 @@
+{
+  "run_config": {
+    "model_name": "vgg16",
+    "modalities": [
+      "OCT0",
+      "OCT1",
+      "OCTA3"
+    ],
+    "feature_type": "logit",
+    "use_calib": false,
+    "feature_col": "logit_uncal",
+    "feature_cols_X": [
+      "oct0_feat",
+      "oct1_feat",
+      "octa3_feat"
+    ],
+    "meta_model_path": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibFalse/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/meta_lr_model.pkl",
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "run_tags": {
+      "OCT0": "BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.11_0.89_2_WSon_1_2.9",
+      "OCT1": "BS16_EP100_LR9e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.113_0.887_2_WSon_1_2.8",
+      "OCTA3": "BS16_EP100_LR8e-06_WD0.01_DR0.5_FIXED_BACKBONE_FL0.13_0.87_2_WSon_1_2.6"
+    },
+    "best_folds": {
+      "OCT0": 2,
+      "OCT1": 5,
+      "OCTA3": 1
+    },
+    "test_eval_root": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/test_evaluation",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/VGG16_outputs/meta_training/vgg16__logit__calibFalse/Partial_B5/OCT0_LR8e-06_OCT1_LR9e-06_OCTA3_LR8e-06/test_evaluation",
+    "note": "Independent test set -- never seen during base model training, validation, or meta-learner training."
+  },
+  "metrics": {
+    "n_total": 119,
+    "n_active": 21,
+    "n_inactive": 98,
+    "imbalance_ratio": 4.67,
+    "threshold": 0.5,
+    "ece_n_bins": 10,
+    "auroc": 0.826530612244898,
+    "auprc": 0.6207149547778394,
+    "balanced_accuracy": 0.7346938775510203,
+    "sensitivity": 0.7142857142857143,
+    "specificity": 0.7551020408163265,
+    "ppv": 0.38461538461538464,
+    "npv": 0.925,
+    "f1_active": 0.5,
+    "f1_macro": 0.6657303370786517,
+    "accuracy": 0.7478991596638656,
+    "ece": 0.23143583843606785,
+    "brier_score": 0.16594968288144163,
+    "TP": 15,
+    "FP": 24,
+    "FN": 6,
+    "TN": 74
+  }
+}

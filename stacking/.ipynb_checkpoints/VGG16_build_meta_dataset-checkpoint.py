@@ -1,5 +1,6 @@
 # VGG16_build_meta_dataset.py
 
+# Change: calib&uncalib save to all_folds_oof.csv !!
 """
 Construct meta-training dataset for stacking ensemble
 
@@ -45,11 +46,11 @@ RUN_TAGS = {
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = True   →  prob_calib
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = False  →  prob_uncal
 FEATURE_TYPE = "logit"
-USE_CALIB    = True
+USE_CALIB    = False     # True / False
 
 # Revise: change from "calibrated" to "raw" ( ectract all_folds_oof.csv)
 # Because of USE_CALIB=True，it will extract the logit_calib
-OOF_SOURCE = "raw"  
+OOF_SOURCE = "raw"       # org:raw(don't change!)
 
 # Modality pairing strategy:
 # "inner" → keep only exams present in ALL three modalities (strictest, no missing)

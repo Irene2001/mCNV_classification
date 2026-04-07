@@ -86,13 +86,13 @@ MODALITIES = ["OCT0", "OCT1", "OCTA3"]
 #   ("prob",  True)  -> prob_calib
 #   ("prob",  False) -> prob_uncal
 FEATURE_TYPE = "logit"
-USE_CALIB    = True
+USE_CALIB    = False        # True / False
 
 # ★ Path to trained meta-learner pipeline (.pkl)
 #   Produced by EffNetB0_train_meta_logistic_regression.py
 META_MODEL_PATH = (
     "/data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/"
-    "efficientnet_b0__logit__calibTrue/"
+    "efficientnet_b0__logit__calibFalse/"      # efficientnet_b0__logit__calibTrue/
     "Partial_B5_6/"
     "OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/"
     "meta_lr_model.pkl"

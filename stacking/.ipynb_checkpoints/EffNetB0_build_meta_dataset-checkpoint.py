@@ -1,5 +1,6 @@
 # EffNetB0_build_meta_dataset.py
 
+# Change: calib&uncalib save to all_folds_oof.csv !!
 """
 Construct meta-training dataset for stacking ensemble
 
@@ -55,12 +56,9 @@ RUN_TAGS = {
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = True   →  prob_calib
 #   FEATURE_TYPE = "prob"   +  USE_CALIB = False  →  prob_uncal
 FEATURE_TYPE = "logit"
-USE_CALIB    = True
+USE_CALIB    = False    # True / False
 
-# OOF file to read:
-# 關鍵修正：從"calibrated"改為 "raw"，讓程式去讀取 all_folds_oof.csv(目前的訓練腳本已整合校準資訊)
-# 因為 USE_CALIB=True，它進去檔案後還是會抓取校準後的 logit_calib
-OOF_SOURCE = "raw"   # Revise: 讀取訓練腳本直接產出的 all_folds_oof.csv!! (org:　calibrated)
+OOF_SOURCE = "raw"     # org:raw(don't change!)
 
 # Modality pairing strategy:
 #   "inner"  → keep only exams present in ALL three modalities (strictest, no missing)
