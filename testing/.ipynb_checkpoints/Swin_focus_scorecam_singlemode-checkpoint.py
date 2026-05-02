@@ -1,4 +1,4 @@
-# Swin_test_scorecam_singlemode.py
+# Swin_focus_scorecam_singlemode.py
 
 """
 Score-CAM visualisation for the Swin-Tiny single-modality mCNV base model.
@@ -88,9 +88,9 @@ TEST_EVAL_DIR = (
     "BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/"
     "Best_fold1"
 )
-# OCT0:  BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9
-# OCT1:  BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
-# OCTA3: BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+# OCT0:  BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9 (Best_fold2)
+# OCT1:  BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8  (Best_fold1)
+# OCTA3: BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6  (Best_fold2)
 
 # 2. Checkpoint root (same as CHECKPOINT_ROOT in test_singlemode.py).
 #    Leave "" to auto-detect as PROJECT_ROOT/checkpoints.
@@ -127,7 +127,7 @@ N_RANDOM_SEED = None
 # Output figure style
 _TITLE_SIZE      = 14
 _AXIS_LABEL_SIZE = 11
-_FIG_DPI         = 220
+_FIG_DPI         = 300 # org:220(wrong!!)
 
 # ==============================================================================
 
@@ -598,7 +598,7 @@ def main() -> None:
     preds_csv = os.path.join(TEST_EVAL_DIR, "test_preds.csv")
     ts        = time.strftime("%Y%m%d_%H%M%S")
     # scorecam folder, distinct from gradcam to avoid mixing results
-    out_dir   = os.path.join(TEST_EVAL_DIR, "test_scorecam", ts)
+    out_dir   = os.path.join(TEST_EVAL_DIR, "new_scorecam", ts)
     ensure_dir(out_dir)
 
     logf = open(os.path.join(out_dir, "scorecam_log.txt"),

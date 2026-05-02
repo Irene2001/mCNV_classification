@@ -63,7 +63,7 @@ USE_CALIB    = False           # True / False
 # OOF file to read:
 #   "calibrated" → all_folds_oof_calibrated.csv  (produced by calibrate_oof_predictions.py)
 #   "raw"        → all_folds_oof.csv             (produced by train_singlemode_oof.py)
-OOF_SOURCE = "calibrated"     # calibrated / raw 
+OOF_SOURCE = "raw"     # calibrated / raw 
 
 # Modality pairing strategy:
 #   "inner"  → keep only exams present in ALL three modalities (strictest, no missing)

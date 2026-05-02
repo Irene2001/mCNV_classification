@@ -1,0 +1,62 @@
+[2026-05-02 09:35:34] ==============================================================
+[2026-05-02 09:35:34] SCORE-CAM  SINGLE-MODALITY  mCNV CLASSIFICATION
+[2026-05-02 09:35:34] ==============================================================
+[2026-05-02 09:35:34] model          : swin_tiny  (swin_tiny_patch4_window7_224)
+[2026-05-02 09:35:34] modality       : OCT1
+[2026-05-02 09:35:34] run_tag        : BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8
+[2026-05-02 09:35:34] best_fold      : 1
+[2026-05-02 09:35:34] device         : cuda
+[2026-05-02 09:35:34] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/checkpoints/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/model_best.pth
+[2026-05-02 09:35:34] preds_csv      : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/test_preds.csv
+[2026-05-02 09:35:34] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534
+[2026-05-02 09:35:34] target_layer   : model.norm  (Global LayerNorm, all 4 stages)
+[2026-05-02 09:35:34] cam_method     : Score-CAM (gradient-free)
+[2026-05-02 09:35:34] masking        : X*M + BG*(1-M)  BG=normalised-black
+[2026-05-02 09:35:34] scoring        : logit/T (not sigmoid), class0=-logit/T
+[2026-05-02 09:35:34] batch_scorecam : 32  (channels per forward batch, C=768 total)
+[2026-05-02 09:35:34] cam_threshold  : 0.2
+[2026-05-02 09:35:34] random_seed    : None (None=time-based)
+[2026-05-02 09:35:34] reference      : Wang et al. CVPR Workshop 2020 (Score-CAM)
+[2026-05-02 09:35:34] --------------------------------------------------------------
+[2026-05-02 09:35:34] Step 1: Load test_preds.csv
+[2026-05-02 09:35:34] Loaded 256 samples  temperature T*=0.671692
+[2026-05-02 09:35:34] Using calibrated predictions (prob_calib, threshold=0.5)
+[2026-05-02 09:35:34] --------------------------------------------------------------
+[2026-05-02 09:35:34] Step 2: Group by confusion-matrix quadrant
+[2026-05-02 09:35:34] TP=20  FP=15  FN=18  TN=203
+[2026-05-02 09:35:34]   TP: exam_key=5221997_OD_20161018  gt=1  pred=1  prob_calib=0.5002
+[2026-05-02 09:35:34]   FP: exam_key=6007880_OD_20171213  gt=0  pred=1  prob_calib=0.7236
+[2026-05-02 09:35:34]   FN: exam_key=5295083_OD_20161013  gt=1  pred=0  prob_calib=0.2927
+[2026-05-02 09:35:34]   TN: exam_key=1443067_OS_20170703  gt=0  pred=0  prob_calib=0.0581
+[2026-05-02 09:35:34] --------------------------------------------------------------
+[2026-05-02 09:35:34] Step 3: Build model and load checkpoint
+[2026-05-02 09:35:34] Checkpoint T*=0.671692  (using CSV T*=0.671692)
+[2026-05-02 09:35:34] Score-CAM engine ready  target=model.norm  C=768  batch=32
+[2026-05-02 09:35:34]   Est. forward passes per image: 768x2 classes = 1536
+[2026-05-02 09:35:34] --------------------------------------------------------------
+[2026-05-02 09:35:34] Step 4: Generate Score-CAM heatmaps
+[2026-05-02 09:35:35]   [TP] 5221997OD 20161018_OCT1.jpg  gt=active  pred=active  P(active)=0.5002  cam0_max=1.000  cam1_max=1.000  time=1.1s
+[2026-05-02 09:35:36]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/TP_panel.png
+[2026-05-02 09:35:36]   [FP] 6007880OD 20171213_OCT1.jpg  gt=inactive  pred=active  P(active)=0.7236  cam0_max=1.000  cam1_max=1.000  time=0.6s
+[2026-05-02 09:35:37]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/FP_panel.png
+[2026-05-02 09:35:37]   [FN] 5295083OD 20161013_OCT1.jpg  gt=active  pred=inactive  P(active)=0.2927  cam0_max=1.000  cam1_max=1.000  time=0.6s
+[2026-05-02 09:35:37]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/FN_panel.png
+[2026-05-02 09:35:38]   [TN] 1443067OS 20170703_OCT1.jpg  gt=inactive  pred=inactive  P(active)=0.0581  cam0_max=1.000  cam1_max=1.000  time=0.6s
+[2026-05-02 09:35:38]     saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/TN_panel.png
+[2026-05-02 09:35:38] --------------------------------------------------------------
+[2026-05-02 09:35:38] Step 5: Save combined 4x3 panel
+[2026-05-02 09:35:40] Saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/ScoreCAM_4x3_panel.png
+[2026-05-02 09:35:40] --------------------------------------------------------------
+[2026-05-02 09:35:40] Step 6: Save CSV record
+[2026-05-02 09:35:40] Saved -> /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534/scorecam_samples.csv
+[2026-05-02 09:35:40] ==============================================================
+[2026-05-02 09:35:40] SCORE-CAM COMPLETE
+[2026-05-02 09:35:40]   Output: /data/Irene/SwinTransformer/Swin_Meta/outputs/test_evaluation/swin_tiny/OCT1/BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/Best_fold1/new_scorecam/20260502_093534
+[2026-05-02 09:35:40]   Files : ScoreCAM_4x3_panel.png
+[2026-05-02 09:35:40]           TP_panel.png
+[2026-05-02 09:35:40]           FP_panel.png
+[2026-05-02 09:35:40]           FN_panel.png
+[2026-05-02 09:35:40]           TN_panel.png
+[2026-05-02 09:35:40]           scorecam_samples.csv
+[2026-05-02 09:35:40]           scorecam_log.txt
+[2026-05-02 09:35:40] ==============================================================
