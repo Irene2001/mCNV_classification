@@ -112,7 +112,7 @@ THRESHOLD = 0.5
 # * ECE bins (Guo et al. 2017)
 ECE_N_BINS = 10
 
-CLASS_NAMES = ["inactive", "active"]
+CLASS_NAMES = ["Inactive", "Active"]
 
 # ==============================================================================
 
@@ -436,7 +436,7 @@ def plot_confusion_matrix(
     )
     ax.set_xlabel("Predicted label", fontweight="bold")
     ax.set_ylabel("True label",      fontweight="bold")
-    ax.set_title(title,              fontweight="bold")
+    # ax.set_title(title,              fontweight="bold")
     plt.tight_layout()
     plt.savefig(out_path, bbox_inches="tight")
     plt.close()
@@ -455,9 +455,9 @@ def plot_roc_curve(
             label=f"Meta-LR  AUC={auc_val:.4f}")
     ax.plot([0, 1], [0, 1], color=_COL_RANDOM, lw=0.8,
             linestyle="--", alpha=0.5, label="Random")
-    ax.set_xlabel("False Positive Rate (1 - Specificity)", fontweight="bold")
-    ax.set_ylabel("True Positive Rate (Sensitivity)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold")
+    ax.set_xlabel("False Positive Rate", fontweight="bold")
+    ax.set_ylabel("True Positive Rate" , fontweight="bold")
+    # ax.set_title(title, fontweight="bold")
     ax.legend(loc="lower right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.01])
     ax.grid(True, alpha=0.25)
@@ -481,9 +481,9 @@ def plot_pr_curve(
             label=f"Meta-LR  AUPRC={ap:.4f}")
     ax.axhline(y=baseline, color=_COL_BASELINE, lw=0.8, linestyle=":",
                label=f"Baseline prevalence={baseline:.3f}")
-    ax.set_xlabel("Recall (Sensitivity)", fontweight="bold")
-    ax.set_ylabel("Precision (PPV)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold")
+    ax.set_xlabel("Sensitivity", fontweight="bold")
+    ax.set_ylabel("Precision"  , fontweight="bold")
+    # ax.set_title(title, fontweight="bold")
     ax.legend(loc="upper right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.05])
     ax.grid(True, alpha=0.25)
