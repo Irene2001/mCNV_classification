@@ -1,6 +1,6 @@
 # SameScaleColorbar_Swin_test_singlemode.py
 
-# Fix color scale across models to ensure consistent visual comparison
+# Fix color scale across models to ensure consistent visual comparison (Change "vmax")
 # All "ax.set_title"註解(放期刊不需要)
 # Save to "scalarcolorbar_testmetrics" folder
 
@@ -90,7 +90,7 @@ NUM_WORKERS = 4
 IMG_SIZE    = 224
 RANDOM_SEED = 42
 
-CLASS_NAMES = ["inactive", "active"]
+CLASS_NAMES = ["Inactive", "Active"]
 
 # Backbone registry: model_name (from path) → timm model string
 # Add entries here when supporting VGG16 / EfficientNet
@@ -792,7 +792,8 @@ def plot_confusion_matrix(
     )
 
     # Add "vmax&vmin": Fix colorbar!!
-    vmax = 203   # 建議設 global max（目前最大約203）
+    # Change "vmax" according modality
+    vmax = 203   # OCT=203 / OCTA & Meta=81
     
     sns.heatmap(
         cm, annot=True, fmt="d", cmap=cmap,
@@ -826,8 +827,8 @@ def plot_roc_curve(
             label=f"Calibrated (Post-TS)  AUC={auc_c:.4f}")
     ax.plot([0, 1], [0, 1], color=_COL_RANDOM, lw=0.8,
             linestyle="--", alpha=0.5, label="Random")
-    ax.set_xlabel("False Positive Rate (1 – Specificity)", fontweight="bold")
-    ax.set_ylabel("True Positive Rate (Sensitivity)",      fontweight="bold")
+    ax.set_xlabel("False Positive Rate", fontweight="bold")
+    ax.set_ylabel("True Positive Rate" , fontweight="bold")
     # ax.set_title(title, fontweight="bold", pad=10)
     ax.legend(loc="lower right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.01])
@@ -856,8 +857,8 @@ def plot_pr_curve(
             label=f"Calibrated (Post-TS)  AUPRC={ap_c:.4f}")
     ax.axhline(y=baseline, color=_COL_BASELINE, lw=0.8, linestyle=":",
                label=f"Baseline prevalence={baseline:.3f}")
-    ax.set_xlabel("Recall (Sensitivity)", fontweight="bold")
-    ax.set_ylabel("Precision (PPV)",      fontweight="bold")
+    ax.set_xlabel("Sensitivity", fontweight="bold")
+    ax.set_ylabel("Precision"  , fontweight="bold")
     # ax.set_title(title, fontweight="bold", pad=10)
     ax.legend(loc="upper right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.05])

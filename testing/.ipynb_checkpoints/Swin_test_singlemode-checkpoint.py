@@ -55,12 +55,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/"
     "swin_tiny/OCTA3/"
-    "BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
+    "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
     "Best_fold2"
 )
-# OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/
-# OCT1: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/
-# OCTA3: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/
+# OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/ (Best_fold2)
+# OCT1: BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.113_0.887_2_WSon_1_2.8/ (Best_fold1)
+# OCTA3: BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/ (Best_fold2)
 
 # ★ 2. master_manifest.csv — same file used by train_singlemode_oof.py.
 #      Leave "" to auto-detect from PROJECT_ROOT (recommended).
@@ -86,7 +86,7 @@ NUM_WORKERS = 4
 IMG_SIZE    = 224
 RANDOM_SEED = 42
 
-CLASS_NAMES = ["inactive", "active"]
+CLASS_NAMES = ["Inactive", "Active"]  # change to upperletter 
 
 # Backbone registry: model_name (from path) → timm model string
 # Add entries here when supporting VGG16 / EfficientNet
@@ -794,7 +794,7 @@ def plot_confusion_matrix(
     )
     ax.set_xlabel("Predicted label", fontweight="bold")
     ax.set_ylabel("True label",      fontweight="bold")
-    ax.set_title(title, fontweight="bold", pad=10)
+    # ax.set_title(title, fontweight="bold", pad=10)
     plt.tight_layout()
     plt.savefig(out_path, bbox_inches="tight")
     plt.close()
@@ -817,9 +817,9 @@ def plot_roc_curve(
             label=f"Calibrated (Post-TS)  AUC={auc_c:.4f}")
     ax.plot([0, 1], [0, 1], color=_COL_RANDOM, lw=0.8,
             linestyle="--", alpha=0.5, label="Random")
-    ax.set_xlabel("False Positive Rate (1 – Specificity)", fontweight="bold")
-    ax.set_ylabel("True Positive Rate (Sensitivity)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold", pad=10)
+    ax.set_xlabel("False Positive Rate", fontweight="bold")
+    ax.set_ylabel("True Positive Rate ", fontweight="bold")
+    # ax.set_title(title, fontweight="bold", pad=10)
     ax.legend(loc="lower right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.01])
     ax.grid(True, alpha=0.25)
@@ -847,9 +847,9 @@ def plot_pr_curve(
             label=f"Calibrated (Post-TS)  AUPRC={ap_c:.4f}")
     ax.axhline(y=baseline, color=_COL_BASELINE, lw=0.8, linestyle=":",
                label=f"Baseline prevalence={baseline:.3f}")
-    ax.set_xlabel("Recall (Sensitivity)", fontweight="bold")
-    ax.set_ylabel("Precision (PPV)",      fontweight="bold")
-    ax.set_title(title, fontweight="bold", pad=10)
+    ax.set_xlabel("Sensitivity", fontweight="bold")
+    ax.set_ylabel("Precision"  , fontweight="bold")
+    # ax.set_title(title, fontweight="bold", pad=10)
     ax.legend(loc="upper right", fontsize=_LEGEND_SIZE)
     ax.set_xlim([-0.01, 1.01]); ax.set_ylim([-0.01, 1.05])
     ax.grid(True, alpha=0.25)
@@ -1316,7 +1316,10 @@ def main() -> None:
         ckpt_root, model_name, modality, run_tag, best_fold
     )
 
-    out_dir = os.path.join(test_eval_root, model_name, modality, run_tag, f"Best_fold{best_fold}")
+    out_dir = os.path.join(
+        test_eval_root, model_name, modality, run_tag, f"Best_fold{best_fold}",
+    "NoTitle_testmetrics"   # Add new folder!!
+    )
     ensure_dir(out_dir)
 
     logf = open(os.path.join(out_dir, "test_evaluation.log"),
