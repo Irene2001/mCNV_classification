@@ -54,32 +54,28 @@ PATH_MAP = {
 def generate_per_modality_csv(curve_type="roc"):
     """
     Generate separate CSV files for each modality.
-    Each CSV contains 1 shared X-axis and 3 model Y-curves for OriginPro.
+    Each CSV contains 3 model curves for OriginPro plotting.
     """
 
     if curve_type == "roc":
+        filename = "roc_data.csv"
         x_col_raw = "fpr"
         y_col_raw = "tpr"
         prefix = "ROC"
         save_dir = ROC_DIR
-        x_axis_name = "FPR(X)"  # OriginPro 會自動把 X 軸標籤命名為 FPR
     else:
+        filename = "pr_data.csv"
         x_col_raw = "recall"
         y_col_raw = "precision"
         prefix = "PR"
         save_dir = PR_DIR
-        x_axis_name = "Recall(X)" # OriginPro 會自動把 X 軸標籤命名為 Recall
 
     print(f"\nProcessing {prefix} curves...")
 
     for mod in MODALITIES:
-        print(f"\nProcessing modality: {mod}")
 
-        # 1. 建立所有模型「共用」的 500 個 X 軸數據點
-        shared_x = np.linspace(0, 1, 500)
-        
-        # 2. 初始化一個字典，第一欄放共用的 X 軸
-        modality_data = {x_axis_name: shared_x}
+        modality_series = []
+        print(f"\nProcessing modality: {mod}")
 
         for model in MODELS:
             if mod == "Meta":
@@ -96,31 +92,39 @@ def generate_per_modality_csv(curve_type="roc"):
                 filename
             )
 
-            # 定義乾淨的 Y 軸名稱，這樣圖例(Legend)就會非常乾淨
-            y_name = f"{model}(Y)"
+            # Define column names for OriginPro
+            x_name = f"{model}_{x_col_raw.upper()}(X)"
+            y_name = f"{model}_{y_col_raw.upper()}(Y)"
 
             if os.path.exists(full_path):
                 df = pd.read_csv(full_path)
                 
-                # 基礎排序與去重 (解決折返問題)
+                # 1. 基礎排序與去重 (解決折返問題)
                 df = df.sort_values(by=x_col_raw).drop_duplicates(subset=[x_col_raw], keep='last')
                 
                 if curve_type != "roc":
-                    # PR 曲線專用的單調遞減處理 (符合 IEEE-JBHI 規範)
+                    # 2. PR 曲線專用的單調遞減處理 (符合圖二學術規範)
+                    # 公式：P(r) = max_{r' >= r} P(r')
                     df[y_col_raw] = df[y_col_raw].iloc[::-1].cummax().iloc[::-1]
                 
-                # 對齊 shared_x 進行線性插值
-                resampled_y = np.interp(shared_x, df[x_col_raw], df[y_col_raw])
+                # 3. 高密度重採樣 (解決切割感，讓線條圓滑)
+                # 建立 500 個均勻分布的取樣點 (0 到 1)
+                resampled_x = np.linspace(0, 1, 500)
                 
-                # 將計算好的 Y 值存入字典中
-                modality_data[y_name] = resampled_y
+                # 使用線性插值計算對應的 Y 值
+                resampled_y = np.interp(resampled_x, df[x_col_raw], df[y_col_raw])
+                
+                # 將處理後的數據封裝，準備寫入新 CSV
+                modality_series.append(pd.Series(resampled_x, name=x_name))
+                modality_series.append(pd.Series(resampled_y, name=y_name))
+
 
             else:
                 print(f"Missing file: {full_path}")
 
-        # 3. 如果字典裡除了 X 軸以外還有模型的數據，就轉成 DataFrame 並存檔
-        if len(modality_data) > 1:
-            modality_df = pd.DataFrame(modality_data)          
+        # Combine into one DataFrame
+        if modality_series:
+            modality_df = pd.concat(modality_series, axis=1)          
             out_name = f"{prefix}_{mod}.csv"
             
             final_save_path = os.path.join(save_dir, out_name)
