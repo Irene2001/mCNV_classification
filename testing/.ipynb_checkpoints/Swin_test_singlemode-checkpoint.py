@@ -54,8 +54,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 #        <PROJECT_ROOT>/outputs/training/<model_name>/<modality>/<run_tag>/Best_fold{N}
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/outputs/training/"
-    "swin_tiny/OCTA3/"
-    "BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
+    "swin_tiny/OCT0/"
+    "BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/"
     "Best_fold2"
 )
 # OCT0: BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.11_0.89_2_WSon_1_2.9/ (Best_fold2)
@@ -1403,8 +1403,14 @@ def main() -> None:
     log(logf, "─" * 66)
     log(logf, "Step 4: Inference")
 
+    torch.cuda.synchronize()
+    start = time.perf_counter()
+
     exam_keys, y_true, logits_uncal = run_inference(
         model, test_loader, device, logf)
+    torch.cuda.synchronize()
+    end = time.perf_counter()
+    print(f"Elapsed time: {end - start:.4f} seconds")
 
     log(logf, f"Done: {len(y_true)} samples  "
               f"logit [{logits_uncal.min():.3f}, {logits_uncal.max():.3f}]  "

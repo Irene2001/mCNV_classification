@@ -1,0 +1,98 @@
+======================================================================
+EfficientNetB0 STACKING META-LEARNER TRAINING REPORT
+======================================================================
+
+[RUN CONFIG]
+  model_name                          : efficientnet_b0
+  backbone                            : efficientnet_b0
+  strategy_name                       : Partial_B5_6
+  meta_tag                            : efficientnet_b0__logit__calibFalse
+  lr_tag                              : OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+  feature_cols                        : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+  meta_dataset_dir                    : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_dataset/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+  C_grid                              : [0.001, 0.01, 0.1, 1.0, 10.0]
+  cv_folds                            : 5
+  cv_scoring                          : roc_auc
+  solver                              : lbfgs
+  class_weight                        : balanced
+  max_iter                            : 2000
+  random_seed                         : 42
+  out_dir                             : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_training/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05
+  note                                : alpha: compute_class_weight(balanced), α_j=N/(n_classes×N_j); C: LogisticRegressionCV 5-fold roc_auc grid search (C selection only); w: lbfgs solver; true performance evaluation → evaluate_meta_on_test.py; NO cross-model feature mixing.
+
+[EFFNETB0 BASE MODEL UNFREEZE STRATEGY]
+  Source script  : correct_EffNetB0_train_singlemode_oof.py
+  UNFREEZE_MODE  : PARTIAL_FINETUNE
+  Frozen blocks  : [0, 1, 2, 3, 4]  (conv_stem, bn1, blocks[0..3])
+  Trainable blocks: [5, 6]  (blocks[4..6], conv_head, bn2, classifier)
+  DROP_RATE      : 0.2  (EfficientNetB0 default)
+  BACKBONE_LR_MULT: 0.1  (trainable blocks use LR × 0.1, head uses full LR)
+  set_frozen_bn_to_eval(): called after model.train() each epoch
+    → prevents WeightedSampler skewed batches from corrupting
+       frozen BN running_mean/var (EfficientNetB0-specific fix)
+
+[META-TRAIN DATASET]
+  source   : /data/Irene/SwinTransformer/Swin_Meta/EffNetB0_outputs/meta_dataset/efficientnet_b0__logit__calibFalse/Partial_B5_6/OCT0_LR3e-05_OCT1_LR2e-05_OCTA3_LR3e-05/meta_train_oof.csv
+  total    : 873
+  active   : 113 (12.9%)
+  inactive : 760 (87.1%)
+  ratio    : 6.73:1
+  features : ['oct0_feat', 'oct1_feat', 'octa3_feat']
+
+[ALPHA  (sklearn compute_class_weight, balanced)]
+  formula  : α_j = N_total / (n_classes × N_j)
+  α_active   = 873/(2×113) = 3.8628
+  α_inactive = 873/(2×760) = 0.5743
+  ratio      = 6.73x  (active upweighted to compensate 6.7:1 imbalance)
+
+[C SELECTION  (LogisticRegressionCV 5-fold — C only, NOT evaluation)]
+  C             mean_AUC   std_AUC  per-fold AUC
+  ----------  ----------  --------  --------------------------------------
+  0.001           0.8097    0.0708  [0.8189  0.7766  0.8979  0.8612  0.6938]  ← BEST
+  0.01            0.8079    0.0662  [0.8115  0.7783  0.8893  0.8603  0.7001]
+  0.1             0.8076    0.0640  [0.8098  0.7812  0.8870  0.8571  0.7028]
+  1.0             0.8071    0.0638  [0.8101  0.7809  0.8862  0.8562  0.7022]
+  10.0            0.8072    0.0638  [0.8101  0.7815  0.8862  0.8562  0.7022]
+
+  Best C = 0.001  (λ = 1/C = 1000.0000)
+
+[MODALITY WEIGHTS w  (lbfgs, post-StandardScaling)]
+  Loss: L = -(1/N)Σαᵢ[y log p̂+(1-y)log(1-p̂)] + (λ/2)||w||²
+  P(active) = σ(w₁·z_oct0 + w₂·z_oct1 + w₃·z_octa3 + b)
+  where z = StandardScaler(feature)
+
+  Feature                        w         |w|   scaler_mean  scaler_scale
+  --------------------  ----------  ----------  ------------  ------------
+  oct0_feat              +0.172686    0.172686     -5.717170      6.214155
+  oct1_feat              +0.092400    0.092400     -4.298045      5.141142
+  octa3_feat             +0.108255    0.108255     -3.505376      6.753388
+  intercept b            -0.116187
+
+[IN-SAMPLE METRICS  (training data — informational only)]
+  Purpose: overfitting detection (compare with test set metrics)
+  *** TRUE performance → evaluate_meta_on_test.py ***
+
+  AUC-ROC        : 0.8120
+  Brier Score    : 0.2162
+  Balanced Acc   : 0.7336
+  F1-macro       : 0.6339
+  F1-active      : 0.4255
+  Accuracy       : 0.7526
+  Sensitivity    : 0.7080
+  Specificity    : 0.7592
+  Confusion      : TP=80  FP=183  FN=33  TN=577
+
+[OUTPUT FILES]
+  meta_lr_model.pkl
+  meta_lr_config.json
+  meta_lr_results.json
+  meta_lr_cv_results.csv
+  meta_lr_coef.csv
+  validation_curve.png
+  modality_importance.png
+  meta_lr_training_report.txt
+
+[PIPELINE ROLE]
+  Each model (VGG16 / EfficientNetB0 / SwinTiny) trains its own
+  stacking LR independently — NO cross-model feature mixing.
+  → meta_lr_model.pkl → evaluate_meta_on_test.py
