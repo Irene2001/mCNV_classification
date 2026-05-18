@@ -1,0 +1,24 @@
+{
+  "fold": 4,
+  "model_name": "swin_tiny",
+  "backbone_name": "swin_tiny_patch4_window7_224",
+  "modality": "MULTIMODAL",
+  "img_size": "224x448",
+  "train_samples": 718,
+  "val_samples": 170,
+  "train_patients": 65,
+  "val_patients": 16,
+  "best_val_bce": 0.5289437160772436,
+  "best_val_auc": 0.701289647960962,
+  "best_epoch": 8,
+  "temperature": 0.32669354998117267,
+  "nll_before_ts": 0.5289437174797058,
+  "nll_after_ts": 0.4300420582294464,
+  "artifacts": {
+    "model_best": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/checkpoints/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold4/model_best.pth",
+    "checkpoint_last": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/checkpoints/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold4/checkpoint_last.pth",
+    "metrics_csv": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold4/metrics.csv",
+    "learning_curves_png": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold4/learning_curves.png",
+    "fold_oof_csv": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Kfold/fold4/val_oof_predictions_fold4.csv"
+  }
+}
