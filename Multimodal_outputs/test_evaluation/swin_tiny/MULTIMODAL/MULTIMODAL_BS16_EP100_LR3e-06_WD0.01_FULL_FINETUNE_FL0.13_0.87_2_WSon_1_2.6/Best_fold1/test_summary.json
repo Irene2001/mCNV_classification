@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-05-18 14:49:17",
+  "run_info": {
+    "INPUT_DIR": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1",
+    "model_name": "swin_tiny",
+    "timm_backbone": "swin_tiny_patch4_window7_224",
+    "modality": "MULTIMODAL",
+    "img_size": "224x448",
+    "run_tag": "MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6",
+    "best_fold": 1,
+    "best_epoch": 57,
+    "checkpoint": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/checkpoints/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1/model_best.pth",
+    "multimodal_manifest": "/data/Irene/Multimodal_224x448/multimodal_manifest.csv",
+    "out_dir": "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1",
+    "device": "cuda",
+    "threshold": 0.5,
+    "ece_n_bins": 10
+  },
+  "training_val_reference": {
+    "best_val_bce": 0.243092,
+    "best_val_auc": 0.9173,
+    "best_epoch": 57,
+    "val_samples": 219,
+    "val_patients": 17
+  },
+  "temperature_scaling": {
+    "temperature_T*": 1.0,
+    "nll_before_ts": null,
+    "nll_after_ts": null,
+    "ece_uncal": 0.0534,
+    "ece_calib": 0.0534,
+    "ece_reduction": 0.0,
+    "ece_improved": false,
+    "note": "T* fitted on validation set only (LBFGS minimising NLL). Ref: Guo et al. (2017) ICML."
+  },
+  "test_dataset": {
+    "n_total": 119,
+    "n_active": 21,
+    "n_inactive": 98,
+    "imbalance_ratio": 4.67,
+    "prevalence": 0.1765
+  },
+  "calibrated": {
+    "AUROC": 0.8197,
+    "AUPRC": 0.572,
+    "Balanced_Accuracy": 0.7024,
+    "Sensitivity": 0.4762,
+    "Specificity": 0.9286,
+    "PPV": 0.5882,
+    "NPV": 0.8922,
+    "F1_active": 0.5263,
+    "F1_macro": 0.7182,
+    "Accuracy": 0.8487,
+    "ECE": 0.0534,
+    "Brier_Score": 0.1139
+  },
+  "uncalibrated": {
+    "AUROC": 0.8197,
+    "AUPRC": 0.572,
+    "Balanced_Accuracy": 0.7024,
+    "Sensitivity": 0.4762,
+    "Specificity": 0.9286,
+    "PPV": 0.5882,
+    "NPV": 0.8922,
+    "F1_active": 0.5263,
+    "F1_macro": 0.7182,
+    "Accuracy": 0.8487,
+    "ECE": 0.0534,
+    "Brier_Score": 0.1139
+  },
+  "confusion_matrix_calibrated": {
+    "TP": 10,
+    "FP": 7,
+    "FN": 11,
+    "TN": 91,
+    "note": "TP=predicted active & truly active; FP=predicted active & truly inactive; FN=predicted inactive & truly active; TN=predicted inactive & truly inactive."
+  },
+  "metric_formulas": {
+    "Sensitivity": "TP / (TP + FN)",
+    "Specificity": "TN / (TN + FP)",
+    "PPV": "TP / (TP + FP)",
+    "NPV": "TN / (TN + FN)",
+    "F1_active": "2·PPV·Sensitivity / (PPV + Sensitivity)",
+    "Balanced_Accuracy": "(Sensitivity + Specificity) / 2",
+    "Brier_Score": "mean((prob - y_true)^2)",
+    "ECE": "sum_b (|B_b|/N)|acc(B_b) - conf(B_b)|",
+    "AUROC": "Area Under ROC Curve (threshold-free)",
+    "AUPRC": "Average Precision = sum_k (R_k - R_{k-1}) * P_k",
+    "ece_reduction": "ece_uncal - ece_calib (>0 means TS improved calibration)"
+  },
+  "references": {
+    "Temperature_Scaling": "Guo et al. (2017). On Calibration of Modern Neural Networks. ICML.",
+    "AUROC_AUPRC": "Saito & Rehmsmeier (2015). PLOS ONE.",
+    "ECE": "Guo et al. (2017). ICML, eq.(3).",
+    "NPV_Clinical": "STARD-AI, Nature Medicine 2020."
+  }
+}

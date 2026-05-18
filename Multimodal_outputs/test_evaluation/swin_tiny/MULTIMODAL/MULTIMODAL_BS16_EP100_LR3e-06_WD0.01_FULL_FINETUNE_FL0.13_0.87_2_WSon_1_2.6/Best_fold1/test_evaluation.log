@@ -1,0 +1,86 @@
+[2026-05-18 14:49:13] ========================================================================
+[2026-05-18 14:49:13] MULTIMODAL BASE MODEL TEST EVALUATION
+[2026-05-18 14:49:13]   model_name           : swin_tiny
+[2026-05-18 14:49:13]   modality             : MULTIMODAL (224×448, OCT top / OCTA3 bottom)
+[2026-05-18 14:49:13]   run_tag              : MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+[2026-05-18 14:49:13]   best_fold            : 1
+[2026-05-18 14:49:13]   INPUT_DIR            : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-05-18 14:49:13]   multimodal_manifest  : /data/Irene/Multimodal_224x448/multimodal_manifest.csv
+[2026-05-18 14:49:13]   checkpoint           : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/checkpoints/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1/model_best.pth
+[2026-05-18 14:49:13]   out_dir              : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-05-18 14:49:13]   device               : cuda
+[2026-05-18 14:49:13]   timm_model           : swin_tiny_patch4_window7_224  img_size=(448,224)
+[2026-05-18 14:49:13]   num_classes          : 1  (single sigmoid head, output [B,1])
+[2026-05-18 14:49:13]   temperature T*       : 1.000000  (from val set, LBFGS NLL fitting)
+[2026-05-18 14:49:13]   best_val_bce         : 0.243091735529573
+[2026-05-18 14:49:13]   best_val_auc         : 0.9173366834170854
+[2026-05-18 14:49:13]   best_epoch           : 57
+[2026-05-18 14:49:13] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:13] Step 1: Load test split from multimodal_manifest.csv
+[2026-05-18 14:49:13]   Filters: label_conflict==0 → y_true notna → oct0_image_path notna → split_set=='test'
+[2026-05-18 14:49:13]   After label_conflict==0               : 1007 / 1007 rows
+[2026-05-18 14:49:13]   After y_true notna                    : 1007 rows
+[2026-05-18 14:49:13]   After oct0_image_path not-null   : 1007 rows
+[2026-05-18 14:49:13]   split_set='train_valid' available         : 888 rows
+[2026-05-18 14:49:13]   split_set='test' available         : 119 rows
+[2026-05-18 14:49:13]   Test set final : 119 samples  active=21 (17.6%)  inactive=98 (82.4%)  imbalance=4.67:1
+[2026-05-18 14:49:13] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:13] Step 2: Build model and load checkpoint
+[2026-05-18 14:49:15]   Model ready: swin_tiny_patch4_window7_224  img_size=(448,224)  num_classes=1  output=[B,1]
+[2026-05-18 14:49:15] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:15] Step 3: Create DataLoader
+[2026-05-18 14:49:15]   DataLoader: 119 samples  8 batches  bs=16
+[2026-05-18 14:49:15] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:15] Step 4: Inference
+[2026-05-18 14:49:15]   Inference: 1/8 batches done
+[2026-05-18 14:49:15]   Inference: 2/8 batches done
+[2026-05-18 14:49:15]   Inference: 3/8 batches done
+[2026-05-18 14:49:15]   Inference: 4/8 batches done
+[2026-05-18 14:49:15]   Inference: 5/8 batches done
+[2026-05-18 14:49:15]   Inference: 6/8 batches done
+[2026-05-18 14:49:15]   Inference: 7/8 batches done
+[2026-05-18 14:49:15]   Inference: 8/8 batches done
+[2026-05-18 14:49:16]   exam_key order check passed: DataLoader output matches df_test order.
+[2026-05-18 14:49:16]   Inference done: 119 samples  elapsed=0.74s
+[2026-05-18 14:49:16]   logit range [-4.393, 2.475]  mean=-1.846
+[2026-05-18 14:49:16] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] Step 5: Temperature Scaling (T*=1.000000)
+[2026-05-18 14:49:16]   prob_uncal [0.012, 0.922]  mean=0.212
+[2026-05-18 14:49:16]   prob_calib [0.012, 0.922]  mean=0.212
+[2026-05-18 14:49:16] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] Step 6: Compute metrics
+[2026-05-18 14:49:16] ──────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] SUMMARY TABLE  —  SWIN_TINY / MULTIMODAL (224×448)  threshold=0.50
+[2026-05-18 14:49:16] ──────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16]   Metric                     Uncalib    Calibrated
+[2026-05-18 14:49:16]   ──────────────────────  ──────────  ────────────
+[2026-05-18 14:49:16]   AUROC                       0.8197        0.8197
+[2026-05-18 14:49:16]   AUPRC                       0.5720        0.5720
+[2026-05-18 14:49:16]   Balanced Accuracy           0.7024        0.7024
+[2026-05-18 14:49:16]   Sensitivity                 0.4762        0.4762
+[2026-05-18 14:49:16]   Specificity                 0.9286        0.9286
+[2026-05-18 14:49:16]   PPV                         0.5882        0.5882
+[2026-05-18 14:49:16]   NPV                         0.8922        0.8922
+[2026-05-18 14:49:16]   F1 (active)                 0.5263        0.5263
+[2026-05-18 14:49:16]   F1 (macro)                  0.7182        0.7182
+[2026-05-18 14:49:16]   Accuracy                    0.8487        0.8487
+[2026-05-18 14:49:16]   Brier Score                 0.1139        0.1139
+[2026-05-18 14:49:16]   ──────────────────────  ──────────  ────────────
+[2026-05-18 14:49:16]   ECE                         0.0534        0.0534
+[2026-05-18 14:49:16] ──────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16]   Confusion Matrix (calib):  TP=10  FP=7  FN=11  TN=91
+[2026-05-18 14:49:16] ──────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] Step 7: Generate plots
+[2026-05-18 14:49:16]   Plots saved.
+[2026-05-18 14:49:16] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:16] Step 8: Save data files
+[2026-05-18 14:49:17]   All data files saved.
+[2026-05-18 14:49:17]   test_preds.csv includes: src_oct0_path / src_oct1_path / chosen_oct_type / src_octa3_path
+[2026-05-18 14:49:17] ────────────────────────────────────────────────────────────────────────
+[2026-05-18 14:49:17] Step 9: Write evaluation report
+[2026-05-18 14:49:17] ========================================================================
+[2026-05-18 14:49:17] EVALUATION COMPLETE
+[2026-05-18 14:49:17]   Results : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR3e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold1
+[2026-05-18 14:49:17]   [NEXT]  test_preds.csv → meta-learner evaluation
+[2026-05-18 14:49:17] ========================================================================
