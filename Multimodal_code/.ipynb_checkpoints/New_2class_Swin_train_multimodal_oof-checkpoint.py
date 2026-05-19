@@ -103,7 +103,7 @@ SINGLE_FOLD_INDEX   = 1
 # 訓練超參數（與 singlemode 完全一致）
 BATCH_SIZE   = 16
 NUM_EPOCHS   = 100
-LR           = 5e-6
+LR           = 6e-6
 WEIGHT_DECAY = 0.01
 GRAD_CLIP    = 1.0
 DROP_RATE    = 0.0

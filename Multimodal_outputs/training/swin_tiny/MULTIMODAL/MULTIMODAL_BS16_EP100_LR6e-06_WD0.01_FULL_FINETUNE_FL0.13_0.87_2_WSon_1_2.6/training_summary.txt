@@ -1,0 +1,48 @@
+================================================================================
+K-FOLD MULTIMODAL OOF TRAINING SUMMARY
+================================================================================
+
+CONFIGURATION
+----------------------------------------
+model_name=swin_tiny
+backbone_name=swin_tiny_patch4_window7_224
+modality=MULTIMODAL
+img_size=224x448
+manifest_csv=/data/Irene/Multimodal_224x448/multimodal_manifest.csv
+batch_size=16
+num_epochs=100
+lr=6e-06
+weight_decay=0.01
+grad_clip=1.0
+weighted_sampler=True
+temperature_scaling=False
+unfreeze_mode=FULL_FINETUNE
+backbone_lr_mult=0.1
+llrd_decay=0.85
+focal_alpha=[0.13, 0.87]
+focal_gamma=2.0
+train_valid_samples=888
+test_samples=119
+train_valid_patients=81
+test_patients=11
+usable_folds=[1, 2, 3, 4, 5]
+run_tag=MULTIMODAL_BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+execute_single_fold=False
+single_fold_index=None
+
+FOLD RESULTS
+----------------------------------------
+Fold 1: best_val_bce=0.256358, best_val_auc=0.8987, best_epoch=23, T=1.0000
+Fold 2: best_val_bce=0.283507, best_val_auc=0.8499, best_epoch=52, T=1.0000
+Fold 3: best_val_bce=0.436804, best_val_auc=0.7762, best_epoch=18, T=1.0000
+Fold 4: best_val_bce=0.391788, best_val_auc=0.7536, best_epoch=26, T=1.0000
+Fold 5: best_val_bce=0.269790, best_val_auc=0.8316, best_epoch=30, T=1.0000
+
+AVERAGE PERFORMANCE
+----------------------------------------
+val_bce: 0.327649 (±0.072674)
+val_auc: 0.8220 (±0.0520)
+
+Best fold     : 1
+All folds OOF : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/oof_predictions/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/all_folds_oof.csv
+Training time : 11.24 min
