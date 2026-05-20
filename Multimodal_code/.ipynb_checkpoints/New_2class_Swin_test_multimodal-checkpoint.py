@@ -89,7 +89,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 INPUT_DIR = (
     "/data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/training/"
     "swin_tiny/MULTIMODAL/"
-    "MULTIMODAL_BS16_EP100_LR6e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
+    "MULTIMODAL_BS16_EP100_LR2e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/"
     "Best_fold1"   # change to the best fold
 )
 

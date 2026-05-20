@@ -1,0 +1,64 @@
+[2026-05-19 10:46:06] ==============================================================
+[2026-05-19 10:46:06] SCORE-CAM  MULTIMODAL  mCNV CLASSIFICATION
+[2026-05-19 10:46:06] ==============================================================
+[2026-05-19 10:46:06] model          : swin_tiny  (swin_tiny_patch4_window7_224)
+[2026-05-19 10:46:06] modality       : MULTIMODAL  (OCT top 224px / OCTA3 bottom 224px)
+[2026-05-19 10:46:06] img_size       : 224×448  (W×H, non-square)
+[2026-05-19 10:46:06] run_tag        : MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6
+[2026-05-19 10:46:06] best_fold      : 2
+[2026-05-19 10:46:06] device         : cuda
+[2026-05-19 10:46:06] checkpoint     : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/checkpoints/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/model_best.pth
+[2026-05-19 10:46:06] preds_csv      : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/test_preds.csv
+[2026-05-19 10:46:06] out_dir        : /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606
+[2026-05-19 10:46:06] target_layer   : model.norm  (Global LayerNorm, all 4 stages)
+[2026-05-19 10:46:06] feat_map_size  : H_feat=14, W_feat=7, C=768
+[2026-05-19 10:46:06] cam_method     : Score-CAM (gradient-free)
+[2026-05-19 10:46:06] masking        : X*M + BG*(1-M)  BG=normalised-black
+[2026-05-19 10:46:06] scoring        : logit/T (not sigmoid), class0=-logit/T
+[2026-05-19 10:46:06] batch_scorecam : 32  (C=768 total)
+[2026-05-19 10:46:06] cam_threshold  : 0.2
+[2026-05-19 10:46:06] random_seed    : None (None=time-based)
+[2026-05-19 10:46:06] reference      : Wang et al. CVPR Workshop 2020 (Score-CAM)
+[2026-05-19 10:46:06] --------------------------------------------------------------
+[2026-05-19 10:46:06] Step 1: Load test_preds.csv
+[2026-05-19 10:46:06] Loaded 119 samples  temperature T*=1.000000
+[2026-05-19 10:46:06] Using calibrated predictions (prob_calib, threshold=0.5)
+[2026-05-19 10:46:06] --------------------------------------------------------------
+[2026-05-19 10:46:06] Step 2: Group by confusion-matrix quadrant
+[2026-05-19 10:46:06] TP=13  FP=10  FN=8  TN=88
+[2026-05-19 10:46:06]   TP: exam_key=5295083_OD_20161013  gt=1  pred=1  prob_calib=0.8843
+[2026-05-19 10:46:06]   FP: exam_key=2648007_OS_20210922  gt=0  pred=1  prob_calib=0.7618
+[2026-05-19 10:46:06]   FN: exam_key=6007880_OD_20180308  gt=1  pred=0  prob_calib=0.1739
+[2026-05-19 10:46:06]   TN: exam_key=1443067_OS_20170905  gt=0  pred=0  prob_calib=0.0448
+[2026-05-19 10:46:06] --------------------------------------------------------------
+[2026-05-19 10:46:06] Step 3: Build model and load checkpoint
+[2026-05-19 10:46:07] Checkpoint T*=1.000000  (using CSV T*=1.000000)
+[2026-05-19 10:46:07] Score-CAM engine ready  target=model.norm  H_feat=14 W_feat=7 C=768  batch=32
+[2026-05-19 10:46:07]   Est. forward passes per image: 768×2 classes = 1536
+[2026-05-19 10:46:07] --------------------------------------------------------------
+[2026-05-19 10:46:07] Step 4: Generate Score-CAM heatmaps
+[2026-05-19 10:46:09]   [TP] 5295083_OD_20161013_000013_active.jpg  gt=active  pred=active  P(active)=0.8843  cam0_max=1.000  cam1_max=1.000  time=1.2s
+[2026-05-19 10:46:09]     saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/TP_panel.png
+[2026-05-19 10:46:10]   [FP] 2648007_OS_20210922_000011_inactive.jpg  gt=inactive  pred=active  P(active)=0.7618  cam0_max=1.000  cam1_max=1.000  time=1.1s
+[2026-05-19 10:46:10]     saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/FP_panel.png
+[2026-05-19 10:46:12]   [FN] 6007880_OD_20180308_000017_active.jpg  gt=active  pred=inactive  P(active)=0.1739  cam0_max=1.000  cam1_max=1.000  time=1.1s
+[2026-05-19 10:46:12]     saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/FN_panel.png
+[2026-05-19 10:46:13]   [TN] 1443067_OS_20170905_000002_inactive.jpg  gt=inactive  pred=inactive  P(active)=0.0448  cam0_max=1.000  cam1_max=1.000  time=1.1s
+[2026-05-19 10:46:14]     saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/TN_panel.png
+[2026-05-19 10:46:14] --------------------------------------------------------------
+[2026-05-19 10:46:14] Step 5: Save combined 4×3 panel
+[2026-05-19 10:46:16] Saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/ScoreCAM_4x3_panel.png
+[2026-05-19 10:46:16] --------------------------------------------------------------
+[2026-05-19 10:46:16] Step 6: Save CSV record
+[2026-05-19 10:46:16] Saved -> /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606/scorecam_samples.csv
+[2026-05-19 10:46:16] ==============================================================
+[2026-05-19 10:46:16] SCORE-CAM MULTIMODAL COMPLETE
+[2026-05-19 10:46:16]   Output: /data/Irene/SwinTransformer/Swin_Meta/Multimodal_outputs/test_evaluation/swin_tiny/MULTIMODAL/MULTIMODAL_BS16_EP100_LR4e-06_WD0.01_FULL_FINETUNE_FL0.13_0.87_2_WSon_1_2.6/Best_fold2/new_scorecam/20260519_104606
+[2026-05-19 10:46:16]   Files : ScoreCAM_4x3_panel.png
+[2026-05-19 10:46:16]           TP_panel.png
+[2026-05-19 10:46:16]           FP_panel.png
+[2026-05-19 10:46:16]           FN_panel.png
+[2026-05-19 10:46:16]           TN_panel.png
+[2026-05-19 10:46:16]           scorecam_samples.csv
+[2026-05-19 10:46:16]           scorecam_log.txt
+[2026-05-19 10:46:16] ==============================================================
